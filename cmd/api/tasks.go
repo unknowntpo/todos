@@ -33,7 +33,7 @@ func (app *application) showTaskHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Encode the struct to JSON and send it as the HTTP response.
-	err = app.writeJSON(w, http.StatusOK, task, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"task": task}, nil)
 	if err != nil {
 		app.logger.Println(err)
 		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
