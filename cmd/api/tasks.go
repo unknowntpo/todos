@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/unknowntpo/todos/internal/data"
 )
 
 // createTaskHandler creates a new task.
@@ -20,5 +23,19 @@ func (app *application) showTaskHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	fmt.Fprintf(w, "show the details of task %d\n", id)
+	task := data.Task{
+		ID:        id,
+		CreatedAt: time.Now(),
+		Title:     "Do the homework",
+		Content:   "p.101 - p.103",
+		Done:      false,
+		Version:   1,
+	}
+
+	// Encode the struct to JSON and send it as the HTTP response.
+	err = app.writeJSON(w, http.StatusOK, task, nil)
+	if err != nil {
+		app.logger.Println(err)
+		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+	}
 }
