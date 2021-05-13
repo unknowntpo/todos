@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,7 +12,20 @@ import (
 // createTaskHandler creates a new task.
 // Request URL: POST /v1/movies
 func (app *application) createTaskHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "create a new task")
+	var input struct {
+		Title   string `json:"title"`
+		Content string `json:"content"`
+		Done    bool   `json:done"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Dump the contents of the input struct in a HTTP response.
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 // showTaskHandler shows the detail of specific task.
