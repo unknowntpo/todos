@@ -24,16 +24,16 @@ func (app *application) createTaskHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	task := &data.Task{
+		Title:   input.Title,
+		Content: input.Content,
+		Done:    input.Done,
+	}
+
 	// validate the request
 	v := validator.New()
 
-	v.Check(input.Title != "", "title", "must be provided")
-	v.Check(len(input.Title) <= 500, "title", "must not be more than 500 bytes long")
-
-	v.Check(input.Content != "", "content", "must be provided")
-	v.Check(len(input.Content) <= 500, "title", "must not be more than 500 bytes long")
-
-	if !v.Valid() {
+	if data.ValidateTask(v, task); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}

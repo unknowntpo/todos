@@ -1,6 +1,10 @@
 package data
 
-import "time"
+import (
+	"time"
+
+	"github.com/unknowntpo/todos/internal/validator"
+)
 
 // Task represent the data structure of our task object.
 type Task struct {
@@ -12,4 +16,13 @@ type Task struct {
 	Done    bool   `json:"done"`    // true if task is done
 	Version int32  `json:"version"` // The version number starts at 1 and will be incremented each
 	// time the task information is updated
+}
+
+// ValidateTask check if task match the constrains.
+func ValidateTask(v *validator.Validator, task *Task) {
+	v.Check(task.Title != "", "title", "must be provided")
+	v.Check(len(task.Title) <= 500, "title", "must not be more than 500 bytes long")
+
+	v.Check(task.Content != "", "content", "must be provided")
+	v.Check(len(task.Content) <= 500, "title", "must not be more than 500 bytes long")
 }
