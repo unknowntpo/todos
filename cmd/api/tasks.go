@@ -6,12 +6,40 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/data"
+	"github.com/unknowntpo/todos/internal/validator"
 )
 
 // createTaskHandler creates a new task.
 // Request URL: POST /v1/movies
 func (app *application) createTaskHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "create a new task")
+	var input struct {
+		Title   string `json:"title"`
+		Content string `json:"content"`
+		Done    bool   `json:"done"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	task := &data.Task{
+		Title:   input.Title,
+		Content: input.Content,
+		Done:    input.Done,
+	}
+
+	// validate the request
+	v := validator.New()
+
+	if data.ValidateTask(v, task); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	// Dump the contents of the input struct in a HTTP response.
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 // showTaskHandler shows the detail of specific task.
