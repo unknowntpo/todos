@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/data"
+	"github.com/unknowntpo/todos/internal/validator"
 )
 
 // createTaskHandler creates a new task.
@@ -14,12 +15,26 @@ func (app *application) createTaskHandler(w http.ResponseWriter, r *http.Request
 	var input struct {
 		Title   string `json:"title"`
 		Content string `json:"content"`
-		Done    bool   `json:done"`
+		Done    bool   `json:"done"`
 	}
 
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	// validate the request
+	v := validator.New()
+
+	v.Check(input.Title != "", "title", "must be provided")
+	v.Check(len(input.Title) <= 500, "title", "must not be more than 500 bytes long")
+
+	v.Check(input.Content != "", "content", "must be provided")
+	v.Check(len(input.Content) <= 500, "title", "must not be more than 500 bytes long")
+
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
