@@ -1,6 +1,7 @@
 package data
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/unknowntpo/todos/internal/validator"
@@ -18,6 +19,11 @@ type Task struct {
 	// time the task information is updated
 }
 
+// TaskModel wraps a sql.DB connection pool.
+type TaskModel struct {
+	DB *sql.DB
+}
+
 // ValidateTask check if task match the constrains.
 func ValidateTask(v *validator.Validator, task *Task) {
 	v.Check(task.Title != "", "title", "must be provided")
@@ -25,4 +31,24 @@ func ValidateTask(v *validator.Validator, task *Task) {
 
 	v.Check(task.Content != "", "content", "must be provided")
 	v.Check(len(task.Content) <= 500, "title", "must not be more than 500 bytes long")
+}
+
+// Add a placeholder method for inserting a new record in the movies table.
+func (t TaskModel) Insert(task *Task) error {
+	return nil
+}
+
+// Add a placeholder method for fetching a specific record from the movies table.
+func (t TaskModel) Get(id int64) (*Task, error) {
+	return nil, nil
+}
+
+// Add a placeholder method for updating a specific record in the movies table.
+func (t TaskModel) Update(task *Task) error {
+	return nil
+}
+
+// Add a placeholder method for deleting a specific record from the movies table.
+func (t TaskModel) Delete(id int64) error {
+	return nil
 }
