@@ -109,9 +109,9 @@ func (app *application) updateTaskHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	var input struct {
-		Title   string `json:"title"`
-		Content string `json:"content"`
-		Done    bool   `json:"done"`
+		Title   *string `json:"title"`
+		Content *string `json:"content"`
+		Done    *bool   `json:"done"`
 	}
 
 	// Read the JSON request body data into the input struct.
@@ -121,11 +121,23 @@ func (app *application) updateTaskHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Copy the values from the request body to the appropriate fields of the task
-	// record.
-	task.Title = input.Title
-	task.Content = input.Content
-	task.Done = input.Done
+	// If the input.Title value is nil then we know that no corresponding "title" key/
+	// value pair was provided in the JSON request body. So we move on and leave the
+	// movie record unchanged. Otherwise, we update the task record with the new title
+	// value. Importantly, because input.Title is a now a pointer to a string, we need
+	// to dereference the pointer using the * operator to get the underlying value
+	// before assigning it to our movie record.
+	if input.Title != nil {
+		task.Title = *input.Title
+	}
+
+	if input.Content != nil {
+		task.Content = *input.Content
+	}
+
+	if input.Done != nil {
+		task.Done = *input.Done
+	}
 
 	// Validate the updated task record, sending the client a 422 Unprocessable Entity
 	// response if any checks fail.
