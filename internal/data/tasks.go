@@ -113,7 +113,32 @@ func (t TaskModel) Update(task *Task) error {
 	return t.DB.QueryRow(query, args...).Scan(&task.Version)
 }
 
-// Add a placeholder method for deleting a specific record from the tasks table.
+// Delete delets a specific record from the tasks table.
 func (t TaskModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `
+        DELETE FROM tasks
+        WHERE id = $1`
+
+	result, err := t.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	// If no rows were affected, we know that the tasks table didn't contain a record
+	// with the provided ID at the moment we tried to delete it. In that case we
+	// return an ErrRecordNotFound error.
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
 	return nil
 }
