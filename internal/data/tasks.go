@@ -33,22 +33,36 @@ func ValidateTask(v *validator.Validator, task *Task) {
 	v.Check(len(task.Content) <= 500, "title", "must not be more than 500 bytes long")
 }
 
-// Add a placeholder method for inserting a new record in the movies table.
+// Insert accepts a pointer to a task struct, which should contain the
+// data for the new record.
 func (t TaskModel) Insert(task *Task) error {
-	return nil
+	query := `
+        INSERT INTO tasks (title, content, done) 
+        VALUES ($1, $2, $3)
+        RETURNING id, created_at, version`
+
+	// Create an args slice containing the values for the placeholder parameters from
+	// the task struct. Declaring this slice immediately next to our SQL query helps to
+	// make it nice and clear *what values are being used where* in the query.
+	args := []interface{}{task.Title, task.Content, task.Done}
+
+	// Use the QueryRow() method to execute the SQL query on our connection pool,
+	// passing in the args slice as a variadic parameter and scanning the system-
+	// generated id, created_at and version values into the task struct.
+	return t.DB.QueryRow(query, args...).Scan(&task.ID, &task.CreatedAt, &task.Version)
 }
 
-// Add a placeholder method for fetching a specific record from the movies table.
+// Add a placeholder method for fetching a specific record from the tasks table.
 func (t TaskModel) Get(id int64) (*Task, error) {
 	return nil, nil
 }
 
-// Add a placeholder method for updating a specific record in the movies table.
+// Add a placeholder method for updating a specific record in the tasks table.
 func (t TaskModel) Update(task *Task) error {
 	return nil
 }
 
-// Add a placeholder method for deleting a specific record from the movies table.
+// Add a placeholder method for deleting a specific record from the tasks table.
 func (t TaskModel) Delete(id int64) error {
 	return nil
 }
