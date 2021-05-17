@@ -95,9 +95,22 @@ func (t TaskModel) Get(id int64) (*Task, error) {
 	return &task, nil
 }
 
-// Add a placeholder method for updating a specific record in the tasks table.
 func (t TaskModel) Update(task *Task) error {
-	return nil
+	query := `
+        UPDATE tasks 
+        SET title = $1, content = $2, done = $3, version = version + 1
+        WHERE id = $4
+        RETURNING version`
+
+	// Create an args slice containing the values for the placeholder parameters.
+	args := []interface{}{
+		task.Title,
+		task.Content,
+		task.Done,
+		task.ID,
+	}
+
+	return t.DB.QueryRow(query, args...).Scan(&task.Version)
 }
 
 // Add a placeholder method for deleting a specific record from the tasks table.
