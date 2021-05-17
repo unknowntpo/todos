@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/unknowntpo/todos/internal/validator"
@@ -54,7 +55,44 @@ func (t TaskModel) Insert(task *Task) error {
 
 // Add a placeholder method for fetching a specific record from the tasks table.
 func (t TaskModel) Get(id int64) (*Task, error) {
-	return nil, nil
+	// The PostgreSQL bigserial type that we're using for the task ID starts
+	// auto-incrementing at 1 by default, so we know that no tasks will have ID values
+	// less than that. To avoid making an unnecessary database call, we take a shortcut
+	// and return an ErrRecordNotFound error straight away.
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+
+	query := `
+        SELECT id, created_at, title, content, done, version
+        FROM tasks
+        WHERE id = $1`
+
+	var task Task
+
+	// Execute the query using the QueryRow() method, passing in the provided id value
+	// as a placeholder parameter, and scan the response data into the fields of the
+	// Movie struct. Importantly, notice that we need to convert the scan target for the
+	// genres column using the pq.Array() adapter function again.
+	err := t.DB.QueryRow(query, id).Scan(
+		&task.ID,
+		&task.CreatedAt,
+		&task.Title,
+		&task.Content,
+		&task.Done,
+		&task.Version,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &task, nil
 }
 
 // Add a placeholder method for updating a specific record in the tasks table.

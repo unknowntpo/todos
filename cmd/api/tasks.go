@@ -1,9 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/unknowntpo/todos/internal/data"
 	"github.com/unknowntpo/todos/internal/validator"
@@ -68,13 +68,16 @@ func (app *application) showTaskHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	task := data.Task{
-		ID:        id,
-		CreatedAt: time.Now(),
-		Title:     "Do the homework",
-		Content:   "p.101 - p.103",
-		Done:      false,
-		Version:   1,
+	// task is *data.Task
+	task, err := app.models.Tasks.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
 	}
 
 	// Encode the struct to JSON and send it as the HTTP response.
