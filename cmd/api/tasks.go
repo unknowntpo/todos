@@ -151,7 +151,12 @@ func (app *application) updateTaskHandler(w http.ResponseWriter, r *http.Request
 	// Pass the updated task record to our new Update() method.
 	err = app.models.Tasks.Update(task)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 

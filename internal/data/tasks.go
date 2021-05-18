@@ -99,7 +99,7 @@ func (t TaskModel) Update(task *Task) error {
 	query := `
         UPDATE tasks 
         SET title = $1, content = $2, done = $3, version = version + 1
-        WHERE id = $4
+        WHERE id = $4 AND version = $5
         RETURNING version`
 
 	// Create an args slice containing the values for the placeholder parameters.
@@ -108,9 +108,20 @@ func (t TaskModel) Update(task *Task) error {
 		task.Content,
 		task.Done,
 		task.ID,
+		task.Version,
 	}
 
-	return t.DB.QueryRow(query, args...).Scan(&task.Version)
+	err := t.DB.QueryRow(query, args...).Scan(&task.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Delete delets a specific record from the tasks table.
