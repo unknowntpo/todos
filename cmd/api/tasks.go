@@ -13,10 +13,8 @@ func (app *application) listTasksHandler(w http.ResponseWriter, r *http.Request)
 	// To keep things consistent with our other handlers, we'll define an input struct
 	// to hold the expected values from the request query string.
 	var input struct {
-		Title    string
-		Page     int
-		PageSize int
-		Sort     string
+		Title string
+		data.Filters
 	}
 
 	v := validator.New()
@@ -38,6 +36,15 @@ func (app *application) listTasksHandler(w http.ResponseWriter, r *http.Request)
 	// Extract the sort query string value, falling back to "id" if it is not provided
 	// by the client (which will imply a ascending sort on task ID).
 	input.Sort = app.readString(qs, "sort", "id")
+	// Add the supported sort values for this endpoint to the sort safelist.
+	input.Filters.SortSafelist = []string{"id", "title", "-id", "-title"}
+
+	// Execute the validation checks on the Filters struct and send a response
+	// containing the errors if necessary.
+	if data.ValidateFilters(v, input.Filters); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
 
 	// Check the Validator instance for any errors and use the failedValidationResponse()
 	// helper to send the client a response if necessary.
