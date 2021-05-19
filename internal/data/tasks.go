@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"time"
@@ -47,10 +48,13 @@ func (t TaskModel) Insert(task *Task) error {
 	// make it nice and clear *what values are being used where* in the query.
 	args := []interface{}{task.Title, task.Content, task.Done}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
 	// Use the QueryRow() method to execute the SQL query on our connection pool,
 	// passing in the args slice as a variadic parameter and scanning the system-
 	// generated id, created_at and version values into the task struct.
-	return t.DB.QueryRow(query, args...).Scan(&task.ID, &task.CreatedAt, &task.Version)
+	return t.DB.QueryRowContext(ctx, query, args...).Scan(&task.ID, &task.CreatedAt, &task.Version)
 }
 
 // Add a placeholder method for fetching a specific record from the tasks table.
@@ -70,11 +74,10 @@ func (t TaskModel) Get(id int64) (*Task, error) {
 
 	var task Task
 
-	// Execute the query using the QueryRow() method, passing in the provided id value
-	// as a placeholder parameter, and scan the response data into the fields of the
-	// Movie struct. Importantly, notice that we need to convert the scan target for the
-	// genres column using the pq.Array() adapter function again.
-	err := t.DB.QueryRow(query, id).Scan(
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := t.DB.QueryRowContext(ctx, query, id).Scan(
 		&task.ID,
 		&task.CreatedAt,
 		&task.Title,
@@ -111,7 +114,10 @@ func (t TaskModel) Update(task *Task) error {
 		task.Version,
 	}
 
-	err := t.DB.QueryRow(query, args...).Scan(&task.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := t.DB.QueryRowContext(ctx, query, args...).Scan(&task.Version)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -134,7 +140,10 @@ func (t TaskModel) Delete(id int64) error {
         DELETE FROM tasks
         WHERE id = $1`
 
-	result, err := t.DB.Exec(query, id)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := t.DB.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
