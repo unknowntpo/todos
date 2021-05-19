@@ -9,6 +9,47 @@ import (
 	"github.com/unknowntpo/todos/internal/validator"
 )
 
+func (app *application) listTasksHandler(w http.ResponseWriter, r *http.Request) {
+	// To keep things consistent with our other handlers, we'll define an input struct
+	// to hold the expected values from the request query string.
+	var input struct {
+		Title    string
+		Page     int
+		PageSize int
+		Sort     string
+	}
+
+	v := validator.New()
+
+	// Call r.URL.Query() to get the url.Values map containing the query string data.
+	qs := r.URL.Query()
+
+	// Use our helpers to extract the title and genres query string values, falling back
+	// to defaults of an empty string and an empty slice respectively if they are not
+	// provided by the client.
+	input.Title = app.readString(qs, "title", "")
+
+	// Get the page and page_size query string values as integers. Notice that we set
+	// the default page value to 1 and default page_size to 20, and that we pass the
+	// validator instance as the final argument here.
+	input.Page = app.readInt(qs, "page", 1, v)
+	input.PageSize = app.readInt(qs, "page_size", 20, v)
+
+	// Extract the sort query string value, falling back to "id" if it is not provided
+	// by the client (which will imply a ascending sort on task ID).
+	input.Sort = app.readString(qs, "sort", "id")
+
+	// Check the Validator instance for any errors and use the failedValidationResponse()
+	// helper to send the client a response if necessary.
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	// Dump the contents of the input struct in a HTTP response.
+	fmt.Fprintf(w, "%+v\n", input)
+}
+
 // createTaskHandler creates a new task.
 // Request URL: POST /v1/tasks
 func (app *application) createTaskHandler(w http.ResponseWriter, r *http.Request) {
@@ -123,10 +164,10 @@ func (app *application) updateTaskHandler(w http.ResponseWriter, r *http.Request
 
 	// If the input.Title value is nil then we know that no corresponding "title" key/
 	// value pair was provided in the JSON request body. So we move on and leave the
-	// movie record unchanged. Otherwise, we update the task record with the new title
+	// task record unchanged. Otherwise, we update the task record with the new title
 	// value. Importantly, because input.Title is a now a pointer to a string, we need
 	// to dereference the pointer using the * operator to get the underlying value
-	// before assigning it to our movie record.
+	// before assigning it to our task record.
 	if input.Title != nil {
 		task.Title = *input.Title
 	}
