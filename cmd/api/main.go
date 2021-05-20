@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/data"
+	"github.com/unknowntpo/todos/internal/jsonlog"
 
 	_ "github.com/lib/pq"
 )
@@ -33,7 +34,7 @@ type config struct {
 // application holds the dependencies for our HTTP handlers, helpers, and middleware.
 type application struct {
 	config config
-	logger *log.Logger
+	logger *jsonlog.Logger
 	models data.Models
 }
 
@@ -53,16 +54,16 @@ func main() {
 
 	flag.Parse()
 
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
 	db, err := openDB(cfg)
 	if err != nil {
-		logger.Fatal(err)
+		logger.PrintFatal(err, nil)
 	}
 
 	defer db.Close()
 
-	logger.Printf("database connection pool established")
+	logger.PrintInfo("database connection pool established", nil)
 
 	app := &application{
 		config: cfg,
@@ -73,15 +74,20 @@ func main() {
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
 		Handler:      app.routes(),
+		ErrorLog:     log.New(logger, "", 0),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
 	// Start the HTTP server.
-	logger.Printf("starting %s server on %s", cfg.env, srv.Addr)
+	logger.PrintInfo("starting server", map[string]string{
+		"addr": srv.Addr,
+		"env":  cfg.env,
+	})
+
 	err = srv.ListenAndServe()
-	logger.Fatal(err)
+	logger.PrintFatal(err, nil)
 }
 
 // openDB returns a sql.DB connection pool.

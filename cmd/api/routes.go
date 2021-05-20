@@ -7,7 +7,7 @@ import (
 )
 
 // routes setup routing of our router.
-func (app *application) routes() *httprouter.Router {
+func (app *application) routes() http.Handler {
 	router := httprouter.New()
 
 	router.NotFound = http.HandlerFunc(app.notFoundResponse)
@@ -20,5 +20,5 @@ func (app *application) routes() *httprouter.Router {
 	router.HandlerFunc(http.MethodPatch, "/v1/tasks/:id", app.updateTaskHandler)
 	router.HandlerFunc(http.MethodDelete, "/v1/tasks/:id", app.deleteTaskHandler)
 
-	return router
+	return app.recoverPanic(router)
 }
