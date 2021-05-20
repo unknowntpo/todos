@@ -171,6 +171,7 @@ func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, error) {
 	query := `
         SELECT id, created_at, title, content, version
         FROM tasks
+	WHERE (LOWER(title) = LOWER($1) OR $1 = '') 
         ORDER BY id`
 
 	// Create a context with a 3-second timeout.
@@ -179,7 +180,7 @@ func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, error) {
 
 	// Use QueryContext() to execute the query. This returns a sql.Rows resultset
 	// containing the result.
-	rows, err := t.DB.QueryContext(ctx, query)
+	rows, err := t.DB.QueryContext(ctx, query, title)
 	if err != nil {
 		return nil, err
 	}
