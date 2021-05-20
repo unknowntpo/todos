@@ -53,14 +53,14 @@ func (app *application) listTasksHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	tasks, err := app.models.Tasks.GetAll(input.Title, input.Filters)
+	tasks, metadata, err := app.models.Tasks.GetAll(input.Title, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	// Send a JSON response containing the movie data.
-	err = app.writeJSON(w, http.StatusOK, envelope{"tasks": tasks}, nil)
+	// Send a JSON response containing the task data.
+	err = app.writeJSON(w, http.StatusOK, envelope{"metadata": metadata, "tasks": tasks}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

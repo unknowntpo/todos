@@ -167,10 +167,10 @@ func (t TaskModel) Delete(id int64) error {
 // GetAll returns a slice of tasks. Although we're not
 // using them right now, we've set this up to accept the various filter parameters as
 // arguments.
-func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, error) {
+func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, Metadata, error) {
 	// Construct the SQL query to retrieve all task records.
 	query := fmt.Sprintf(`
-        SELECT id, created_at, title, content, version
+        SELECT count(*) OVER(), id, created_at, title, content, version
         FROM tasks
         WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '') 
         ORDER BY %s %s, id ASC
@@ -184,10 +184,11 @@ func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, error) {
 
 	rows, err := t.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 	defer rows.Close()
 
+	totalRecords := 0
 	tasks := []*Task{}
 
 	// Use rows.Next to iterate through the rows in the resultset.
@@ -195,6 +196,7 @@ func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, error) {
 		var task Task
 
 		err := rows.Scan(
+			&totalRecords,
 			&task.ID,
 			&task.CreatedAt,
 			&task.Title,
@@ -202,7 +204,7 @@ func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, error) {
 			&task.Version,
 		)
 		if err != nil {
-			return nil, err
+			return nil, Metadata{}, err
 		}
 
 		// Add the Task struct to the slice.
@@ -212,8 +214,10 @@ func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, error) {
 	// When the rows.Next() loop has finished, call rows.Err() to retrieve any error
 	// that was encountered during the iteration.
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 
-	return tasks, nil
+	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
+
+	return tasks, metadata, nil
 }
