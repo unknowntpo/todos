@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/unknowntpo/todos/internal/validator"
@@ -168,11 +169,11 @@ func (t TaskModel) Delete(id int64) error {
 // arguments.
 func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, error) {
 	// Construct the SQL query to retrieve all task records.
-	query := `
+	query := fmt.Sprintf(`
         SELECT id, created_at, title, content, version
         FROM tasks
         WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '') 
-        ORDER BY id`
+        ORDER BY %s %s, id ASC`, filters.sortColumn(), filters.sortDirection())
 
 	// Create a context with a 3-second timeout.
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
