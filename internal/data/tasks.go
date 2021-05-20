@@ -173,33 +173,27 @@ func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, error) {
         SELECT id, created_at, title, content, version
         FROM tasks
         WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '') 
-        ORDER BY %s %s, id ASC`, filters.sortColumn(), filters.sortDirection())
+        ORDER BY %s %s, id ASC
+	LIMIT $2 OFFSET $3`, filters.sortColumn(), filters.sortDirection())
 
 	// Create a context with a 3-second timeout.
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	// Use QueryContext() to execute the query. This returns a sql.Rows resultset
-	// containing the result.
-	rows, err := t.DB.QueryContext(ctx, query, title)
+	args := []interface{}{title, filters.limit(), filters.offset()}
+
+	rows, err := t.DB.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
-
-	// Importantly, defer a call to rows.Close() to ensure that the resultset is closed
-	// before GetAll() returns.
 	defer rows.Close()
 
-	// Initialize an empty slice to hold the task data.
 	tasks := []*Task{}
 
 	// Use rows.Next to iterate through the rows in the resultset.
 	for rows.Next() {
-		// Initialize an empty Task struct to hold the data for an individual task.
 		var task Task
 
-		// Scan the values from the row into the Task struct. Again, note that we're
-		// using the pq.Array() adapter on the genres field here.
 		err := rows.Scan(
 			&task.ID,
 			&task.CreatedAt,
@@ -221,6 +215,5 @@ func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, error) {
 		return nil, err
 	}
 
-	// If everything went OK, then return the slice of tasks.
 	return tasks, nil
 }
