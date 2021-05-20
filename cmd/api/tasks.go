@@ -53,8 +53,17 @@ func (app *application) listTasksHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// Dump the contents of the input struct in a HTTP response.
-	fmt.Fprintf(w, "%+v\n", input)
+	tasks, err := app.models.Tasks.GetAll(input.Title, input.Filters)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// Send a JSON response containing the movie data.
+	err = app.writeJSON(w, http.StatusOK, envelope{"tasks": tasks}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 // createTaskHandler creates a new task.
