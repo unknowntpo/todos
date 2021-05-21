@@ -16,11 +16,13 @@ var (
 // like a UserModel and PermissionModel, as our build progresses.
 type Models struct {
 	Tasks TaskModel
+	Users UserModel
 }
 
 // NewModels returns a Models struct containing the initialized TaskModel.
 func NewModels(db *sql.DB) Models {
 	return Models{
 		Tasks: TaskModel{DB: db},
+		Users: UserModel{DB: db},
 	}
 }
