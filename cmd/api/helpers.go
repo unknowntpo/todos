@@ -165,7 +165,10 @@ func (app *application) readInt(qs url.Values, key string, defaultValue int, v *
 
 // background accepts an arbitrary function as a parameter.
 func (app *application) background(fn func()) {
+	app.wg.Add(1)
 	go func() {
+		defer app.wg.Done()
+
 		// Recover any panic.
 		defer func() {
 			if err := recover(); err != nil {
