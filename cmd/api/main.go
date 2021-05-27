@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"expvar"
 	"flag"
 	"os"
 	"strings"
@@ -98,6 +99,10 @@ func main() {
 	defer db.Close()
 
 	logger.PrintInfo("database connection pool established", nil)
+
+	// Publish a new "version" variable in the expvar handler containing our application
+	// version number (currently the constant "1.0.0").
+	expvar.NewString("version").Set(version)
 
 	app := &application{
 		config: cfg,
