@@ -15,16 +15,18 @@ var (
 // Models is a wrapper struct which wraps the TaskModel. We'll add other models to this,
 // like a UserModel and PermissionModel, as our build progresses.
 type Models struct {
-	Tasks  TaskModel
-	Tokens TokenModel
-	Users  UserModel
+	Tasks       TaskModel
+	Permissions PermissionModel
+	Tokens      TokenModel
+	Users       UserModel
 }
 
 // NewModels returns a Models struct containing the initialized TaskModel.
 func NewModels(db *sql.DB) Models {
 	return Models{
-		Tasks:  TaskModel{DB: db},
-		Tokens: TokenModel{DB: db},
-		Users:  UserModel{DB: db},
+		Tasks:       TaskModel{DB: db},
+		Permissions: PermissionModel{DB: db},
+		Tokens:      TokenModel{DB: db},
+		Users:       UserModel{DB: db},
 	}
 }
