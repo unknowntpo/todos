@@ -13,12 +13,13 @@ func (app *application) routes() http.Handler {
 	router.NotFound = http.HandlerFunc(app.notFoundResponse)
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
-	router.HandlerFunc(http.MethodGet, "/v1/tasks", app.listTasksHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
-	router.HandlerFunc(http.MethodPost, "/v1/tasks", app.createTaskHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/tasks/:id", app.showTaskHandler)
-	router.HandlerFunc(http.MethodPatch, "/v1/tasks/:id", app.updateTaskHandler)
-	router.HandlerFunc(http.MethodDelete, "/v1/tasks/:id", app.deleteTaskHandler)
+
+	router.HandlerFunc(http.MethodGet, "/v1/tasks", app.requirePermission("movies:read", app.listTasksHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/tasks", app.requirePermission("movies:write", app.createTaskHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/tasks/:id", app.requirePermission("movies:read", app.showTaskHandler))
+	router.HandlerFunc(http.MethodPatch, "/v1/tasks/:id", app.requirePermission("movies:write", app.updateTaskHandler))
+	router.HandlerFunc(http.MethodDelete, "/v1/tasks/:id", app.requirePermission("movies:write", app.deleteTaskHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activated", app.activateUserHandler)
