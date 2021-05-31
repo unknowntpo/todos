@@ -19,12 +19,10 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// version contains hard-coded version number
-const version = "1.0.0"
-
-// buildTime holds the executable binary build time. Note that this
-// must be a string type, as the -X linker flag will only work with string variables.
-var buildTime string
+var (
+	version   string
+	buildTime string
+)
 
 // config holds configuration of server
 type config struct {
