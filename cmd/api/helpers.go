@@ -122,6 +122,7 @@ func (app *application) readString(qs url.Values, key string, defaultValue strin
 	return s
 }
 
+/*
 // readCSV reads a string value from the query string and then splits it
 // into a slice on the comma character. If no matching key count be found, it returns
 // the provided default value.
@@ -137,6 +138,7 @@ func (app *application) readCSV(qs url.Values, key string, defaultValue []string
 	// Otherwise parse the value into a []string slice and return it.
 	return strings.Split(csv, ",")
 }
+*/
 
 // readInt reads a string value from the query string and converts it to an
 // integer before returning. If no matching key count be found it returns the provided
