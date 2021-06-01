@@ -83,3 +83,14 @@ build/api:
 	go build -ldflags=${linker_flags} -o=./bin/api ./cmd/api
 	GOOS=linux GOARCH=amd64 go build -ldflags=${linker_flags} -o=./bin/linux_amd64/api ./cmd/api
 	GOOS=darwin GOARCH=amd64 go build -ldflags=${linker_flags} -o=./bin/darwin_amd64/api ./cmd/api
+
+# ==================================================================================== #
+# PRODUCTION
+# ==================================================================================== #
+
+production_host_ip = '139.59.233.200'
+
+## production/connect: connect to the production server
+.PHONY: production/connect
+production/connect:
+	ssh todos@${production_host_ip}
