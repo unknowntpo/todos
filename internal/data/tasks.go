@@ -170,7 +170,7 @@ func (t TaskModel) Delete(id int64) error {
 func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, Metadata, error) {
 	// Construct the SQL query to retrieve all task records.
 	query := fmt.Sprintf(`
-        SELECT count(*) OVER(), id, created_at, title, content, version
+        SELECT count(*) OVER(), id, created_at, title, content, done, version
         FROM tasks
         WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '') 
         ORDER BY %s %s, id ASC
@@ -201,6 +201,7 @@ func (t TaskModel) GetAll(title string, filters Filters) ([]*Task, Metadata, err
 			&task.CreatedAt,
 			&task.Title,
 			&task.Content,
+			&task.Done,
 			&task.Version,
 		)
 		if err != nil {
