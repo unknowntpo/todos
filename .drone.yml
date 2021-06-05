@@ -1,0 +1,18 @@
+kind: pipeline
+name: default
+workspace:
+  base: /go
+  path: src/github.com/unknowntpo/todos
+steps:
+  - name: test
+    image: golang
+    commands: 
+      - go install honnef.co/go/tools/cmd/staticcheck@latest
+      - echo 'export TODOS_DB_DSN=postgres://todos:pa55word@localhost/todos?sslmode=disable' > .envrc
+      - make vendor
+      - make audit
+  - name: build
+    image: golang
+    commands:
+      - make build/api
+      - chmod +x ./bin/api
