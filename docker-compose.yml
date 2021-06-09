@@ -1,0 +1,11 @@
+version: "2.3"
+services:
+  server:
+    image: api
+    build:
+      context: .
+      dockerfile: cmd/api/Dockerfile
+    volumes:
+        - /tmp/app:/var/log/app
+    ports:
+      - "4000:4000"
