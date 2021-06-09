@@ -1,7 +1,6 @@
 package main
 
 import (
-	"expvar"
 	"flag"
 	"fmt"
 	"os"
@@ -31,10 +30,6 @@ func main() {
 
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
-	// Publish a new "version" variable in the expvar handler containing our application
-	// version number (currently the constant "1.0.0").
-	expvar.NewString("version").Set(version)
-
 	app := &application{
 		config: cfg,
 		logger: logger,
@@ -50,20 +45,20 @@ func main() {
 func setConfig() config {
 	var cfg config
 
+	displayVersion := flag.Bool("version", false, "Display version and exit")
+
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 
-	displayVersion := flag.Bool("version", false, "Display version and exit")
+	flag.Parse()
 
 	// If the version flag value is true, then print out the version number and
 	// immediately exit.
-	if *displayVersion {
+	if *displayVersion == true {
 		fmt.Printf("Version:\t%s\n", version)
 		fmt.Printf("Build time:\t%s\n", buildTime)
 		os.Exit(0)
 	}
-
-	flag.Parse()
 
 	return cfg
 }
