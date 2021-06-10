@@ -5,16 +5,16 @@ import (
 	"net/http"
 )
 
-// HealthcheckDelivery represent delivery layer of healcheck api endpoint.
-type HealthcheckDelivery struct{}
+// HealthcheckHTTPDelivery represent delivery layer of healcheck http api endpoint.
+type HealthcheckHTTPDelivery struct{}
 
-// NewHealthcheckDelivery registers all handlers in /v1/healcheck to the router.
-func NewHealthcheckDelivery(router *httprouter.Router) {
-	handler := &HealthcheckDelivery{}
+// NewHealthcheckHTTPDelivery registers all handlers in /v1/healcheck to the router.
+func NewHealthcheckHTTPDelivery(router *httprouter.Router) {
+	handler := &HealthcheckHTTPDelivery{}
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", handler.HealthcheckHandler)
 }
 
 // TODO: Display metrics.
-func (h *HealthcheckDelivery) HealthcheckHandler(w http.ResponseWriter, r *http.Request) {
+func (h *HealthcheckHTTPDelivery) HealthcheckHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }

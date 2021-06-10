@@ -14,7 +14,7 @@ func TestHealcheckHandler(t *testing.T) {
 	// we just use HealcheckDelivery{}.
 	router := httprouter.New()
 
-	handler := &HealthcheckDelivery{}
+	handler := &HealthcheckHTTPDelivery{}
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", handler.HealthcheckHandler)
 
 	// Set request to /v1/healthcheck
