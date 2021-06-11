@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	_healthcheckHttpDelivery "github.com/unknowntpo/todos/internal/healthcheck/delivery/http"
+	_healthcheckAPI "github.com/unknowntpo/todos/internal/healthcheck/delivery/api"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -11,7 +11,7 @@ import (
 func (app *application) newRoutes() http.Handler {
 	// Set up /{api_version}/healthcheck
 	router := httprouter.New()
-	_healthcheckHttpDelivery.NewHealthcheckHTTPDelivery(router)
+	_healthcheckAPI.NewHealthcheckAPI(router)
 
 	// TODO: Add more api endpoints
 

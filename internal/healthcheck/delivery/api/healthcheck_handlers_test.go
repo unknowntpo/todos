@@ -1,4 +1,4 @@
-package http
+package api
 
 import (
 	"net/http"
@@ -8,13 +8,12 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// TODO: Write test.
 func TestHealcheckHandler(t *testing.T) {
 	// Because healthcheck delivery doesn't depend on anything, so
 	// we just use HealcheckDelivery{}.
 	router := httprouter.New()
 
-	handler := &HealthcheckHTTPDelivery{}
+	handler := &HealthcheckAPI{}
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", handler.HealthcheckHandler)
 
 	// Set request to /v1/healthcheck
