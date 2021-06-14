@@ -11,7 +11,7 @@ import (
 func (app *application) newRoutes() http.Handler {
 	// Set up /{api_version}/healthcheck
 	router := httprouter.New()
-	_healthcheckAPI.NewHealthcheckAPI(router)
+	_healthcheckAPI.NewHealthcheckAPI(router, version, app.config.env)
 
 	// TODO: Add more api endpoints
 

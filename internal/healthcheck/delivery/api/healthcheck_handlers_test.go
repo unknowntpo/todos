@@ -8,6 +8,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// FIXME: Mock version and env, test if we got desired response.
 func TestHealcheckHandler(t *testing.T) {
 	// Because healthcheck delivery doesn't depend on anything, so
 	// we just use HealcheckDelivery{}.
