@@ -6,15 +6,17 @@ import (
 	"testing"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/stretchr/testify/assert"
 )
 
-// FIXME: Mock version and env, test if we got desired response.
+func newMockHealthcheckAPI() *HealthcheckAPI {
+	return &HealthcheckAPI{version: "1.0.0", env: "development"}
+}
+
 func TestHealcheckHandler(t *testing.T) {
-	// Because healthcheck delivery doesn't depend on anything, so
-	// we just use HealcheckDelivery{}.
 	router := httprouter.New()
 
-	handler := &HealthcheckAPI{}
+	handler := newMockHealthcheckAPI()
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", handler.HealthcheckHandler)
 
 	// Set request to /v1/healthcheck
@@ -22,26 +24,16 @@ func TestHealcheckHandler(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	router.ServeHTTP(rr, r)
-	// assert status code
-	assertStatusCode(t, rr.Code, http.StatusOK)
 
-	// assert response
-	assertBody(t, rr.Body.String(), "OK")
-}
+	assert.Equal(t, http.StatusOK, rr.Code, "Wrong status code")
 
-// TODO: Move it to helper pkg
-func assertStatusCode(t *testing.T, got, want int) {
-	t.Helper()
-
-	if got != want {
-		t.Errorf("Wrong status code, got %d, want %d", got, want)
+	wantBody := `{
+	"status": "available",
+	"system_info": {
+		"environment": "development",
+		"version": "1.0.0"
 	}
 }
-
-// TODO: Move it to helper pkg
-func assertBody(t *testing.T, got, want string) {
-	t.Helper()
-	if got != want {
-		t.Errorf("Wrong response body, got %s, want %s", got, want)
-	}
+`
+	assert.Equal(t, wantBody, rr.Body.String(), "Wrong response body")
 }
