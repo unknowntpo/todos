@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/unknowntpo/todos/internal/jsonlog"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -21,23 +21,37 @@ type config struct {
 
 // application holds the dependencies for our HTTP handlers, helpers, and middleware.
 type application struct {
-	config config
-	logger *jsonlog.Logger
+	config  config
+	infoLog *log.Logger
+	errLog  *log.Logger
 }
 
 func main() {
 	cfg := setConfig()
 
-	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
+	infoLog := &log.Logger{
+		Out:       os.Stdout,
+		Formatter: new(log.JSONFormatter),
+		Hooks:     make(log.LevelHooks),
+		Level:     log.DebugLevel,
+	}
+
+	errLog := &log.Logger{
+		Out:       os.Stderr,
+		Formatter: new(log.JSONFormatter),
+		Hooks:     make(log.LevelHooks),
+		Level:     log.DebugLevel,
+	}
 
 	app := &application{
-		config: cfg,
-		logger: logger,
+		config:  cfg,
+		infoLog: infoLog,
+		errLog:  errLog,
 	}
 
 	err := app.serve()
 	if err != nil {
-		logger.PrintFatal(err, nil)
+		app.errLog.Fatal(err)
 	}
 }
 

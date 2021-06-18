@@ -15,10 +15,7 @@ func (app *application) serve() error {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	app.logger.PrintInfo("starting server", map[string]string{
-		"addr": srv.Addr,
-		"env":  app.config.env,
-	})
+	app.infoLog.Infof("starting server at %d in %s mode", app.config.port, app.config.env)
 
 	err := srv.ListenAndServe()
 
