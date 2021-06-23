@@ -41,3 +41,15 @@ func (m *MockTaskUsecase) GetByID(id int64) (*domain.Task, error) {
 
 	return task, nil
 }
+
+func (m *MockTaskUsecase) Update(id int64, task *domain.Task) (*domain.Task, error) {
+	// TODO: What fileds should we update ?
+	task = &domain.Task{
+		ID:      1,
+		Title:   "Do homework",
+		Content: "boring",
+		Done:    false,
+		Version: 2,
+	}
+	return task, nil
+}

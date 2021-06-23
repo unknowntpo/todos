@@ -17,4 +17,5 @@ type Task struct {
 
 type TaskUsecase interface {
 	GetByID(id int64) (*Task, error)
+	Update(id int64, task *Task) (*Task, error)
 }

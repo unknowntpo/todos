@@ -5,6 +5,7 @@ import (
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
+	"github.com/unknowntpo/todos/internal/helpers/validator"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -16,6 +17,7 @@ type TaskAPI struct {
 func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase) {
 	handler := &TaskAPI{TU: tu}
 	router.HandlerFunc(http.MethodGet, "/v1/tasks/:id", handler.GetByID)
+	router.HandlerFunc(http.MethodPatch, "/v1/tasks/:id", handler.Update)
 }
 
 func (t *TaskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
@@ -32,4 +34,51 @@ func (t *TaskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"task": task}, nil)
+}
+
+func (t *TaskAPI) Update(w http.ResponseWriter, r *http.Request) {
+	id, err := helpers.ReadIDParam(r)
+	if err != nil {
+		helpers.NotFoundResponse(w, r)
+		return
+	}
+
+	task, err := t.TU.GetByID(id)
+	if err != nil {
+		helpers.ServerErrorResponse(w, r, err)
+	}
+
+	var input struct {
+		Title   string `json:"title"`   // task title
+		Content string `json:"content"` // task content
+		Done    bool   `json:"done"`    // true if task is done
+	}
+	// readJSON
+	err = helpers.ReadJSON(w, r, &input)
+
+	task = &domain.Task{
+		Title:   input.Title,
+		Content: input.Content,
+		Done:    input.Done,
+	}
+
+	v := validator.New()
+
+	// Call the ValidateMovie() function and return a response containing the errors if
+	// any of the checks fail.
+	if validateTask(v, task); !v.Valid() {
+		helpers.FailedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	// TODO: We validate input at delivery layer.
+
+	taskUpdated, err := t.TU.Update(id, task)
+	if err != nil {
+		// TODO: errors.Is() to determine which error we got.
+		helpers.ServerErrorResponse(w, r, err)
+	}
+
+	// write updated JSON to
+	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"task": taskUpdated}, nil)
 }
