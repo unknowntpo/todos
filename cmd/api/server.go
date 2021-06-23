@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/unknowntpo/todos/internal/logger"
 )
 
 func (app *application) serve() error {
@@ -15,7 +17,10 @@ func (app *application) serve() error {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	app.infoLog.Infof("starting server at %d in %s mode", app.config.port, app.config.env)
+	logger.Log.PrintInfo("starting server", map[string]string{
+		"addr": srv.Addr,
+		"env":  app.config.env,
+	})
 
 	err := srv.ListenAndServe()
 

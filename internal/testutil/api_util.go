@@ -35,8 +35,6 @@ func TestEndpoint(t *testing.T, router *httprouter.Router, tc APITestCase) {
 
 		router.ServeHTTP(rr, r)
 		assert.Equal(t, tc.WantStatus, rr.Code, "Wrong status code")
-		if tc.WantBody != "" {
-			assert.Equal(t, tc.WantBody, rr.Body.String(), "Wrong response body")
-		}
+		assert.Equal(t, tc.WantBody, rr.Body.String(), "Wrong response body")
 	})
 }

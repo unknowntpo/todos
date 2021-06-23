@@ -19,7 +19,7 @@ func (app *application) newRoutes() http.Handler {
 
 	// Use mockUsecase for testing.
 	tu := mock.NewTaskUsecase()
-	_taskAPI.NewTaskAPI(router, tu, app.errLog)
+	_taskAPI.NewTaskAPI(router, tu)
 
 	// TODO: Add more api endpoints
 

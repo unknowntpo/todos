@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/unknowntpo/todos/internal/logger"
+	"github.com/unknowntpo/todos/internal/logger/logrus"
 )
 
 var (
@@ -21,37 +22,25 @@ type config struct {
 
 // application holds the dependencies for our HTTP handlers, helpers, and middleware.
 type application struct {
-	config  config
-	infoLog *log.Logger
-	errLog  *log.Logger
+	config config
 }
 
 func main() {
 	cfg := setConfig()
 
-	infoLog := &log.Logger{
-		Out:       os.Stdout,
-		Formatter: new(log.JSONFormatter),
-		Hooks:     make(log.LevelHooks),
-		Level:     log.DebugLevel,
-	}
-
-	errLog := &log.Logger{
-		Out:       os.Stderr,
-		Formatter: new(log.JSONFormatter),
-		Hooks:     make(log.LevelHooks),
-		Level:     log.DebugLevel,
+	err := logrus.RegisterLog()
+	if err != nil {
+		fmt.Errorf("Fail to set up logger: %v", err)
+		os.Exit(1)
 	}
 
 	app := &application{
-		config:  cfg,
-		infoLog: infoLog,
-		errLog:  errLog,
+		config: cfg,
 	}
 
-	err := app.serve()
+	err = app.serve()
 	if err != nil {
-		app.errLog.Fatal(err)
+		logger.Log.PrintFatal(fmt.Errorf("Server error: %v", err), nil)
 	}
 }
 

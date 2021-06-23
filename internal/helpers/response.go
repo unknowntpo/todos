@@ -3,20 +3,15 @@ package helpers
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/unknowntpo/todos/internal/logger"
 )
 
-// Dependency: logger
 func logError(r *http.Request, err error) {
-	// TODO: Decide which logger to use
-	// jsonlog?
-	// Where to store jsonlog?
-
-	/*
-		app.logger.PrintError(err, map[string]string{
-			"request_method": r.Method,
-			"request_url":    r.URL.String(),
-		})
-	*/
+	logger.Log.PrintError(err, map[string]string{
+		"request_method": r.Method,
+		"request_url":    r.URL.String(),
+	})
 }
 
 func errorResponse(w http.ResponseWriter, r *http.Request, status int, message interface{}) {
@@ -30,7 +25,6 @@ func errorResponse(w http.ResponseWriter, r *http.Request, status int, message i
 	}
 }
 
-// TODO: Logger interface
 func ServerErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
 	logError(r, err)
 
