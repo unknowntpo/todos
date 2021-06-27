@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"time"
 )
 
@@ -16,6 +17,13 @@ type Task struct {
 }
 
 type TaskUsecase interface {
-	GetByID(id int64) (*Task, error)
-	Update(id int64, task *Task) (*Task, error)
+	GetByID(ctx context.Context, id int64) (*Task, error)
+	Update(ctx context.Context, id int64, task *Task) (*Task, error)
+}
+
+type TaskRepository interface {
+	GetByID(ctx context.Context, id int64) (*Task, error)
+	Insert(ctx context.Context, task *Task) error
+	Update(ctx context.Context, id int64, task *Task) (*Task, error)
+	Delete(ctx context.Context, id int64) error
 }

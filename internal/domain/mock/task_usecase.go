@@ -1,12 +1,14 @@
 package mock
 
 import (
+	"context"
+
 	"github.com/unknowntpo/todos/internal/domain"
 )
 
 type MockTaskUsecase struct{}
 
-func NewTaskUsecase() *MockTaskUsecase {
+func NewTaskUsecase() domain.TaskUsecase {
 	return &MockTaskUsecase{}
 }
 
@@ -30,7 +32,12 @@ func (m *mockTaskUsecase) GetAll(title string, filters Filters) ([]*Task, Metada
 
 */
 
-func (m *MockTaskUsecase) GetByID(id int64) (*domain.Task, error) {
+func (m *MockTaskUsecase) GetByID(ctx context.Context, id int64) (*domain.Task, error) {
+	// Placeholder for context.
+	_ = ctx
+	if id != 1 {
+		return nil, domain.ErrRecordNotFound
+	}
 	task := &domain.Task{
 		ID:      1,
 		Title:   "Do homework",
@@ -42,7 +49,10 @@ func (m *MockTaskUsecase) GetByID(id int64) (*domain.Task, error) {
 	return task, nil
 }
 
-func (m *MockTaskUsecase) Update(id int64, task *domain.Task) (*domain.Task, error) {
+func (m *MockTaskUsecase) Update(ctx context.Context, id int64, task *domain.Task) (*domain.Task, error) {
+	// Placeholder for context.
+	_ = ctx
+
 	// TODO: What fileds should we update ?
 	task = &domain.Task{
 		ID:      1,

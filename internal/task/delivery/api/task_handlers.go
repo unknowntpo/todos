@@ -27,7 +27,8 @@ func (t *TaskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := t.TU.GetByID(id)
+	ctx := r.Context()
+	task, err := t.TU.GetByID(ctx, id)
 	if err != nil {
 		helpers.ServerErrorResponse(w, r, err)
 		return
@@ -43,23 +44,31 @@ func (t *TaskAPI) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := t.TU.GetByID(id)
+	ctx := r.Context()
+	task, err := t.TU.GetByID(ctx, id)
 	if err != nil {
+		// TODO: errors.Is
 		helpers.ServerErrorResponse(w, r, err)
 	}
 
 	var input struct {
-		Title   string `json:"title"`   // task title
-		Content string `json:"content"` // task content
-		Done    bool   `json:"done"`    // true if task is done
+		Title   *string `json:"title"`   // task title
+		Content *string `json:"content"` // task content
+		Done    *bool   `json:"done"`    // true if task is done
 	}
 	// readJSON
 	err = helpers.ReadJSON(w, r, &input)
 
-	task = &domain.Task{
-		Title:   input.Title,
-		Content: input.Content,
-		Done:    input.Done,
+	if input.Title != nil {
+		task.Title = *input.Title
+	}
+
+	if input.Content != nil {
+		task.Content = *input.Content
+	}
+
+	if input.Done != nil {
+		task.Done = *input.Done
 	}
 
 	v := validator.New()
@@ -73,7 +82,8 @@ func (t *TaskAPI) Update(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: We validate input at delivery layer.
 
-	taskUpdated, err := t.TU.Update(id, task)
+	ctx = r.Context()
+	taskUpdated, err := t.TU.Update(ctx, id, task)
 	if err != nil {
 		// TODO: errors.Is() to determine which error we got.
 		helpers.ServerErrorResponse(w, r, err)
