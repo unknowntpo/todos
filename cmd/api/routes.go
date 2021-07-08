@@ -7,6 +7,7 @@ import (
 	"github.com/unknowntpo/todos/internal/domain/mock"
 	_healthcheckAPI "github.com/unknowntpo/todos/internal/healthcheck/delivery/api"
 	_taskAPI "github.com/unknowntpo/todos/internal/task/delivery/api"
+	_taskRepoPostgres "github.com/unknowntpo/todos/internal/task/repository/postgres"
 	_taskUsecase "github.com/unknowntpo/todos/internal/task/usecase"
 
 	"github.com/julienschmidt/httprouter"
@@ -21,7 +22,8 @@ func (app *application) newRoutes() http.Handler {
 
 	// Use mockUsecase for testing.
 	//tu := mock.NewTaskUsecase()
-	tr := mock.NewTaskRepo()
+	tr := _taskRepoPostgres.NewTaskRepo()
+	//tr := mock.NewTaskRepo()
 	tu := _taskUsecase.NewTaskUsecase(tr, 3*time.Second)
 	_taskAPI.NewTaskAPI(router, tu)
 

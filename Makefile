@@ -1,3 +1,6 @@
+# include variables from .envrc
+include .envrc
+
 # ==================================================================================== #
 # HELPERS
 # ==================================================================================== #
@@ -44,14 +47,41 @@ build/api:
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	@go run ./cmd/api
+	@go run ./cmd/api -db-dsn=${TODOS_DB_DSN}
 
 ## run/compose/up: run the services
 .PHONY: run/compose/up
 run/compose/up:
-	@docker-compose up -d --build
+	@docker-compose --env-file .envrc up -d --build
+	$(MAKE) db/migrations/up
 
 ## run/compose/down: shutdown the services
 .PHONY: run/compose/down
 run/compose/down:
 	@docker-compose down
+
+## db/migrations/new name=$1: create a new database migration
+.PHONY: db/migrations/new
+db/migrations/new:
+	@echo 'Creating migration files for ${name}...'
+	migrate create -seq -ext=.sql -dir=./migrations ${name}
+
+## db/migrations/up: apply all up database migrations
+.PHONY: db/migrations/up
+db/migrations/up:
+	@echo 'Running up migrations...'
+	migrate -path ./migrations -database ${TODOS_DB_DSN} up
+
+## db/start: start a postgres container with testdata
+.PHONY: db/start
+db/start:
+	@echo "Start a new postgres db with testdata..."
+	#docker run --rm --name postgres \
+	    -v `pwd`/testdata/init.sql:/docker-entrypoint-initdb.d/init.sql \
+	    --env-file .envrc \
+	    -d -p 5432:5432 postgres:alpine
+
+## db/connect: connect to the database in postgres container
+.PHONY: db/connect
+db/connect:
+	docker exec -it postgres psql $TODOS_DB_DSN

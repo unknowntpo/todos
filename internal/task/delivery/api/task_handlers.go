@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/unknowntpo/todos/internal/domain"
@@ -30,7 +31,14 @@ func (t *TaskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	task, err := t.TU.GetByID(ctx, id)
 	if err != nil {
-		helpers.ServerErrorResponse(w, r, err)
+		switch {
+		case errors.As(err, &domain.ErrRecordNotFound):
+			// FIXME: Doesn't work !
+			helpers.NotFoundResponse(w, r)
+		default:
+			helpers.ServerErrorResponse(w, r, err)
+
+		}
 		return
 	}
 
