@@ -33,7 +33,8 @@ type config struct {
 
 // application holds the dependencies for our HTTP handlers, helpers, and middleware.
 type application struct {
-	config config
+	config   config
+	database *sql.DB
 }
 
 func main() {
@@ -52,7 +53,8 @@ func main() {
 	defer db.Close()
 
 	app := &application{
-		config: cfg,
+		config:   cfg,
+		database: db,
 	}
 
 	err = app.serve()

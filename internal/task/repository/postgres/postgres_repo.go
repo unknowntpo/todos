@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/unknowntpo/todos/internal/domain"
@@ -26,5 +27,5 @@ func (tr *taskRepo) Update(ctx context.Context, id int64, task *domain.Task) (*d
 }
 
 func (tr *taskRepo) Delete(ctx context.Context, id int64) error {
-	return nil, nil
+	return nil
 }

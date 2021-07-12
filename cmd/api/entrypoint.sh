@@ -2,10 +2,10 @@
 
 ls -l
 # do sql migration
-make db/migrations/up
+#make db/migrations/up
 # dump test data
 
 # set up logfile location to /var/log/app.
 
 # ./api with args
-./api -db-dsn=$TODOS_DB_DSN
+#./api -db-dsn=$TODOS_DB_DSN
