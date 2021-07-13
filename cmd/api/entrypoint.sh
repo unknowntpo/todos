@@ -8,4 +8,6 @@ ls -l
 # set up logfile location to /var/log/app.
 
 # ./api with args
-#./api -db-dsn=$TODOS_DB_DSN
+./api -db-dsn=$TODOS_DB_DSN
+
+#ping localhost:5432

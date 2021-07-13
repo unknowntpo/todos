@@ -53,7 +53,7 @@ run/api:
 .PHONY: run/compose/up
 run/compose/up:
 	@docker-compose --env-file .envrc up -d --build
-	$(MAKE) db/migrations/up
+	#$(MAKE) db/migrations/up
 
 ## run/compose/down: shutdown the services
 .PHONY: run/compose/down
