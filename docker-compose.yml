@@ -17,8 +17,8 @@ services:
   db:
     image: postgres:alpine
     restart: always
-    volumes:
-      - ./testdata/init.sql:/docker-entrypoint-initdb.d/init.sql
+    #volumes:
+    #  - ./testdata/init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - ./.envrc
     ports:
@@ -28,3 +28,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  # config will be in charge of:
+  # 1. create new user: todos for db.
+  # 2. Do sql migrations to db.
+  # 3. dump testdata to db.
+  config:
+    image: alpine
+    build:
+      context: .
+      dockerfile: cmd/api/config.Dockerfile
+    env_file:
+      - ./.envrc
+    depends_on:
+      db:
+        condition: service_healthy
