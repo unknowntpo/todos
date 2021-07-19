@@ -61,7 +61,7 @@ func (m *MockTaskRepo) Insert(ctx context.Context, task *domain.Task) error {
 func (m *MockTaskRepo) Update(ctx context.Context, id int64, task *domain.Task) (*domain.Task, error) {
 	_ = ctx
 	// check if task is in m.taskList
-	for i, _ := range m.taskList {
+	for i := range m.taskList {
 		if m.taskList[i].ID == id {
 			// update the task
 			m.taskList[i].ID = task.ID

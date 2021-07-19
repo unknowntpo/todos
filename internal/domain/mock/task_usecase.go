@@ -52,6 +52,7 @@ func (m *MockTaskUsecase) GetByID(ctx context.Context, id int64) (*domain.Task, 
 func (m *MockTaskUsecase) Update(ctx context.Context, id int64, task *domain.Task) (*domain.Task, error) {
 	// Placeholder for context.
 	_ = ctx
+	_ = task
 
 	// TODO: What fileds should we update ?
 	task = &domain.Task{

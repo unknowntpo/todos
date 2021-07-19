@@ -66,6 +66,9 @@ func (t *TaskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	}
 	// readJSON
 	err = helpers.ReadJSON(w, r, &input)
+	if err != nil {
+		helpers.ServerErrorResponse(w, r, err)
+	}
 
 	if input.Title != nil {
 		task.Title = *input.Title

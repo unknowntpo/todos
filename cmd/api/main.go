@@ -42,7 +42,7 @@ func main() {
 
 	err := logrus.RegisterLog()
 	if err != nil {
-		logger.Log.PrintFatal(fmt.Errorf("Fail to set up logger: %v", err), nil)
+		logger.Log.PrintFatal(fmt.Errorf("fail to set up logger: %v", err), nil)
 	}
 
 	// set up db.
@@ -59,7 +59,7 @@ func main() {
 
 	err = app.serve()
 	if err != nil {
-		logger.Log.PrintFatal(fmt.Errorf("Server error: %v", err), nil)
+		logger.Log.PrintFatal(fmt.Errorf("server error: %v", err), nil)
 	}
 }
 
@@ -86,7 +86,7 @@ func setConfig() config {
 
 	// If the version flag value is true, then print out the version number and
 	// immediately exit.
-	if *displayVersion == true {
+	if *displayVersion {
 		fmt.Printf("Version:\t%s\n", version)
 		fmt.Printf("Build time:\t%s\n", buildTime)
 		os.Exit(0)
