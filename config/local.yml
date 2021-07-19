@@ -1,1 +1,0 @@
-dsn: "postgres://todos:pa55word@localhost/todos?sslmode=disable"
