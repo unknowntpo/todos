@@ -3,7 +3,7 @@ FROM golang:alpine AS builder
 RUN apk update && \
     apk add curl \
             git \
-            base \
+            bash \
             make \
     rm -rf /var/cache/apk/*
 
