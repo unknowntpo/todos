@@ -1,11 +1,10 @@
 FROM postgres:alpine as builder
 
 RUN apk update && \
-    apk add curl \
+    apk add --no-cache curl \
             git \
             bash \
             make \
-    rm -rf /var/cache/apk/*
 
 # install migrate which will be used by entrypoint.sh to perform DB migration
 ARG MIGRATE_VERSION=4.7.1

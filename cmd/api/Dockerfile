@@ -1,11 +1,10 @@
 FROM golang:alpine AS builder
 
 RUN apk update && \
-    apk add curl \
+    apk add --no-cache curl \
             git \
             bash \
             make \
-    rm -rf /var/cache/apk/*
 
 # TODO: set up golan-migrate
 WORKDIR /app
