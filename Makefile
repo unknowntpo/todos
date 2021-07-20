@@ -15,7 +15,7 @@ help:
 # TEST
 # ==================================================================================== #
 
-## test/unit: execute unit test.
+## test/unit: execute unit test
 .PHONY: test/unit
 test/unit:
 	@go test -v ./... -count=1
