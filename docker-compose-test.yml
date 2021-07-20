@@ -1,0 +1,36 @@
+version: "2.3"
+services:
+  server:
+    image: testapi
+    build:
+      context: .
+      dockerfile: cmd/api/integration-test.Dockerfile
+    env_file:
+      - ./.envrc
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:alpine
+    restart: always
+    env_file:
+      - ./.envrc
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  config:
+    image: alpine
+    build:
+      context: .
+      dockerfile: cmd/api/config.Dockerfile
+    env_file:
+      - ./.envrc
+    depends_on:
+      db:
+        condition: service_healthy

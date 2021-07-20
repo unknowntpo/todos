@@ -20,6 +20,13 @@ help:
 test/unit:
 	@go test -v ./... -count=1
 
+## test/integration: execute integration test
+.PHONY: test/integration
+test/integration:
+	@docker-compose -f docker-compose-test.yml --env-file .envrc up -d --build
+
+
+
 # ==================================================================================== #
 # BUILD
 # ==================================================================================== #
@@ -52,7 +59,7 @@ run/api:
 ## run/compose/up: run the services
 .PHONY: run/compose/up
 run/compose/up:
-	@docker-compose --env-file .envrc up -d --build
+	@docker-compose -f docker-compose.yml --env-file .envrc up -d --build
 
 ## run/compose/down: shutdown the services
 .PHONY: run/compose/down
