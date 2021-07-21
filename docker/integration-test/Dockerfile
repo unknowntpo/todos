@@ -5,7 +5,7 @@ RUN apk update && \
             git \
             bash \
             make \
-            build-base \
+            build-base
 
 # TODO: set up golan-migrate
 WORKDIR /app
@@ -19,4 +19,4 @@ RUN go mod verify
 # COPY source files to container
 COPY . .
 
-CMD ["go", "test", "-v", "./..."]
+RUN go test -v ./...

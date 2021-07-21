@@ -4,7 +4,7 @@ RUN apk update && \
     apk add --no-cache curl \
             git \
             bash \
-            make \
+            make
 
 # TODO: set up golan-migrate
 WORKDIR /app
@@ -23,7 +23,7 @@ RUN make build/api
 # Distribution
 FROM alpine:latest
 
-RUN apk --no-cache add bash make
+RUN apk add --no-cache bash make
 
 # create directory for logfiles.
 RUN mkdir -p /var/log/app
@@ -32,6 +32,6 @@ WORKDIR /app/
 COPY --from=builder /app/bin .
 COPY --from=builder /app/Makefile .
 COPY --from=builder /app/.envrc .
-COPY --from=builder /app/cmd/api/entrypoint.sh .
+COPY --from=builder /app/docker/server/entrypoint.sh .
 
 CMD ["./entrypoint.sh"]

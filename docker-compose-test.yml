@@ -1,10 +1,10 @@
 version: "2.3"
 services:
-  server:
+  it-test:
     image: testapi
     build:
       context: .
-      dockerfile: cmd/api/integration-test.Dockerfile
+      dockerfile: docker/integration-test/Dockerfile
     env_file:
       - ./.envrc
     ports:
@@ -12,6 +12,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      config:
+        condition: service_started
   db:
     image: postgres:alpine
     restart: always
@@ -28,7 +30,7 @@ services:
     image: alpine
     build:
       context: .
-      dockerfile: cmd/api/config.Dockerfile
+      dockerfile: docker/config/Dockerfile
     env_file:
       - ./.envrc
     depends_on:

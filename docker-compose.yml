@@ -4,7 +4,7 @@ services:
     image: api
     build:
       context: .
-      dockerfile: cmd/api/Dockerfile
+      dockerfile: docker/server/Dockerfile
     volumes:
         - /tmp/app:/var/log/app
     env_file:
@@ -36,7 +36,7 @@ services:
     image: alpine
     build:
       context: .
-      dockerfile: cmd/api/config.Dockerfile
+      dockerfile: docker/config/Dockerfile
     env_file:
       - ./.envrc
     depends_on:

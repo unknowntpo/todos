@@ -4,7 +4,7 @@ RUN apk update && \
     apk add --no-cache curl \
             git \
             bash \
-            make \
+            make
 
 # install migrate which will be used by entrypoint.sh to perform DB migration
 ARG MIGRATE_VERSION=4.7.1
@@ -29,7 +29,7 @@ COPY --from=builder /app/.envrc .
 COPY --from=builder /usr/local/bin/migrate /usr/local/bin
 COPY --from=builder /app/migrations ./migrations/
 COPY --from=builder /app/testdata ./testdata/
-COPY --from=builder /app/cmd/api/config.sh .
+COPY --from=builder /app/docker/config/config.sh .
 
 CMD ["./config.sh"]
 
