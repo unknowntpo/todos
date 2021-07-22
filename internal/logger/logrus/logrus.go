@@ -34,12 +34,8 @@ func (lw *logrusWrapper) PrintInfo(message string, properties map[string]string)
 }
 
 func (lw *logrusWrapper) PrintError(err error, properties map[string]string) {
-	//_, caller, line, _ := runtime.Caller(1)
 	lw.Logger.WithFields(logrus.Fields{
 		"properties": properties,
-		//"trace":      string(debug.Stack()),
-		//"caller":     fmt.Sprintf("%s:%d", caller, line),
-		//"trace": fmt.Sprintf("%+v", err),
 	}).Error(err)
 }
 
