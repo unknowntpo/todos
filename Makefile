@@ -53,8 +53,8 @@ build/api:
 
 ## run/api: run the cmd/api application
 .PHONY: run/api
-run/api:
-	@go run ./cmd/api -db-dsn=${TODOS_DB_DSN}
+run/api: db/start
+	@go run ./cmd/api -db-dsn=${TODOS_DB_DSN_LOCAL}
 
 ## run/compose/up: run the services
 .PHONY: run/compose/up
@@ -82,15 +82,18 @@ db/migrations/up:
 .PHONY: db/start
 db/start:
 	@echo "Start a new postgres db with testdata..."
-	#docker run --rm --name postgres \
-	    -v `pwd`/testdata/init.sql:/docker-entrypoint-initdb.d/init.sql \
-	    --env-file .envrc \
-	    -d -p 5432:5432 postgres:alpine
+	@docker-compose -f docker-compose-db.yml --env-file .envrc up -d
+
+## db/stop: stop a postgres container.
+.PHONY: db/stop
+db/stop:
+	@echo "Stop postgres db container..."
+	@docker-compose down
 
 ## db/connect: connect to the database in postgres container
 .PHONY: db/connect
 db/connect:
-	docker exec -it postgres psql $TODOS_DB_DSN
+	@docker exec -it todos_devdb psql ${TODOS_DB_DSN}
 
 # ==================================================================================== #
 # QUALITY CONTROL
