@@ -19,4 +19,4 @@ RUN go mod verify
 # COPY source files to container
 COPY . .
 
-RUN go test -v ./...
+RUN go test -v ./... -run=Integration

@@ -61,3 +61,9 @@ func TestGetByID(t *testing.T) {
 		testutil.TestEndpoint(t, router, tc)
 	}
 }
+
+func TestGetByIDIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+}

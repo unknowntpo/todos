@@ -18,7 +18,7 @@ help:
 ## test/unit: execute unit test
 .PHONY: test/unit
 test/unit:
-	@go test -v ./... -count=1
+	@go test -v ./... -short -count=1
 
 ## test/integration: execute integration test
 .PHONY: test/integration
