@@ -1,10 +1,7 @@
 package logrus
 
 import (
-	"fmt"
 	"os"
-	"runtime"
-	"runtime/debug"
 
 	"github.com/unknowntpo/todos/internal/logger"
 
@@ -47,11 +44,7 @@ func (lw *logrusWrapper) PrintError(err error, properties map[string]string) {
 }
 
 func (lw *logrusWrapper) PrintFatal(err error, properties map[string]string) {
-	_, caller, line, _ := runtime.Caller(0)
-
 	lw.Logger.WithFields(logrus.Fields{
 		"properties": properties,
-		"trace":      string(debug.Stack()),
-		"caller":     fmt.Sprintf("%s:%d", caller, line),
 	}).Fatal(err)
 }
