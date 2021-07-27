@@ -7,6 +7,7 @@ import (
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
 	"github.com/unknowntpo/todos/internal/helpers/validator"
+	"github.com/unknowntpo/todos/internal/logger"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -32,12 +33,11 @@ func (t *TaskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 	task, err := t.TU.GetByID(ctx, id)
 	if err != nil {
 		switch {
-		case errors.As(err, &domain.ErrRecordNotFound):
-			// FIXME: Doesn't work !
+		case errors.Is(err, domain.ErrRecordNotFound):
 			helpers.NotFoundResponse(w, r)
 		default:
+			logger.Log.PrintError(err, nil)
 			helpers.ServerErrorResponse(w, r, err)
-
 		}
 		return
 	}
@@ -48,6 +48,7 @@ func (t *TaskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 func (t *TaskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadIDParam(r)
 	if err != nil {
+		logger.Log.PrintError(err, nil)
 		helpers.NotFoundResponse(w, r)
 		return
 	}
@@ -56,6 +57,7 @@ func (t *TaskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	task, err := t.TU.GetByID(ctx, id)
 	if err != nil {
 		// TODO: errors.Is
+		logger.Log.PrintError(err, nil)
 		helpers.ServerErrorResponse(w, r, err)
 	}
 

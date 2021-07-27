@@ -28,7 +28,7 @@ func (tu *taskUsecase) GetByID(ctx context.Context, id int64) (*domain.Task, err
 
 	task, err := tu.taskRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("fail to get task by id from task repo: %v", err)
+		return nil, fmt.Errorf("fail to get task by id from task repo: %w", err)
 	}
 	return task, nil
 }
