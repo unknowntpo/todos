@@ -10,7 +10,6 @@ steps:
       - go install honnef.co/go/tools/cmd/staticcheck@latest
       - make vendor
       - make audit
-      - make test/unit
   - name: build
     image: golang
     commands:
