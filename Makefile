@@ -23,7 +23,8 @@ test/unit:
 ## test/integration: execute integration test
 .PHONY: test/integration
 test/integration:
-	@docker-compose -f docker-compose-test.yml --env-file .envrc up -d --build
+	@docker-compose -f docker-compose-it-test.yml --env-file .envrc up --abort-on-container-exit --build
+	@docker-compose -f docker-compose-it-test.yml down
 
 
 

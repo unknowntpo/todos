@@ -17,6 +17,8 @@ RUN go mod download
 RUN go mod verify
 
 # COPY source files to container
+COPY docker/integration-test/it-test.sh .
 COPY . .
 
-RUN go test -v ./... -run=Integration -cover -race
+#CMD ["go", "test", "-v", "./...", "-run=Integration", "-cover", "-race"]
+CMD ["./it-test.sh"]
