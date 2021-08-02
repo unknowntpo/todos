@@ -21,16 +21,10 @@ RUN make build/api
 
 
 # Distribution
-FROM alpine:latest
-
-RUN apk add --no-cache bash make
-
-# create directory for logfiles.
-RUN mkdir -p /var/log/app
+FROM scratch AS production
 
 WORKDIR /app/
 COPY --from=builder /app/bin .
-COPY --from=builder /app/Makefile .
 COPY --from=builder /app/.envrc .
 COPY --from=builder /app/docker/server/entrypoint.sh .
 
