@@ -4,7 +4,8 @@ services:
     image: api
     build:
       context: .
-      dockerfile: docker/server/Dockerfile
+      dockerfile: ./docker/Dockerfile
+      target: production
     volumes:
         - /tmp/app:/var/log/app
     env_file:
@@ -33,10 +34,11 @@ services:
   # 2. Do sql migrations to db.
   # 3. dump testdata to db.
   config:
-    image: alpine
+    image: config
     build:
       context: .
-      dockerfile: docker/config/Dockerfile
+      dockerfile: ./docker/Dockerfile
+      target: config
     env_file:
       - ./.envrc
     depends_on:

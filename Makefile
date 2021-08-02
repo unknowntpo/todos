@@ -23,7 +23,10 @@ test/unit:
 ## test/integration: execute integration test
 .PHONY: test/integration
 test/integration:
-	@docker-compose -f docker-compose-it-test.yml --env-file .envrc up --abort-on-container-exit --build
+	@docker-compose -f docker-compose-it-test.yml --env-file .envrc up \
+	    --abort-on-container-exit \
+	    --build \
+	    --remove-orphans
 	@docker-compose -f docker-compose-it-test.yml down
 
 
@@ -60,7 +63,10 @@ run/api: db/start
 ## run/compose/up: run the services
 .PHONY: run/compose/up
 run/compose/up:
-	@docker-compose -f docker-compose.yml --env-file .envrc up -d --build
+	@docker-compose -f docker-compose.yml --env-file .envrc up \
+	    -d \
+	    --build \
+	    --remove-orphans
 
 ## run/compose/down: shutdown the services
 .PHONY: run/compose/down
@@ -83,7 +89,7 @@ db/migrations/up:
 .PHONY: db/start
 db/start:
 	@echo "Start a new postgres db with testdata..."
-	@docker-compose -f docker-compose-db.yml --env-file .envrc up -d
+	@docker-compose -f docker-compose-db.yml --env-file .envrc up -d --remove-orphans
 
 ## db/stop: stop a postgres container.
 .PHONY: db/stop

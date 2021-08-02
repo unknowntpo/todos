@@ -14,10 +14,10 @@ services:
       timeout: 5s
       retries: 5
   config:
-    image: alpine
+    image: config
     build:
       context: .
-      dockerfile: docker/config/Dockerfile
+      dockerfile: ./docker/Dockerfile
     env_file:
       - ./.envrc
     depends_on:

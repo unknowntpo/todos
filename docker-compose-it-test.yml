@@ -4,7 +4,8 @@ services:
     image: testapi
     build:
       context: .
-      dockerfile: docker/integration-test/Dockerfile
+      dockerfile: ./docker/Dockerfile
+      target: it-test
     env_file:
       - ./.envrc
     ports:
@@ -27,10 +28,11 @@ services:
       timeout: 5s
       retries: 5
   config:
-    image: alpine
+    image: config
     build:
       context: .
-      dockerfile: docker/config/Dockerfile
+      dockerfile: ./docker/Dockerfile
+      target: config
     healthcheck:
       test: ["CMD-SHELL", "psql $$TODOS_DB_DSN -c SELECT * FROM tasks"]
       interval: 10s
