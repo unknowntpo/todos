@@ -1,4 +1,4 @@
-FROM golang:alpine
+FROM golang:alpine as builder
 
 RUN apk update && \
     apk add --no-cache curl \
@@ -16,9 +16,16 @@ COPY go.sum .
 RUN go mod download
 RUN go mod verify
 
-# COPY source files to container
-COPY docker/integration-test/it-test.sh .
 COPY . .
 
-#CMD ["go", "test", "-v", "./...", "-run=Integration", "-cover", "-race"]
+FROM golang:alpine
+
+RUN apk --no-cache add bash make build-base
+
+WORKDIR /app/
+
+# COPY source files to container
+COPY --from=builder /app/docker/integration-test/it-test.sh .
+COPY --from=builder /app .
+
 CMD ["./it-test.sh"]
