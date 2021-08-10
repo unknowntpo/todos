@@ -11,6 +11,8 @@ import (
 	_taskUsecase "github.com/unknowntpo/todos/internal/task/usecase"
 	_userAPI "github.com/unknowntpo/todos/internal/user/delivery/api"
 
+	_generalMiddleware "github.com/unknowntpo/todos/internal/middleware"
+
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -26,6 +28,7 @@ func (app *application) newRoutes() http.Handler {
 	tr := _taskRepoPostgres.NewTaskRepo(app.database)
 	//tr := mock.NewTaskRepo()
 	tu := _taskUsecase.NewTaskUsecase(tr, 3*time.Second)
+
 	_taskAPI.NewTaskAPI(router, tu)
 
 	// Use mockUseCase for testing.
@@ -35,5 +38,7 @@ func (app *application) newRoutes() http.Handler {
 	// TODO: Add more api endpoints
 
 	// TODO: Add middleware
-	return router
+	genMid := _generalMiddleware.New()
+
+	return genMid.RecoverPanic(router)
 }
