@@ -12,17 +12,17 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type TaskAPI struct {
+type taskAPI struct {
 	TU domain.TaskUsecase
 }
 
 func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase) {
-	handler := &TaskAPI{TU: tu}
+	handler := &taskAPI{TU: tu}
 	router.HandlerFunc(http.MethodGet, "/v1/tasks/:id", handler.GetByID)
 	router.HandlerFunc(http.MethodPatch, "/v1/tasks/:id", handler.Update)
 }
 
-func (t *TaskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
+func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadIDParam(r)
 	if err != nil {
 		helpers.NotFoundResponse(w, r)
@@ -45,7 +45,7 @@ func (t *TaskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"task": task}, nil)
 }
 
-func (t *TaskAPI) Update(w http.ResponseWriter, r *http.Request) {
+func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadIDParam(r)
 	if err != nil {
 		logger.Log.PrintError(err, nil)
