@@ -24,6 +24,12 @@ func (app *application) serve() error {
 
 	shutdownErr := make(chan error)
 
+	// Start background goroutine handler.
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	app.bg.Start(ctx)
+
 	go func() {
 		// Why we need buffered channel ?
 		quit := make(chan os.Signal, 1)
@@ -36,7 +42,7 @@ func (app *application) serve() error {
 		})
 
 		// do shutdown routine.
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 		defer cancel()
 
 		err := srv.Shutdown(ctx)
@@ -44,7 +50,7 @@ func (app *application) serve() error {
 			shutdownErr <- err
 		}
 
-		// TODO: wait for background task (e.g. email sender) to be completed.
+		app.bg.Wait()
 		shutdownErr <- nil
 	}()
 

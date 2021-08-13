@@ -11,6 +11,8 @@ import (
 	"github.com/unknowntpo/todos/internal/logger"
 	"github.com/unknowntpo/todos/internal/logger/logrus"
 
+	"github.com/unknowntpo/todos/internal/helpers/background"
+
 	_ "github.com/lib/pq"
 )
 
@@ -35,6 +37,7 @@ type config struct {
 type application struct {
 	config   config
 	database *sql.DB
+	bg       background.Background
 }
 
 func main() {

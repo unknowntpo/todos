@@ -33,7 +33,7 @@ func (app *application) newRoutes() http.Handler {
 
 	// Use mockUseCase for testing.
 	uu := mock.NewUserUsecase()
-	_userAPI.NewUserAPI(router, uu)
+	_userAPI.NewUserAPI(router, uu, &app.bg)
 
 	// TODO: Add more api endpoints
 

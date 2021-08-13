@@ -6,6 +6,8 @@ import (
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
+	"github.com/unknowntpo/todos/internal/helpers/background"
+
 	//"github.com/unknowntpo/todos/internal/helpers/validator"
 	//"github.com/unknowntpo/todos/internal/logger"
 
@@ -13,11 +15,12 @@ import (
 )
 
 type userAPI struct {
+	bg *background.Background
 	uu domain.UserUsecase
 }
 
-func NewUserAPI(router *httprouter.Router, uu domain.UserUsecase) {
-	handler := &userAPI{uu: uu}
+func NewUserAPI(router *httprouter.Router, uu domain.UserUsecase, bg *background.Background) {
+	handler := &userAPI{uu: uu, bg: bg}
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", handler.RegisterUser)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activated", handler.ActivateUser)
@@ -25,7 +28,6 @@ func NewUserAPI(router *httprouter.Router, uu domain.UserUsecase) {
 
 func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"user": "RegisterUser called"}, nil)
-
 }
 
 func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
