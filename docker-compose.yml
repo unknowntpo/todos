@@ -13,6 +13,8 @@ services:
     ports:
       - "4000:4000"
     depends_on:
+      config:
+        condition: service_healthy
       db:
         condition: service_healthy
   db:
@@ -29,16 +31,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  # config will be in charge of:
-  # 1. create new user: todos for db.
-  # 2. Do sql migrations to db.
-  # 3. dump testdata to db.
   config:
     image: config
     build:
       context: .
       dockerfile: ./docker/Dockerfile
       target: config
+    healthcheck:
+      test: ["CMD-SHELL", "psql $$TODOS_DB_DSN -c SELECT * FROM tasks"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     env_file:
       - ./.envrc
     depends_on:

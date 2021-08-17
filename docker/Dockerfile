@@ -2,12 +2,12 @@
 FROM golang:alpine as base
 
 RUN apk update && \
-    apk add --no-cache curl \
-            git \
-            bash \
-            make \
-            build-base \
-            postgresql-client
+apk add --no-cache curl \
+git \
+bash \
+make \
+build-base \
+postgresql-client
 
 ARG MIGRATE_VERSION=4.7.1
 ADD https://github.com/golang-migrate/migrate/releases/download/v${MIGRATE_VERSION}/migrate.linux-amd64.tar.gz /tmp
@@ -22,6 +22,8 @@ RUN go mod download
 RUN go mod verify
 
 COPY . .
+
+RUN make build/api
 
 ## it-test stage
 FROM base AS it-test
@@ -52,7 +54,7 @@ COPY --from=base /app/docker/config.sh .
 CMD ["./config.sh"]
 
 # Production stage
-FROM scratch AS production
+FROM alpine AS production
 
 WORKDIR /app/
 COPY --from=base /app/bin .
@@ -60,4 +62,3 @@ COPY --from=base /app/.envrc .
 COPY --from=base /app/docker/entrypoint.sh .
 
 CMD ["./entrypoint.sh"]
-
