@@ -61,4 +61,6 @@ COPY --from=base /app/bin .
 COPY --from=base /app/.envrc .
 COPY --from=base /app/docker/entrypoint.sh .
 
+EXPOSE 4000
+
 CMD ["./entrypoint.sh"]
