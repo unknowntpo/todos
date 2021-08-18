@@ -11,6 +11,8 @@ import (
 	//_taskUsecase "github.com/unknowntpo/todos/internal/task/usecase"
 	_userAPI "github.com/unknowntpo/todos/internal/user/delivery/api"
 
+	_tokenAPI "github.com/unknowntpo/todos/internal/token/delivery/api"
+
 	_generalMiddleware "github.com/unknowntpo/todos/internal/middleware"
 
 	"github.com/julienschmidt/httprouter"
@@ -36,6 +38,8 @@ func (app *application) newRoutes() http.Handler {
 	_userAPI.NewUserAPI(router, uu, &app.bg)
 
 	// TODO: Add more api endpoints
+	tokenUsecase := mock.NewTokenUsecase()
+	_tokenAPI.NewTokenAPI(router, tokenUsecase)
 
 	// TODO: Add middleware
 	genMid := _generalMiddleware.New()
