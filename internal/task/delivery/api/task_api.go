@@ -17,9 +17,9 @@ type taskAPI struct {
 }
 
 func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase) {
-	handler := &taskAPI{TU: tu}
-	router.HandlerFunc(http.MethodGet, "/v1/tasks/:id", handler.GetByID)
-	router.HandlerFunc(http.MethodPatch, "/v1/tasks/:id", handler.Update)
+	api := &taskAPI{TU: tu}
+	router.HandlerFunc(http.MethodGet, "/v1/tasks/:id", api.GetByID)
+	router.HandlerFunc(http.MethodPatch, "/v1/tasks/:id", api.Update)
 }
 
 func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {

@@ -20,10 +20,10 @@ type userAPI struct {
 }
 
 func NewUserAPI(router *httprouter.Router, uu domain.UserUsecase, bg *background.Background) {
-	handler := &userAPI{uu: uu, bg: bg}
+	api := &userAPI{uu: uu, bg: bg}
 
-	router.HandlerFunc(http.MethodPost, "/v1/users", handler.RegisterUser)
-	router.HandlerFunc(http.MethodPut, "/v1/users/activated", handler.ActivateUser)
+	router.HandlerFunc(http.MethodPost, "/v1/users", api.RegisterUser)
+	router.HandlerFunc(http.MethodPut, "/v1/users/activated", api.ActivateUser)
 }
 
 func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {

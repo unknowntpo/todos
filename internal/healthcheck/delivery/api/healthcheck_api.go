@@ -16,12 +16,12 @@ type healthcheckAPI struct {
 
 // NewHealthcheckAPI registers all handlers in /v1/healcheck to the router.
 func NewHealthcheckAPI(router *httprouter.Router, version, env string) {
-	handler := &healthcheckAPI{version: version, env: env}
-	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", handler.HealthcheckHandler)
+	api := &healthcheckAPI{version: version, env: env}
+	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", api.Healthcheck)
 }
 
 // TODO: Display metrics.
-func (h *healthcheckAPI) HealthcheckHandler(w http.ResponseWriter, r *http.Request) {
+func (h *healthcheckAPI) Healthcheck(w http.ResponseWriter, r *http.Request) {
 	env := helpers.Envelope{
 		"status": "available",
 		"system_info": map[string]string{
