@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/unknowntpo/todos/internal/domain"
+	"github.com/unknowntpo/todos/internal/helpers"
 )
 
 type MockTaskUsecase struct{}
@@ -12,26 +13,11 @@ func NewTaskUsecase() domain.TaskUsecase {
 	return &MockTaskUsecase{}
 }
 
-/*
-func (m *mockTaskUsecase) GetAll(title string, filters Filters) ([]*Task, Metadata, error) {
-
-	tasks := []*domain.Task{
-		{ID: 1, Title: "Do homework", Content: "Interesting", Done: true, Version: 1},
-		{ID: 2, Title: "Wash dishes", Content: "Boring", Done: false, Version: 1},
-	}
-
-	metadata := mockMetadata{
-		CurrentPage:  1,
-		PageSize:     10,
-		FirstPage:    1,
-		LastPage:     1,
-		TotalRecords: 2,
-	}
-	return tasks, Metadata, nil
+func (m *MockTaskUsecase) GetAll(ctx context.Context, title string, filters helpers.Filters) ([]*domain.Task, helpers.Metadata, error) {
+	return nil, helpers.Metadata{}, nil
 }
 
-*/
-
+// GetByID gets the task when id is 1, otherwise it returns nil, and an ErrRecordNotFound error.
 func (m *MockTaskUsecase) GetByID(ctx context.Context, id int64) (*domain.Task, error) {
 	// Placeholder for context.
 	_ = ctx
@@ -49,18 +35,32 @@ func (m *MockTaskUsecase) GetByID(ctx context.Context, id int64) (*domain.Task, 
 	return task, nil
 }
 
+// Insert inserts the task with id = 2
+func (m *MockTaskUsecase) Insert(ctx context.Context, task *domain.Task) error {
+	// Placeholder for context.
+	_ = ctx
+	_ = task
+
+	return nil
+}
+
+// Update updates the task where id = 1, change the following fields:
+// Content: boring, Done: true, and increment Version field to 2.
 func (m *MockTaskUsecase) Update(ctx context.Context, id int64, task *domain.Task) (*domain.Task, error) {
 	// Placeholder for context.
 	_ = ctx
 	_ = task
 
-	// TODO: What fileds should we update ?
 	task = &domain.Task{
 		ID:      1,
 		Title:   "Do homework",
 		Content: "boring",
-		Done:    false,
+		Done:    true,
 		Version: 2,
 	}
 	return task, nil
+}
+
+func (m *MockTaskUsecase) Delete(ctx context.Context, id int64) error {
+	return nil
 }

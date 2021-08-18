@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
+	"github.com/unknowntpo/todos/internal/helpers"
 )
 
 type MockTaskRepo struct {
@@ -21,6 +22,18 @@ func NewTaskRepo() domain.TaskRepository {
 		},
 		id: 1,
 	}
+}
+
+func (m *MockTaskRepo) GetAll(ctx context.Context, title string, filters helpers.Filters) ([]*domain.Task, helpers.Metadata, error) {
+	metadata := helpers.Metadata{
+		CurrentPage:  1,
+		PageSize:     10,
+		FirstPage:    1,
+		LastPage:     1,
+		TotalRecords: 2,
+	}
+
+	return nil, metadata, nil
 }
 
 func (m *MockTaskRepo) GetByID(ctx context.Context, id int64) (*domain.Task, error) {

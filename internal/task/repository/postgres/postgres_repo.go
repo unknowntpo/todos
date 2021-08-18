@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/unknowntpo/todos/internal/domain"
+	"github.com/unknowntpo/todos/internal/helpers"
 )
 
 type taskRepo struct {
@@ -14,6 +15,10 @@ type taskRepo struct {
 
 func NewTaskRepo(DB *sql.DB) domain.TaskRepository {
 	return &taskRepo{DB}
+}
+
+func (tr *taskRepo) GetAll(ctx context.Context, title string, filters helpers.Filters) ([]*domain.Task, helpers.Metadata, error) {
+	return nil, helpers.Metadata{}, nil
 }
 
 func (tr *taskRepo) GetByID(ctx context.Context, id int64) (*domain.Task, error) {
