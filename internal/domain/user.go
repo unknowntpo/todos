@@ -1,9 +1,11 @@
 package domain
 
 import (
+	"context"
 	"time"
 
 	"github.com/unknowntpo/todos/internal/helpers/password"
+	"github.com/unknowntpo/todos/internal/helpers/validator"
 )
 
 // User represents an individual user.
@@ -17,6 +19,13 @@ type User struct {
 	Version   int               `json:"-"`
 }
 
-type UserUsecase interface{}
+type UserUsecase interface {
+	ValidatePasswordPlaintext(ctx context.Context, v *validator.Validator, password string)
+}
 
-type UserRepository interface{}
+type UserRepository interface {
+	Insert(ctx context.Context, user *User) error
+	GetByEmail(ctx context.Context, email string) (*User, error)
+	Update(ctx context.Context, user *User) error
+	GetForToken(ctx context.Context, tokenScope, tokenPlaintext string) (*User, error)
+}
