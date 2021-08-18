@@ -17,18 +17,18 @@ func NewUserRepo() domain.UserRepository {
 	return &userRepo{}
 }
 
-func (m *userRepo) Insert(ctx context.Context, user *domain.User) error {
+func (ur *userRepo) Insert(ctx context.Context, user *domain.User) error {
 	return nil
 }
 
-func (m *userRepo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+func (ur *userRepo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	return nil, nil
 }
 
-func (m *userRepo) Update(ctx context.Context, user *domain.User) error {
+func (ur *userRepo) Update(ctx context.Context, user *domain.User) error {
 	return nil
 }
 
-func (m *userRepo) GetForToken(ctx context.Context, tokenScope, tokenPlaintext string) (*domain.User, error) {
+func (ur *userRepo) GetForToken(ctx context.Context, tokenScope, tokenPlaintext string) (*domain.User, error) {
 	return nil, nil
 }
