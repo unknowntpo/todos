@@ -40,11 +40,11 @@ CMD ["./it-test.sh"]
 # config stage
 FROM base AS config
 
-#RUN apk --no-cache add bash make
+RUN apk --no-cache add bash make
 
 WORKDIR /app/
 #COPY --from=base /app/bin .
-#COPY --from=base /app/Makefile .
+COPY --from=base /app/Makefile .
 COPY --from=base /app/.envrc .
 COPY --from=base /usr/local/bin/migrate /usr/local/bin
 COPY --from=base /app/migrations ./migrations/

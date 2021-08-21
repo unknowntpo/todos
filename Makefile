@@ -66,7 +66,8 @@ run/compose/up:
 	@docker-compose -f docker-compose.yml --env-file .envrc up \
 	    -d \
 	    --build \
-	    --remove-orphans
+	    --remove-orphans \
+	    --force-recreate
 
 ## run/compose/down: shutdown the services
 .PHONY: run/compose/down

@@ -7,14 +7,22 @@ migrate --version
 psql --version
 
 # psql run init.sql
-PGPASSWORD="postgres" psql -h db -U postgres -f ./testdata/init.sql
+echo "Executing init.sql..."
+PGPASSWORD="postgres" psql -h db -d todos -U postgres -f ./testdata/init.sql
 
 # do sql migration
 # TODO: How to do migration to db container ?
-migrate -path ./migrations -database $TODOS_DB_DSN up
+echo "Executing db migration..."
+make db/migrations/up
+#migrate -path ./migrations -database $TODOS_DB_DSN up
+
+PGPASSWORD="pa55word" psql -h db -d todos -U todos -c '\d'
 
 # dump testdata
-PGPASSWORD="pa55word" psql -h db -U todos -f ./testdata/testdata.sql
+
+echo "Dumping testdata..."
+PGPASSWORD="pa55word" psql -h db -d todos -U todos -f ./testdata/dummytask.sql
+PGPASSWORD="pa55word" psql -h db -d todos -U todos -f ./testdata/dummyuser.sql
 
 # make config container keep running
 ping google.com
