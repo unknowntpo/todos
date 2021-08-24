@@ -24,8 +24,8 @@ func NewTaskRepo() domain.TaskRepository {
 	}
 }
 
-func (m *MockTaskRepo) GetAll(ctx context.Context, title string, filters helpers.Filters) ([]*domain.Task, helpers.Metadata, error) {
-	metadata := helpers.Metadata{
+func (m *MockTaskRepo) GetAll(ctx context.Context, title string, filters domain.Filters) ([]*domain.Task, domain.Metadata, error) {
+	metadata := &helpers.Metadata{
 		CurrentPage:  1,
 		PageSize:     10,
 		FirstPage:    1,

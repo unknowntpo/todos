@@ -105,12 +105,10 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 
 	// Call the ValidateMovie() function and return a response containing the errors if
 	// any of the checks fail.
-	if validateTask(v, task); !v.Valid() {
+	if helpers.ValidateTask(v, task); !v.Valid() {
 		helpers.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
-
-	// TODO: We validate input at delivery layer.
 
 	ctx = r.Context()
 	taskUpdated, err := t.TU.Update(ctx, id, task)

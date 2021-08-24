@@ -3,8 +3,6 @@ package domain
 import (
 	"context"
 	"time"
-
-	"github.com/unknowntpo/todos/internal/helpers"
 )
 
 // Task represent the data structure of our task object.
@@ -19,7 +17,7 @@ type Task struct {
 }
 
 type TaskUsecase interface {
-	GetAll(ctx context.Context, title string, filters helpers.Filters) ([]*Task, helpers.Metadata, error)
+	GetAll(ctx context.Context, title string, filters Filters) ([]*Task, Metadata, error)
 	GetByID(ctx context.Context, id int64) (*Task, error)
 	Insert(ctx context.Context, task *Task) error
 	Update(ctx context.Context, id int64, task *Task) (*Task, error)
@@ -27,7 +25,7 @@ type TaskUsecase interface {
 }
 
 type TaskRepository interface {
-	GetAll(ctx context.Context, title string, filters helpers.Filters) ([]*Task, helpers.Metadata, error)
+	GetAll(ctx context.Context, title string, filters Filters) ([]*Task, Metadata, error)
 	GetByID(ctx context.Context, id int64) (*Task, error)
 	Insert(ctx context.Context, task *Task) error
 	Update(ctx context.Context, id int64, task *Task) (*Task, error)

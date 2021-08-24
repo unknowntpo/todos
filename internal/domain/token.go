@@ -3,8 +3,6 @@ package domain
 import (
 	"context"
 	"time"
-
-	"github.com/unknowntpo/todos/internal/helpers/validator"
 )
 
 type Token struct {
@@ -16,7 +14,7 @@ type Token struct {
 }
 
 type TokenUsecase interface {
-	ValidateTokenPlaintext(ctx context.Context, v *validator.Validator, tokenPlaintext string)
+	ValidateTokenPlaintext(ctx context.Context, v Validator, tokenPlaintext string)
 }
 
 type TokenRepository interface {

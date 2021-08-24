@@ -9,7 +9,7 @@ import (
 // Password is a struct containing the plaintext and hashed
 // versions of the password for a user.
 type Password struct {
-	plaintext *string
+	plaintext string
 	hash      []byte
 }
 
@@ -42,4 +42,14 @@ func (p *Password) Matches(plaintextPassword string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// GetPlainText returns the plain text password, if plain text password is not set, we return the empty string.
+func (p *Password) GetPlainText() string {
+	return p.plaintext
+}
+
+// GetHash returns the hash version of password, if the hash is not set, return nil.
+func (p *Password) GetHash() []byte {
+	return p.hash
 }

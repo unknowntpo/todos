@@ -13,8 +13,8 @@ func NewTaskUsecase() domain.TaskUsecase {
 	return &MockTaskUsecase{}
 }
 
-func (m *MockTaskUsecase) GetAll(ctx context.Context, title string, filters helpers.Filters) ([]*domain.Task, helpers.Metadata, error) {
-	return nil, helpers.Metadata{}, nil
+func (m *MockTaskUsecase) GetAll(ctx context.Context, title string, filters domain.Filters) ([]*domain.Task, domain.Metadata, error) {
+	return nil, &helpers.Metadata{}, nil
 }
 
 // GetByID gets the task when id is 1, otherwise it returns nil, and an ErrRecordNotFound error.
