@@ -64,3 +64,7 @@ func (m *MockTaskUsecase) Update(ctx context.Context, id int64, task *domain.Tas
 func (m *MockTaskUsecase) Delete(ctx context.Context, id int64) error {
 	return nil
 }
+
+func (m *MockTaskUsecase) ValidateTask(v domain.Validator, task *domain.Task) {
+	return
+}

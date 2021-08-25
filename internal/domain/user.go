@@ -17,7 +17,13 @@ type User struct {
 }
 
 type UserUsecase interface {
+	GetByEmail(ctx context.Context, email string) (*User, error)
+	Insert(ctx context.Context, user *User) error
+	GetForToken(ctx context.Context, tokenScope, tokenPlaintext string) (*User, error)
+	Update(ctx context.Context, user *User) error
 	ValidatePasswordPlaintext(ctx context.Context, v Validator, password string)
+	ValidateEmail(v Validator, email string)
+	ValidateUser(v Validator, user *User)
 }
 
 type UserRepository interface {

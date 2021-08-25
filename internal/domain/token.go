@@ -14,6 +14,9 @@ type Token struct {
 }
 
 type TokenUsecase interface {
+	New(ctx context.Context, userID int64, ttl time.Duration, scope string) (*Token, error)
+	Insert(ctx context.Context, token *Token) error
+	DeleteAllForUser(ctx context.Context, scope string, userID int64) error
 	ValidateTokenPlaintext(ctx context.Context, v Validator, tokenPlaintext string)
 }
 
