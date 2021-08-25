@@ -22,7 +22,3 @@ func (m *MockTokenUsecase) Insert(ctx context.Context, token *domain.Token) erro
 func (m *MockTokenUsecase) DeleteAllForUser(ctx context.Context, scope string, userID int64) error {
 	return nil
 }
-
-func (m *MockTokenUsecase) ValidateTokenPlaintext(ctx context.Context, v domain.Validator, tokenPlaintext string) {
-	return
-}

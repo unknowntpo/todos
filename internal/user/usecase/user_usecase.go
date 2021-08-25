@@ -12,7 +12,3 @@ type userUsecase struct{}
 func NewUserUsecase() domain.UserUsecase {
 	return &userUsecase{}
 }
-
-func (m *userUsecase) ValidatePasswordPlaintext(ctx context.Context, v *validator.Validator, password string) {
-	return
-}
