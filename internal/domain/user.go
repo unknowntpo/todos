@@ -11,7 +11,7 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
-	Password  Password  `json:"-"`
+	Password  password  `json:"-"`
 	Activated bool      `json:"activated"`
 	Version   int       `json:"-"`
 }
@@ -21,9 +21,6 @@ type UserUsecase interface {
 	Insert(ctx context.Context, user *User) error
 	GetForToken(ctx context.Context, tokenScope, tokenPlaintext string) (*User, error)
 	Update(ctx context.Context, user *User) error
-	ValidatePasswordPlaintext(ctx context.Context, v Validator, password string)
-	ValidateEmail(v Validator, email string)
-	ValidateUser(v Validator, user *User)
 }
 
 type UserRepository interface {

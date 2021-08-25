@@ -37,8 +37,8 @@ func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Requ
 	// Validate the email and password provided by the client.
 	v := validator.New()
 
-	helpers.ValidateEmail(v, input.Email)
-	helpers.ValidatePasswordPlaintext(v, input.Password)
+	domain.ValidateEmail(v, input.Email)
+	domain.ValidatePasswordPlaintext(v, input.Password)
 
 	if !v.Valid() {
 		helpers.FailedValidationResponse(w, r, v.Errors)

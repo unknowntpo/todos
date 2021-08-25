@@ -25,12 +25,3 @@ func (m *mockUserUsecase) GetForToken(ctx context.Context, tokenScope, tokenPlai
 func (m *mockUserUsecase) Update(ctx context.Context, user *domain.User) error {
 	return nil
 }
-func (m *mockUserUsecase) ValidatePasswordPlaintext(ctx context.Context, v domain.Validator, password string) {
-	return
-}
-func (m *mockUserUsecase) ValidateEmail(v domain.Validator, email string) {
-	return
-}
-func (m *mockUserUsecase) ValidateUser(v domain.Validator, user *domain.User) {
-	return
-}

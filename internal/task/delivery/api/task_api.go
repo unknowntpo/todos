@@ -105,7 +105,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 
 	// Call the ValidateMovie() function and return a response containing the errors if
 	// any of the checks fail.
-	if helpers.ValidateTask(v, task); !v.Valid() {
+	if domain.ValidateTask(v, task); !v.Valid() {
 		helpers.FailedValidationResponse(w, r, v.Errors)
 		return
 	}

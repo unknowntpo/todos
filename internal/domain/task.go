@@ -22,7 +22,6 @@ type TaskUsecase interface {
 	Insert(ctx context.Context, task *Task) error
 	Update(ctx context.Context, id int64, task *Task) (*Task, error)
 	Delete(ctx context.Context, id int64) error
-	ValidateTask(v Validator, task *Task)
 }
 
 type TaskRepository interface {
