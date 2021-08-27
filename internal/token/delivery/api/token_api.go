@@ -1,7 +1,9 @@
 package api
 
 import (
+	"errors"
 	"net/http"
+	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
@@ -12,11 +14,16 @@ import (
 
 type tokenAPI struct {
 	TU domain.TokenUsecase
+	UU domain.UserUsecase
 }
 
-func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase) {
-	api := &tokenAPI{TU: tu}
+func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase, uu domain.UserUsecase) {
+	api := &tokenAPI{TU: tu, UU: uu}
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", api.CreateAuthenticationToken)
+}
+
+type CreateAuthTokenResponse struct {
+	AuthenticationToken *domain.Token `json: authentication_token`
 }
 
 func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Request) {
@@ -45,50 +52,48 @@ func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// TODO: Move code below to proper position.
-	/*
-		// Lookup the user record based on the email address. If no matching user was
-		// found, then we call the app.invalidCredentialsResponse() helper to send a 401
-		// Unauthorized response to the client (we will create this helper in a moment).
-		user, err := app.models.Users.GetByEmail(input.Email)
-		if err != nil {
-			switch {
-			case errors.Is(err, data.ErrRecordNotFound):
-				app.invalidCredentialsResponse(w, r)
-			default:
-				app.serverErrorResponse(w, r, err)
-			}
-			return
-		}
+	ctx := r.Context()
 
-		// Check if the provided password matches the actual password for the user.
-		match, err := user.Password.Matches(input.Password)
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
+	user, err := t.UU.GetByEmail(ctx, input.Email)
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrRecordNotFound):
+			helpers.InvalidCredentialsResponse(w, r)
+		default:
+			helpers.ServerErrorResponse(w, r, err)
 		}
+		return
+	}
 
-		// If the passwords don't match, then we call the app.invalidCredentialsResponse()
-		// helper again and return.
-		if !match {
-			app.invalidCredentialsResponse(w, r)
-			return
-		}
+	// Check if the provided password matches the actual password for the user.
+	match, err := user.Password.Matches(input.Password)
+	if err != nil {
+		helpers.ServerErrorResponse(w, r, err)
+		return
+	}
 
-		// Otherwise, if the password is correct, we generate a new token with a 24-hour
-		// expiry time and the scope 'authentication'.
-		token, err := app.models.Tokens.New(user.ID, 24*time.Hour, data.ScopeAuthentication)
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
-		}
+	if !match {
+		helpers.InvalidCredentialsResponse(w, r)
+		return
+	}
 
-		// Encode the token to JSON and send it in the response along with a 201 Created
-		// status code.
-		err = app.writeJSON(w, http.StatusCreated, envelope{"authentication_token": token}, nil)
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-		}
+	// Otherwise, if the password is correct, we generate a new token with a 24-hour
+	// expiry time and the scope 'authentication'.
+	token, err := t.TU.New(ctx, user.ID, 24*time.Hour, domain.ScopeAuthentication)
+	if err != nil {
+		helpers.ServerErrorResponse(w, r, err)
+		return
+	}
 
-	*/
+	// Encode the token to JSON and send it in the response along with a 201 Created
+	// status code.
+	err = helpers.WriteJSON(w,
+		http.StatusCreated,
+		&CreateAuthTokenResponse{
+			AuthenticationToken: token,
+		}, nil)
+	if err != nil {
+		helpers.ServerErrorResponse(w, r, err)
+	}
+
 }

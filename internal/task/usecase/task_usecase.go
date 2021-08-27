@@ -21,8 +21,8 @@ func NewTaskUsecase(t domain.TaskRepository, timeout time.Duration) domain.TaskU
 	}
 }
 
-func (tu *taskUsecase) GetAll(ctx context.Context, title string, filters helpers.Filters) ([]*domain.Task, helpers.Metadata, error) {
-	return nil, helpers.Metadata{}, nil
+func (tu *taskUsecase) GetAll(ctx context.Context, title string, filters domain.Filters) ([]*domain.Task, domain.Metadata, error) {
+	return nil, &helpers.Metadata{}, nil
 }
 
 // Just call repo layer method for now.
