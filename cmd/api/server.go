@@ -9,65 +9,70 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/unknowntpo/todos/internal/logger"
 )
 
 func (app *application) serve() error {
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", app.config.port),
-		Handler:      app.routes(),
+		Handler:      app.newRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	shutdownError := make(chan error)
+	shutdownErr := make(chan error)
+
+	// Start background goroutine handler.
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	app.bg.Start(ctx)
 
 	go func() {
+		// Why we need buffered channel ?
 		quit := make(chan os.Signal, 1)
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		s := <-quit
 
-		app.logger.PrintInfo("shutting down server", map[string]string{
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+		s := <-quit
+		logger.Log.PrintInfo("shutting down server", map[string]string{
 			"signal": s.String(),
 		})
 
-		// Create a context with a 5-second timeout.
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		// do shutdown routine.
+		ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 		defer cancel()
 
 		err := srv.Shutdown(ctx)
 		if err != nil {
-			shutdownError <- err
+			shutdownErr <- err
 		}
 
-		// Log a message to say that we're waiting for any background goroutines to
-		// complete their tasks.
-		app.logger.PrintInfo("completing background tasks", map[string]string{
-			"addr": srv.Addr,
-		})
-
-		app.wg.Wait()
-		shutdownError <- nil
+		app.bg.Wait()
+		shutdownErr <- nil
 	}()
 
-	app.logger.PrintInfo("starting server", map[string]string{
+	logger.Log.PrintInfo("starting server", map[string]string{
 		"addr": srv.Addr,
 		"env":  app.config.env,
 	})
 
 	err := srv.ListenAndServe()
-	if !errors.Is(err, http.ErrServerClosed) {
-		return err
+	if err != nil {
+		if !errors.Is(err, http.ErrServerClosed) {
+			// Don't need to do graceful shutdown process, just return the error.
+			return err
+		}
 	}
 
-	err = <-shutdownError
+	err = <-shutdownErr
 	if err != nil {
 		return err
 	}
 
-	// At this point we know that the graceful shutdown completed successfully and we
-	// log a "stopped server" message.
-	app.logger.PrintInfo("stopped server", map[string]string{
+	logger.Log.PrintInfo("stopped server", map[string]string{
 		"addr": srv.Addr,
 	})
 

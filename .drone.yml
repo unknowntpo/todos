@@ -1,0 +1,17 @@
+kind: pipeline
+name: default
+workspace:
+  base: /go
+  path: src/github.com/unknowntpo/todos
+steps:
+  - name: test
+    image: golang
+    commands: 
+      - go install honnef.co/go/tools/cmd/staticcheck@latest
+      - make vendor
+      - make audit
+  - name: build
+    image: golang
+    commands:
+      - make build/api
+      - chmod +x ./bin/api

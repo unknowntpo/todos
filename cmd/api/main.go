@@ -1,20 +1,44 @@
+// TODOS API Documentation
+//
+// Terms Of Service:
+//
+// there are no TOS at this moment, use at your own risk we take no responsibility
+//
+//     Schemes: http, https
+//     Host: localhost:4000
+//     BasePath: /
+//     Version: 1.0.0
+//     License: MIT http://opensource.org/licenses/MIT
+//     Contact: Chang Chen Chien<e850506@gmail.com>
+//     Consumes:
+//     - application/json
+//
+//     Produces:
+//     - application/json
+//
+//     Security:
+//     - api_key:
+//
+//     SecurityDefinitions:
+//     api_key:
+//          type: apiKey
+//          name: KEY
+//          in: header
+// swagger:meta
 package main
 
 import (
 	"context"
 	"database/sql"
-	"expvar"
 	"flag"
 	"fmt"
 	"os"
-	"runtime"
-	"strings"
-	"sync"
 	"time"
 
-	"github.com/unknowntpo/todos/internal/data"
-	"github.com/unknowntpo/todos/internal/jsonlog"
-	"github.com/unknowntpo/todos/internal/mailer"
+	"github.com/unknowntpo/todos/internal/logger"
+	"github.com/unknowntpo/todos/internal/logger/logrus"
+
+	"github.com/unknowntpo/todos/internal/helpers/background"
 
 	_ "github.com/lib/pq"
 )
@@ -34,34 +58,46 @@ type config struct {
 		maxIdleConns int
 		maxIdleTime  string
 	}
-	limiter struct {
-		rps     float64
-		burst   int
-		enabled bool
-	}
-	smtp struct {
-		host     string
-		port     int
-		username string
-		password string
-		sender   string
-	}
-	cors struct {
-		trustedOrigins []string
-	}
 }
 
 // application holds the dependencies for our HTTP handlers, helpers, and middleware.
 type application struct {
-	config config
-	logger *jsonlog.Logger
-	models data.Models
-	mailer mailer.Mailer
-	wg     sync.WaitGroup
+	config   config
+	database *sql.DB
+	bg       background.Background
 }
 
 func main() {
+	cfg := setConfig()
+
+	err := logrus.RegisterLog()
+	if err != nil {
+		logger.Log.PrintFatal(fmt.Errorf("fail to set up logger: %v", err), nil)
+	}
+
+	// set up db.
+	db, err := openDB(cfg)
+	if err != nil {
+		logger.Log.PrintFatal(err, nil)
+	}
+	defer db.Close()
+
+	app := &application{
+		config:   cfg,
+		database: db,
+	}
+
+	err = app.serve()
+	if err != nil {
+		logger.Log.PrintFatal(fmt.Errorf("server error: %v", err), nil)
+	}
+}
+
+// config set the configuration and  returns the config struct.
+func setConfig() config {
 	var cfg config
+
+	displayVersion := flag.Bool("version", false, "Display version and exit")
 
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
@@ -75,25 +111,6 @@ func main() {
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "PostgreSQL max connection idle time")
-	// Config the rate limiter.
-	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 2, "Rate limiter maximum requests per second")
-	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
-	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
-
-	// Config the SMTP server.
-	flag.StringVar(&cfg.smtp.host, "smtp-host", "smtp.mailtrap.io", "SMTP host")
-	flag.IntVar(&cfg.smtp.port, "smtp-port", 25, "SMTP port")
-	flag.StringVar(&cfg.smtp.username, "smtp-username", "bd2857ac6e1116", "SMTP username")
-	flag.StringVar(&cfg.smtp.password, "smtp-password", "6f9845a2b11721", "SMTP password")
-	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "TODOs <no-reply@todos.unknowntpo.net>", "SMTP sender")
-
-	// Config the cors trusted origins.
-	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)", func(val string) error {
-		cfg.cors.trustedOrigins = strings.Fields(val)
-		return nil
-	})
-
-	displayVersion := flag.Bool("version", false, "Display version and exit")
 
 	flag.Parse()
 
@@ -105,57 +122,16 @@ func main() {
 		os.Exit(0)
 	}
 
-	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
-
-	db, err := openDB(cfg)
-	if err != nil {
-		logger.PrintFatal(err, nil)
-	}
-
-	defer db.Close()
-
-	logger.PrintInfo("database connection pool established", nil)
-
-	// Publish a new "version" variable in the expvar handler containing our application
-	// version number (currently the constant "1.0.0").
-	expvar.NewString("version").Set(version)
-
-	// Publish the number of active goroutines.
-	expvar.Publish("goroutines", expvar.Func(func() interface{} {
-		return runtime.NumGoroutine()
-	}))
-
-	// Publish the database connection pool statistics.
-	expvar.Publish("database", expvar.Func(func() interface{} {
-		return db.Stats()
-	}))
-
-	// Publish the current Unix timestamp.
-	expvar.Publish("timestamp", expvar.Func(func() interface{} {
-		return time.Now().Unix()
-	}))
-
-	app := &application{
-		config: cfg,
-		logger: logger,
-		models: data.NewModels(db),
-		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
-	}
-
-	err = app.serve()
-	if err != nil {
-		logger.PrintFatal(err, nil)
-	}
+	return cfg
 }
 
-// openDB returns a sql.DB connection pool.
 func openDB(cfg config) (*sql.DB, error) {
 	db, err := sql.Open("postgres", cfg.db.dsn)
 	if err != nil {
 		return nil, err
 	}
-	db.SetMaxOpenConns(cfg.db.maxOpenConns)
 
+	db.SetMaxOpenConns(cfg.db.maxOpenConns)
 	db.SetMaxIdleConns(cfg.db.maxIdleConns)
 
 	duration, err := time.ParseDuration(cfg.db.maxIdleTime)

@@ -1,33 +1,50 @@
 package main
 
 import (
-	"expvar"
 	"net/http"
+	"time"
+
+	"github.com/unknowntpo/todos/internal/domain/mock"
+	_healthcheckAPI "github.com/unknowntpo/todos/internal/healthcheck/delivery/api"
+
+	_taskAPI "github.com/unknowntpo/todos/internal/task/delivery/api"
+	_taskUsecase "github.com/unknowntpo/todos/internal/task/usecase"
+	//_taskRepoPostgres "github.com/unknowntpo/todos/internal/task/repository/postgres"
+
+	//_userRepoPostgres "github.com/unknowntpo/todos/internal/user/repository/postgres"
+	_userAPI "github.com/unknowntpo/todos/internal/user/delivery/api"
+	_userUsecase "github.com/unknowntpo/todos/internal/user/usecase"
+
+	//_tokenRepoPostgres "github.com/unknowntpo/todos/internal/token/repository/postgres"
+	_tokenAPI "github.com/unknowntpo/todos/internal/token/delivery/api"
+	_tokenUsecase "github.com/unknowntpo/todos/internal/token/usecase"
+
+	_generalMiddleware "github.com/unknowntpo/todos/internal/middleware"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-// routes setup routing of our router.
-func (app *application) routes() http.Handler {
+func (app *application) newRoutes() http.Handler {
 	router := httprouter.New()
+	_healthcheckAPI.NewHealthcheckAPI(router, version, app.config.env)
 
-	router.NotFound = http.HandlerFunc(app.notFoundResponse)
-	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
+	// mock the repo
+	// maybe its stub ?
+	taskRepo := mock.NewTaskRepo()
+	taskUsecase := _taskUsecase.NewTaskUsecase(taskRepo, 3*time.Second)
+	_taskAPI.NewTaskAPI(router, taskUsecase)
 
-	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
+	userRepo := mock.NewUserRepo()
+	userUsecase := _userUsecase.NewUserUsecase(userRepo, 3*time.Second)
+	_userAPI.NewUserAPI(router, userUsecase, &app.bg)
 
-	router.HandlerFunc(http.MethodGet, "/v1/tasks", app.requirePermission("movies:read", app.listTasksHandler))
-	router.HandlerFunc(http.MethodPost, "/v1/tasks", app.requirePermission("movies:write", app.createTaskHandler))
-	router.HandlerFunc(http.MethodGet, "/v1/tasks/:id", app.requirePermission("movies:read", app.showTaskHandler))
-	router.HandlerFunc(http.MethodPatch, "/v1/tasks/:id", app.requirePermission("movies:write", app.updateTaskHandler))
-	router.HandlerFunc(http.MethodDelete, "/v1/tasks/:id", app.requirePermission("movies:write", app.deleteTaskHandler))
+	// TODO: Add more api endpoints
+	tokenRepo := mock.NewTokenRepo()
+	tokenUsecase := _tokenUsecase.NewTokenUsecase(tokenRepo, 3*time.Second)
+	_tokenAPI.NewTokenAPI(router, tokenUsecase, userUsecase)
 
-	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
-	router.HandlerFunc(http.MethodPut, "/v1/users/activated", app.activateUserHandler)
+	// TODO: Add middleware
+	genMid := _generalMiddleware.New()
 
-	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthenticationTokenHandler)
-
-	router.Handler(http.MethodGet, "/debug/vars", expvar.Handler())
-
-	return app.metrics(app.recoverPanic(app.enableCORS(app.rateLimit(app.authenticate(router)))))
+	return genMid.RecoverPanic(router)
 }
