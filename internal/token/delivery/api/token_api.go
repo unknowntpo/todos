@@ -23,7 +23,7 @@ func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase, uu domain.Us
 }
 
 type CreateAuthTokenResponse struct {
-	AuthenticationToken *domain.Token `json: authentication_token`
+	AuthenticationToken *domain.Token `json: "authentication_token"`
 }
 
 func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Request) {

@@ -9,7 +9,7 @@ import (
 // Password is a struct containing the plaintext and hashed
 // versions of the password for a user.
 type Password struct {
-	plaintext string
+	plaintext *string
 	hash      []byte
 }
 

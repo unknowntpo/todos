@@ -2,13 +2,9 @@ package mock
 
 import (
 	"context"
-	"sync"
-	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
-	"github.com/unknowntpo/todos/internal/helpers"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
