@@ -33,10 +33,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/unknowntpo/todos/config"
+	"github.com/unknowntpo/todos/internal/helpers/background"
 	"github.com/unknowntpo/todos/internal/logger"
 	"github.com/unknowntpo/todos/internal/logger/logrus"
-
-	"github.com/unknowntpo/todos/internal/helpers/background"
 
 	_ "github.com/lib/pq"
 )
@@ -48,7 +48,7 @@ var (
 
 // application holds the dependencies for our HTTP handlers, helpers, and middleware.
 type application struct {
-	config   Config
+	config   *config.Config
 	database *sql.DB
 	bg       background.Background
 }
@@ -79,7 +79,7 @@ func main() {
 	}
 }
 
-func openDB(cfg Config) (*sql.DB, error) {
+func openDB(cfg *config.Config) (*sql.DB, error) {
 	db, err := sql.Open("postgres", cfg.DB.Dsn)
 	if err != nil {
 		return nil, err

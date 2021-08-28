@@ -5,43 +5,13 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/unknowntpo/todos/config"
 )
 
-// Config holds configuration of server
-type Config struct {
-	Port    int
-	Env     string
-	DB      DB
-	Limiter Limiter
-	Smtp    Smtp
-	Cors    Cors
-}
-
-type DB struct {
-	Dsn          string
-	MaxOpenConns int
-	MaxIdleConns int
-	MaxIdleTime  string
-}
-type Limiter struct {
-	Rps     float64
-	Burst   int
-	Enabled bool
-}
-type Smtp struct {
-	Host     string
-	Port     int
-	Username string
-	Password string
-	Sender   string
-}
-type Cors struct {
-	TrustedOrigins []string
-}
-
 // config set the configuration and  returns the config struct.
-func setConfig() Config {
-	var cfg Config
+func setConfig() *config.Config {
+	var cfg config.Config
 
 	displayVersion := flag.Bool("version", false, "Display version and exit")
 
@@ -86,5 +56,5 @@ func setConfig() Config {
 		os.Exit(0)
 	}
 
-	return cfg
+	return &cfg
 }
