@@ -48,7 +48,7 @@ var (
 
 // application holds the dependencies for our HTTP handlers, helpers, and middleware.
 type application struct {
-	config   config
+	config   Config
 	database *sql.DB
 	bg       background.Background
 }
@@ -79,16 +79,16 @@ func main() {
 	}
 }
 
-func openDB(cfg config) (*sql.DB, error) {
-	db, err := sql.Open("postgres", cfg.db.dsn)
+func openDB(cfg Config) (*sql.DB, error) {
+	db, err := sql.Open("postgres", cfg.DB.Dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	db.SetMaxOpenConns(cfg.db.maxOpenConns)
-	db.SetMaxIdleConns(cfg.db.maxIdleConns)
+	db.SetMaxOpenConns(cfg.DB.MaxOpenConns)
+	db.SetMaxIdleConns(cfg.DB.MaxIdleConns)
 
-	duration, err := time.ParseDuration(cfg.db.maxIdleTime)
+	duration, err := time.ParseDuration(cfg.DB.MaxIdleTime)
 	if err != nil {
 		return nil, err
 	}

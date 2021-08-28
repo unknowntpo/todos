@@ -15,7 +15,7 @@ import (
 
 func (app *application) serve() error {
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", app.config.port),
+		Addr:         fmt.Sprintf(":%d", app.config.Port),
 		Handler:      app.newRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
@@ -56,7 +56,7 @@ func (app *application) serve() error {
 
 	logger.Log.PrintInfo("starting server", map[string]string{
 		"addr": srv.Addr,
-		"env":  app.config.env,
+		"env":  app.config.Env,
 	})
 
 	err := srv.ListenAndServe()

@@ -26,7 +26,7 @@ import (
 
 func (app *application) newRoutes() http.Handler {
 	router := httprouter.New()
-	_healthcheckAPI.NewHealthcheckAPI(router, version, app.config.env)
+	_healthcheckAPI.NewHealthcheckAPI(router, version, app.config.Env)
 
 	// mock the repo
 	// maybe its stub ?
