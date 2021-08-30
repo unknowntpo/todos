@@ -44,7 +44,7 @@ func (app *application) newRoutes() http.Handler {
 	_tokenAPI.NewTokenAPI(router, tokenUsecase, userUsecase)
 
 	// TODO: Add middleware
-	genMid := _generalMiddleware.New()
+	genMid := _generalMiddleware.New(app.config)
 
-	return genMid.RecoverPanic(router)
+	return genMid.RecoverPanic(genMid.RateLimit(router))
 }
