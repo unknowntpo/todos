@@ -1,6 +1,7 @@
 package main
 
 import (
+	"expvar"
 	"net/http"
 	"time"
 
@@ -42,6 +43,8 @@ func (app *application) newRoutes() http.Handler {
 	tokenRepo := mock.NewTokenRepo()
 	tokenUsecase := _tokenUsecase.NewTokenUsecase(tokenRepo, 3*time.Second)
 	_tokenAPI.NewTokenAPI(router, tokenUsecase, userUsecase)
+
+	router.Handler(http.MethodGet, "/debug/vars", expvar.Handler())
 
 	// TODO: Add middleware
 	genMid := _generalMiddleware.New(app.config)
