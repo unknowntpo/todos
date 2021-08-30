@@ -63,7 +63,7 @@ run/api: db/start
 ## run/compose/up: run the services
 .PHONY: run/compose/up
 run/compose/up:
-	@docker-compose -f docker-compose.yml --env-file .envrc up \
+	@docker-compose -f docker-compose-prod.yml --env-file .envrc up \
 	    -d \
 	    --build \
 	    --remove-orphans \
