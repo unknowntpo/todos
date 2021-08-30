@@ -17,8 +17,8 @@ func NewTaskRepo(DB *sql.DB) domain.TaskRepository {
 	return &taskRepo{DB}
 }
 
-func (tr *taskRepo) GetAll(ctx context.Context, title string, filters helpers.Filters) ([]*domain.Task, helpers.Metadata, error) {
-	return nil, helpers.Metadata{}, nil
+func (tr *taskRepo) GetAll(ctx context.Context, title string, filters domain.Filters) ([]*domain.Task, domain.Metadata, error) {
+	return nil, &helpers.Metadata{}, nil
 }
 
 func (tr *taskRepo) GetByID(ctx context.Context, id int64) (*domain.Task, error) {

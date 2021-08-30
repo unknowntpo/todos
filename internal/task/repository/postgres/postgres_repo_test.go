@@ -1,17 +1,15 @@
 package postgres
 
 import (
-	//"context"
-
 	"context"
 	"testing"
 	"time"
 
-	//"time"
+	"github.com/unknowntpo/todos/internal/domain"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
-	"github.com/unknowntpo/todos/internal/testutil"
 )
 
 func TestGetByID(t *testing.T) {
@@ -19,50 +17,28 @@ func TestGetByID(t *testing.T) {
 	assert.NoError(t, err)
 	defer db.Close()
 
+	// Set up mock data.
+	fakeTime := time.Now()
+	row := sqlmock.NewRows([]string{"id", "created_at", "title", "content", "done", "version"}).
+		AddRow(1, fakeTime, "task1", "do work", false, 1)
+	mock.ExpectQuery("SELECT (.+) FROM tasks WHERE id = ?").WithArgs(1).WillReturnRows(row)
+
 	repo := NewTaskRepo(db)
+	task, err := repo.GetByID(context.TODO(), 1)
+	assert.NoError(t, err)
 
-	rows := sqlmock.NewRows([]string{})
-
-}
-
-// Where to put integration test ?
-/*
-func TestGetByIDIntegration(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test...")
+	wantTask := &domain.Task{
+		ID:        1,
+		CreatedAt: fakeTime,
+		Title:     "task1",
+		Content:   "do work",
+		Done:      false,
+		Version:   1,
 	}
 
-	db := testutil.NewTestDB(t)
+	assert.Equal(t, wantTask, task)
 
-	// TODO: truncate table and inject data manually
-	resetTasksTable := `TRUNCATE TABLE tasks;`
-	_, err := db.Exec(resetTasksTable)
-	assert.NoError(t, err)
-
-	insertTask := `INSERT INTO tasks (title, content, done)
-	VALUES ('Do housework', 'The first task!', false);`
-	_, err = db.Exec(insertTask)
-	assert.NoError(t, err)
-
-	showTasks := `SELECT * FROM tasks;`
-	_, err = db.Exec(showTasks)
-	assert.NoError(t, err)
-
-	//teardown := testutil.PrepareSQLQuery(t, db, "./migrations/000001_create_tasks_table.down.sql")
-	//defer teardown(t)
-
-	// test get id = 1
-	repo := NewTaskRepo(db)
-	var id int64 = 1
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-	task, err := repo.GetByID(ctx, id)
-	if assert.NoError(t, err) {
-		assert.Equal(t, "Do housework", task.Title, "wrong title")
-		assert.Equal(t, "The first task!", task.Content, "wrong content")
-		assert.Equal(t, false, task.Done, "wrong state of task: done or not?")
-
-		t.Log(task)
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
-*/
