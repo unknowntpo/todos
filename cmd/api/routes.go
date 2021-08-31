@@ -16,8 +16,8 @@ import (
 	_userAPI "github.com/unknowntpo/todos/internal/user/delivery/api"
 	_userUsecase "github.com/unknowntpo/todos/internal/user/usecase"
 
-	//_tokenRepoPostgres "github.com/unknowntpo/todos/internal/token/repository/postgres"
 	_tokenAPI "github.com/unknowntpo/todos/internal/token/delivery/api"
+	_tokenRepoPostgres "github.com/unknowntpo/todos/internal/token/repository/postgres"
 	_tokenUsecase "github.com/unknowntpo/todos/internal/token/usecase"
 
 	_generalMiddleware "github.com/unknowntpo/todos/internal/middleware"
@@ -39,8 +39,7 @@ func (app *application) newRoutes() http.Handler {
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, 3*time.Second)
 	_userAPI.NewUserAPI(router, userUsecase, &app.bg)
 
-	// TODO: Add more api endpoints
-	tokenRepo := mock.NewTokenRepo()
+	tokenRepo := _tokenRepoPostgres.NewTokenRepo(app.database)
 	tokenUsecase := _tokenUsecase.NewTokenUsecase(tokenRepo, 3*time.Second)
 	_tokenAPI.NewTokenAPI(router, tokenUsecase, userUsecase)
 
