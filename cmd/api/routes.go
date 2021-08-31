@@ -47,7 +47,9 @@ func (app *application) newRoutes() http.Handler {
 	router.Handler(http.MethodGet, "/debug/vars", expvar.Handler())
 
 	// TODO: Add middleware
-	genMid := _generalMiddleware.New(app.config)
+	genMid := _generalMiddleware.New(app.config, userUsecase)
 
-	return genMid.RecoverPanic(genMid.RateLimit(router))
+	return genMid.Metrics(genMid.RecoverPanic(genMid.EnableCORS(genMid.RateLimit(genMid.Authenticate(router)))))
+	//return app.metrics(app.recoverPanic(app.enableCORS(app.rateLimit(app.authenticate(router)))))
+
 }

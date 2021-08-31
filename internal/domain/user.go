@@ -16,6 +16,14 @@ type User struct {
 	Version   int       `json:"-"`
 }
 
+// AnonymousUser represents an anonymous user.
+var AnonymousUser = &User{}
+
+// IsAnonymous checks if a User instance is the AnonymousUser.
+func (u *User) IsAnonymous() bool {
+	return u == AnonymousUser
+}
+
 type UserUsecase interface {
 	GetByEmail(ctx context.Context, email string) (*User, error)
 	Insert(ctx context.Context, user *User) error
