@@ -1,6 +1,7 @@
 version: "2.3"
 services:
   it-test:
+    container_name: todos_it-test-server
     image: testapi
     build:
       context: .
@@ -16,6 +17,7 @@ services:
       config:
         condition: service_healthy
   db:
+    container_name: todos_it-test-db
     image: postgres:alpine
     restart: always
     env_file:
@@ -28,6 +30,7 @@ services:
       timeout: 5s
       retries: 5
   config:
+    container_name: todos_config
     image: config
     restart: always
     build:

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"expvar"
 	"net/http"
 	"time"
 
@@ -43,8 +44,12 @@ func (app *application) newRoutes() http.Handler {
 	tokenUsecase := _tokenUsecase.NewTokenUsecase(tokenRepo, 3*time.Second)
 	_tokenAPI.NewTokenAPI(router, tokenUsecase, userUsecase)
 
-	// TODO: Add middleware
-	genMid := _generalMiddleware.New(app.config)
+	router.Handler(http.MethodGet, "/debug/vars", expvar.Handler())
 
-	return genMid.RecoverPanic(genMid.RateLimit(router))
+	// TODO: Add middleware
+	genMid := _generalMiddleware.New(app.config, userUsecase)
+
+	return genMid.Metrics(genMid.RecoverPanic(genMid.EnableCORS(genMid.RateLimit(genMid.Authenticate(router)))))
+	//return app.metrics(app.recoverPanic(app.enableCORS(app.rateLimit(app.authenticate(router)))))
+
 }

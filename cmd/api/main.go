@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"database/sql"
+	"expvar"
 	"fmt"
+	"runtime"
 	"time"
 
 	"github.com/unknowntpo/todos/config"
@@ -40,6 +42,25 @@ func main() {
 		logger.Log.PrintFatal(err, nil)
 	}
 	defer db.Close()
+
+	// Publish a new "version" variable in the expvar handler containing our application
+	// version number.
+	expvar.NewString("version").Set(version)
+
+	// Publish the number of active goroutines.
+	expvar.Publish("goroutines", expvar.Func(func() interface{} {
+		return runtime.NumGoroutine()
+	}))
+
+	// Publish the database connection pool statistics.
+	expvar.Publish("database", expvar.Func(func() interface{} {
+		return db.Stats()
+	}))
+
+	// Publish the current Unix timestamp.
+	expvar.Publish("timestamp", expvar.Func(func() interface{} {
+		return time.Now().Unix()
+	}))
 
 	app := &application{
 		config:   cfg,

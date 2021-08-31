@@ -1,6 +1,7 @@
 version: "2.3"
 services:
   server:
+    container_name: todos_prod-server
     image: api
     build:
       context: .
@@ -18,6 +19,7 @@ services:
       db:
         condition: service_healthy
   db:
+    container_name: todos_prod-db
     image: postgres:alpine
     restart: always
     #volumes:
@@ -32,6 +34,7 @@ services:
       timeout: 5s
       retries: 5
   config:
+    container_name: todos_config
     image: config
     restart: always
     build:
