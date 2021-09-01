@@ -2,7 +2,13 @@ package domain
 
 import (
 	"context"
+	"errors"
+
 	"time"
+)
+
+var (
+	ErrDuplicateEmail = errors.New("duplicate email")
 )
 
 // User represents an individual user.
@@ -11,7 +17,7 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
-	Password  password  `json:"-"`
+	Password  Password  `json:"-"`
 	Activated bool      `json:"activated"`
 	Version   int       `json:"-"`
 }

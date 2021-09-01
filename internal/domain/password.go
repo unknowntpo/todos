@@ -6,25 +6,25 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// password is a struct containing the plaintext and hashed
+// Password is a struct containing the plaintext and hashed
 // versions of the password for a user. The plaintext field is a *pointer* to a string,
 // so that we're able to distinguish between a plaintext password not being present in
 // the struct at all, versus a plaintext password which is the empty string "".
-type password struct {
-	plaintext *string
-	hash      []byte
+type Password struct {
+	Plaintext *string
+	Hash      []byte
 }
 
 // Set calculates the bcrypt hash of a plaintext password, and stores both
 // the hash and the plaintext versions in the struct.
-func (p *password) Set(plaintextPassword string) error {
+func (p *Password) Set(plaintextPassword string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 12)
 	if err != nil {
 		return err
 	}
 
-	p.plaintext = &plaintextPassword
-	p.hash = hash
+	p.Plaintext = &plaintextPassword
+	p.Hash = hash
 
 	return nil
 }
@@ -32,8 +32,8 @@ func (p *password) Set(plaintextPassword string) error {
 // Matches checks whether the provided plaintext password matches the
 // hashed password stored in the struct, returning true if it matches and false
 // otherwise.
-func (p *password) Matches(plaintextPassword string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plaintextPassword))
+func (p *Password) Matches(plaintextPassword string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(p.Hash, []byte(plaintextPassword))
 	if err != nil {
 		switch {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):

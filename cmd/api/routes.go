@@ -12,8 +12,8 @@ import (
 	_taskUsecase "github.com/unknowntpo/todos/internal/task/usecase"
 	//_taskRepoPostgres "github.com/unknowntpo/todos/internal/task/repository/postgres"
 
-	//_userRepoPostgres "github.com/unknowntpo/todos/internal/user/repository/postgres"
 	_userAPI "github.com/unknowntpo/todos/internal/user/delivery/api"
+	_userRepoPostgres "github.com/unknowntpo/todos/internal/user/repository/postgres"
 	_userUsecase "github.com/unknowntpo/todos/internal/user/usecase"
 
 	_tokenAPI "github.com/unknowntpo/todos/internal/token/delivery/api"
@@ -35,7 +35,7 @@ func (app *application) newRoutes() http.Handler {
 	taskUsecase := _taskUsecase.NewTaskUsecase(taskRepo, 3*time.Second)
 	_taskAPI.NewTaskAPI(router, taskUsecase)
 
-	userRepo := mock.NewUserRepo()
+	userRepo := _userRepoPostgres.NewUserRepo(app.database)
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, 3*time.Second)
 	_userAPI.NewUserAPI(router, userUsecase, &app.bg)
 
