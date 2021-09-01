@@ -103,21 +103,23 @@ db/stop:
 db/connect:
 	@docker exec -it todos_devdb psql ${TODOS_DB_DSN}
 
-## doc/gen: use go-swagger to generate API documentation
-.PHONY: doc/gen
-doc/gen:
+## docs/gen: use swagger codegen to generate API documentation
+.PHONY: docs/gen
+docs/gen:
 	@echo "Generating swagger API documentation..."
-	swagger generate spec -o ./doc/swagger.json
+	@docker run --rm -v ${PWD}/docs:/local swaggerapi/swagger-codegen-cli-v3 generate \
+	    -i /local/swagger.yml \
+	    -l go \
+	    -o /local/go
 
-
-## doc/show: use swaggerUI container to show API documentation. 
-.PHONY: doc/show
-doc/show:
+## docs/show: use swaggerUI container to show API documentation. 
+.PHONY: docs/show
+docs/show:
 	@echo "Showing swagger API documentation at :8080..."
 	@docker run --rm -d -p 8080:8080 \
-	-e SWAGGER_JSON='/doc/swagger.json' \
+	-e SWAGGER_JSON='/docs/swagger.yml' \
 	-e BASE_URL='/' \
-	--mount type=bind,source="$(shell pwd)"/doc,target=/doc \
+	--mount type=bind,source="$(shell pwd)"/docs,target=/docs \
 	swaggerapi/swagger-ui
 
 
