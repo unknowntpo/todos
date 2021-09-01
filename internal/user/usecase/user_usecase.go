@@ -18,29 +18,46 @@ func NewUserUsecase(ur domain.UserRepository, timeout time.Duration) domain.User
 }
 
 func (uu *userUsecase) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
-	// FIXME: Just a stub! Need actual implementation
-	user := &domain.User{
-		ID:        1,
-		CreatedAt: time.Now(),
-		Name:      "Alice Smith",
-		Email:     "alice@example.com",
-		Activated: true,
-		Version:   1,
-	}
+	ctx, cancel := context.WithTimeout(ctx, uu.contextTimeout)
+	defer cancel()
 
-	err := user.Password.Set("pa55word")
+	user, err := uu.userRepo.GetByEmail(ctx, email)
 	if err != nil {
-		return nil, fmt.Errorf("in user usecase,fail to set password for dummy user: %v", err)
+		// TODO: Improve error chain message
+		return nil, fmt.Errorf("fail to get user by email at user usecase: %w", err)
 	}
-
 	return user, nil
 }
 func (uu *userUsecase) Insert(ctx context.Context, user *domain.User) error {
+	ctx, cancel := context.WithTimeout(ctx, uu.contextTimeout)
+	defer cancel()
+
+	err := uu.userRepo.Insert(ctx, user)
+	if err != nil {
+		// TODO: Improve error chain message
+		return fmt.Errorf("fail to insert user at user usecase: %w", err)
+	}
 	return nil
 }
 func (uu *userUsecase) GetForToken(ctx context.Context, tokenScope, tokenPlaintext string) (*domain.User, error) {
-	return nil, nil
+	ctx, cancel := context.WithTimeout(ctx, uu.contextTimeout)
+	defer cancel()
+
+	user, err := uu.userRepo.GetForToken(ctx, tokenScope, tokenPlaintext)
+	if err != nil {
+		// TODO: Improve error chain message
+		return nil, fmt.Errorf("fail to get user for given token at user usecase: %w", err)
+	}
+	return user, nil
 }
 func (uu *userUsecase) Update(ctx context.Context, user *domain.User) error {
+	ctx, cancel := context.WithTimeout(ctx, uu.contextTimeout)
+	defer cancel()
+
+	err := uu.userRepo.Update(ctx, user)
+	if err != nil {
+		// TODO: Improve error chain message
+		return fmt.Errorf("fail to update user at user usecase: %w", err)
+	}
 	return nil
 }
