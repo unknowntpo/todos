@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	swagger "github.com/unknowntpo/todos/docs/go"
 	"github.com/unknowntpo/todos/internal/helpers"
 
 	"github.com/julienschmidt/httprouter"
@@ -20,17 +21,12 @@ func NewHealthcheckAPI(router *httprouter.Router, version, env string) {
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", api.Healthcheck)
 }
 
-// TODO: Display metrics.
 func (h *healthcheckAPI) Healthcheck(w http.ResponseWriter, r *http.Request) {
-	env := helpers.Envelope{
-		"status": "available",
-		"system_info": map[string]string{
-			"environment": h.env,
-			"version":     h.version,
-		},
-	}
-
-	err := helpers.WriteJSON(w, http.StatusOK, env, nil)
+	err := helpers.WriteJSON(w, http.StatusOK, &swagger.HealthcheckResponse{
+		Status:      "available",
+		Version:     h.version,
+		Environment: h.env,
+	}, nil)
 	if err != nil {
 		helpers.ServerErrorResponse(w, r, err)
 	}
