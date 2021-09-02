@@ -55,10 +55,10 @@ build/api:
 # DEVELOPMENT
 # ==================================================================================== #
 
-## run/api: run the cmd/api application
+## run/api: run the cmd/api application with trusted origin = swagger UI server
 .PHONY: run/api
 run/api: db/start
-	@go run ./cmd/api -db-dsn=${TODOS_DB_DSN_LOCAL}
+	@go run ./cmd/api -db-dsn=${TODOS_DB_DSN_LOCAL} -cors-trusted-origins="http://localhost:8080"
 
 ## run/compose/up: run the services
 .PHONY: run/compose/up
