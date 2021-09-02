@@ -666,7 +666,7 @@ func (a *DefaultApiService) V1TokensAuthenticationPost(ctx context.Context, loca
 			body: localVarBody,
 			error: localVarHttpResponse.Status,
 		}
-		if localVarHttpResponse.StatusCode == 200 {
+		if localVarHttpResponse.StatusCode == 201 {
 			var v AuthenticationResponse
 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
 				if err != nil {

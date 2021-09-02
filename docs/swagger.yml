@@ -189,7 +189,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthenticationRequest'
       responses:
-        '200':
+        '201':
           description: Returns the authentication with expiry.
           content:
             application/json:
