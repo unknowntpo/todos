@@ -27,7 +27,7 @@ func (tu *tokenUsecase) New(ctx context.Context, userID int64, ttl time.Duration
 	token, err := tu.tr.New(ctx, userID, ttl, scope)
 	if err != nil {
 		// TODO: Improve error message chain.
-		return nil, fmt.Errorf("fail to create new token at token usecase: %w", err)
+		return nil, fmt.Errorf("failed to create new token at token usecase: %w", err)
 	}
 	return token, nil
 }
@@ -38,7 +38,7 @@ func (tu *tokenUsecase) Insert(ctx context.Context, token *domain.Token) error {
 	err := tu.tr.Insert(ctx, token)
 	if err != nil {
 		// TODO: Improve error message chain.
-		return fmt.Errorf("fail to insert token at token usecase: %w", err)
+		return fmt.Errorf("failed to insert token at token usecase: %w", err)
 	}
 
 	return nil
@@ -50,7 +50,7 @@ func (tu *tokenUsecase) DeleteAllForUser(ctx context.Context, scope string, user
 	err := tu.tr.DeleteAllForUser(ctx, scope, userID)
 	if err != nil {
 		// TODO: Improve error message chain.
-		return fmt.Errorf("fail to delete all token for user %d at token usecase: %w", userID, err)
+		return fmt.Errorf("failed to delete all token for user %d at token usecase: %w", userID, err)
 	}
 
 	return nil
