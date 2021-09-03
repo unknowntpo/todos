@@ -20,7 +20,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthcheckResponse'
-  /v1/tasks/{userId}:
+  /v1/{userId}/tasks:
     get:
       summary: Returns all tasks for user identified by userId.
       parameters:
@@ -63,7 +63,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateTaskResponse'  
-  /v1/tasks/{userId}/{taskId}:
+  /v1/{userId}/tasks/{taskId}:
     get:
       summary: Returns all tasks for user identified by userId.
       parameters:
