@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -16,7 +17,6 @@ func TestNew(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
-	// Test success
 	t.Run("Success", func(t *testing.T) {
 		repo := new(mock.MockTokenRepo)
 		ctx := context.TODO()
@@ -31,7 +31,25 @@ func TestInsert(t *testing.T) {
 		repo.AssertExpectations(t)
 	})
 
-	// TODO: Test failure.
+	t.Run("Timeout", func(t *testing.T) {
+		repo := new(mock.MockTokenRepo)
+		ctx := context.TODO()
+		token, err := domain.GenerateToken(1, 30*time.Minute, domain.ScopeActivation)
+		assert.NoError(t, err)
+
+		// Simulate the deadline exceeded context.
+		ctx, cancel := context.WithDeadline(ctx, time.Now().Add(-7*time.Minute))
+		defer cancel()
+
+		wantErr := fmt.Errorf("failed to insert token at token usecase: context deadline exceeded")
+		repo.On("Insert", ctx, token).Return(wantErr)
+
+		gotErr := repo.Insert(ctx, token)
+		assert.Equal(t, wantErr, gotErr)
+
+		repo.AssertExpectations(t)
+	})
+
 }
 
 func TestDeleteAllForUser(t *testing.T) {
