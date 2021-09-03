@@ -36,9 +36,6 @@ func (tr *tokenRepo) Insert(ctx context.Context, token *domain.Token) error {
 
 	args := []interface{}{token.Hash, token.UserID, token.Expiry, token.Scope}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-
 	_, err := tr.DB.ExecContext(ctx, query, args...)
 	return err
 }
@@ -48,9 +45,6 @@ func (tr *tokenRepo) DeleteAllForUser(ctx context.Context, scope string, userID 
 	query := `
         DELETE FROM tokens 
         WHERE scope = $1 AND user_id = $2`
-
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
 
 	_, err := tr.DB.ExecContext(ctx, query, scope, userID)
 	return err
