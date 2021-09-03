@@ -20,7 +20,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthcheckResponse'
-  /v1/tasks/{userId}:
+  /v1/{userId}/tasks:
     get:
       summary: Returns all tasks for user identified by userId.
       parameters:
@@ -63,7 +63,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateTaskResponse'  
-  /v1/tasks/{userId}/{taskId}:
+  /v1/{userId}/tasks/{taskId}:
     get:
       summary: Returns all tasks for user identified by userId.
       parameters:
@@ -149,15 +149,13 @@ paths:
                 $ref: '#/components/schemas/DeleteTaskByIdResponse'
   /v1/users/registration:
     post:
-      summary: Returns registered user information.
+      summary:  Register user based on given information.
       description: None.
-      parameters:
-      - name: token
-        in: query
-        description: token that represents the user who want to be activated.
-        required: true 
-        schema:
-          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
       responses:
         '202':
           description: User object.
@@ -304,6 +302,14 @@ components:
         - status
         - environment
         - version    
+    UserRegistrationRequest:
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
     AuthenticationRequest:
       properties:
         email:

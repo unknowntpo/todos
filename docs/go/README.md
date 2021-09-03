@@ -22,14 +22,14 @@ All URIs are relative to *https://todos.unknowntpo.net*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *DefaultApi* | [**V1HealthcheckGet**](docs/DefaultApi.md#v1healthcheckget) | **Get** /v1/healthcheck | Returns status of service.
-*DefaultApi* | [**V1TasksUserIdGet**](docs/DefaultApi.md#v1tasksuseridget) | **Get** /v1/tasks/{userId} | Returns all tasks for user identified by userId.
-*DefaultApi* | [**V1TasksUserIdPost**](docs/DefaultApi.md#v1tasksuseridpost) | **Post** /v1/tasks/{userId} | Create a new task for user &#x27;user_id&#x27;
-*DefaultApi* | [**V1TasksUserIdTaskIdDelete**](docs/DefaultApi.md#v1tasksuseridtaskiddelete) | **Delete** /v1/tasks/{userId}/{taskId} | Delete task by id for specific user.
-*DefaultApi* | [**V1TasksUserIdTaskIdGet**](docs/DefaultApi.md#v1tasksuseridtaskidget) | **Get** /v1/tasks/{userId}/{taskId} | Returns all tasks for user identified by userId.
-*DefaultApi* | [**V1TasksUserIdTaskIdPatch**](docs/DefaultApi.md#v1tasksuseridtaskidpatch) | **Patch** /v1/tasks/{userId}/{taskId} | Update task for specific user.
 *DefaultApi* | [**V1TokensAuthenticationPost**](docs/DefaultApi.md#v1tokensauthenticationpost) | **Post** /v1/tokens/authentication | Authenticate the user based on given token.
+*DefaultApi* | [**V1UserIdTasksGet**](docs/DefaultApi.md#v1useridtasksget) | **Get** /v1/{userId}/tasks | Returns all tasks for user identified by userId.
+*DefaultApi* | [**V1UserIdTasksPost**](docs/DefaultApi.md#v1useridtaskspost) | **Post** /v1/{userId}/tasks | Create a new task for user &#x27;user_id&#x27;
+*DefaultApi* | [**V1UserIdTasksTaskIdDelete**](docs/DefaultApi.md#v1useridtaskstaskiddelete) | **Delete** /v1/{userId}/tasks/{taskId} | Delete task by id for specific user.
+*DefaultApi* | [**V1UserIdTasksTaskIdGet**](docs/DefaultApi.md#v1useridtaskstaskidget) | **Get** /v1/{userId}/tasks/{taskId} | Returns all tasks for user identified by userId.
+*DefaultApi* | [**V1UserIdTasksTaskIdPatch**](docs/DefaultApi.md#v1useridtaskstaskidpatch) | **Patch** /v1/{userId}/tasks/{taskId} | Update task for specific user.
 *DefaultApi* | [**V1UsersActivationPost**](docs/DefaultApi.md#v1usersactivationpost) | **Post** /v1/users/activation | Activate the user by the given token.
-*DefaultApi* | [**V1UsersRegistrationPost**](docs/DefaultApi.md#v1usersregistrationpost) | **Post** /v1/users/registration | Returns registered user information.
+*DefaultApi* | [**V1UsersRegistrationPost**](docs/DefaultApi.md#v1usersregistrationpost) | **Post** /v1/users/registration | Register user based on given information.
 
 ## Documentation For Models
 
@@ -46,6 +46,7 @@ Class | Method | HTTP request | Description
  - [UpdateTaskByIdRequest](docs/UpdateTaskByIdRequest.md)
  - [UpdateTaskByIdResponse](docs/UpdateTaskByIdResponse.md)
  - [User](docs/User.md)
+ - [UserRegistrationRequest](docs/UserRegistrationRequest.md)
 
 ## Documentation For Authorization
  Endpoints do not require authorization.
