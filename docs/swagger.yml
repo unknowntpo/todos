@@ -162,7 +162,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserRegistrationResponse'
   /v1/users/activation:
     post:
       summary: Activate the user by the given token.
@@ -310,6 +310,10 @@ components:
           type: string
         password:
           type: string
+    UserRegistrationResponse:
+      properties:
+        user:
+          $ref: '#/components/schemas/User'  
     AuthenticationRequest:
       properties:
         email:

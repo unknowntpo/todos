@@ -755,20 +755,20 @@ None.
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *DefaultApiV1UsersRegistrationPostOpts - Optional Parameters:
      * @param "Body" (optional.Interface of UserRegistrationRequest) - 
-@return User
+@return UserRegistrationResponse
 */
 
 type DefaultApiV1UsersRegistrationPostOpts struct {
     Body optional.Interface
 }
 
-func (a *DefaultApiService) V1UsersRegistrationPost(ctx context.Context, localVarOptionals *DefaultApiV1UsersRegistrationPostOpts) (User, *http.Response, error) {
+func (a *DefaultApiService) V1UsersRegistrationPost(ctx context.Context, localVarOptionals *DefaultApiV1UsersRegistrationPostOpts) (UserRegistrationResponse, *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
 		localVarFileName   string
 		localVarFileBytes  []byte
-		localVarReturnValue User
+		localVarReturnValue UserRegistrationResponse
 	)
 
 	// create path and map variables
@@ -831,7 +831,7 @@ func (a *DefaultApiService) V1UsersRegistrationPost(ctx context.Context, localVa
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 202 {
-			var v User
+			var v UserRegistrationResponse
 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
 				if err != nil {
 					newErr.error = err.Error()

@@ -37,7 +37,7 @@ func (app *application) newRoutes() http.Handler {
 
 	userRepo := _userRepoPostgres.NewUserRepo(app.database)
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, 3*time.Second)
-	_userAPI.NewUserAPI(router, userUsecase, &app.bg)
+	_userAPI.NewUserAPI(router, userUsecase, &app.wp, app.Mailer)
 
 	tokenRepo := _tokenRepoPostgres.NewTokenRepo(app.database)
 	tokenUsecase := _tokenUsecase.NewTokenUsecase(tokenRepo, 3*time.Second)
