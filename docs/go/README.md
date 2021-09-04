@@ -47,6 +47,7 @@ Class | Method | HTTP request | Description
  - [UpdateTaskByIdResponse](docs/UpdateTaskByIdResponse.md)
  - [User](docs/User.md)
  - [UserRegistrationRequest](docs/UserRegistrationRequest.md)
+ - [UserRegistrationResponse](docs/UserRegistrationResponse.md)
 
 ## Documentation For Authorization
  Endpoints do not require authorization.

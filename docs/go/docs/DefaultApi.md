@@ -253,7 +253,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **V1UsersRegistrationPost**
-> User V1UsersRegistrationPost(ctx, optional)
+> UserRegistrationResponse V1UsersRegistrationPost(ctx, optional)
 Register user based on given information.
 
 None.
@@ -273,7 +273,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**User**](User.md)
+[**UserRegistrationResponse**](UserRegistrationResponse.md)
 
 ### Authorization
 

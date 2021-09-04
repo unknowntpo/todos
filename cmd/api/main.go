@@ -9,7 +9,9 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/config"
-	"github.com/unknowntpo/todos/internal/helpers/background"
+	"github.com/unknowntpo/todos/internal/helpers/mailer"
+	"github.com/unknowntpo/todos/internal/helpers/workerpool"
+
 	"github.com/unknowntpo/todos/internal/logger"
 	"github.com/unknowntpo/todos/internal/logger/logrus"
 
@@ -25,7 +27,8 @@ var (
 type application struct {
 	config   *config.Config
 	database *sql.DB
-	bg       background.Background
+	wp       *workerpool.Pool
+	mailer   mailer.Mailer
 }
 
 func main() {
@@ -42,6 +45,9 @@ func main() {
 		logger.Log.PrintFatal(err, nil)
 	}
 	defer db.Close()
+
+	// Set up workerpool with max jobs and max workers.
+	pool := workerpool.New(5, 5)
 
 	// Publish a new "version" variable in the expvar handler containing our application
 	// version number.
@@ -65,6 +71,8 @@ func main() {
 	app := &application{
 		config:   cfg,
 		database: db,
+		wp:       pool,
+		mailer:   mailer.New(cfg.Smtp.Host, cfg.Smtp.Port, cfg.Smtp.Username, cfg.Smtp.Password, cfg.Smtp.Sender),
 	}
 
 	err = app.serve()
