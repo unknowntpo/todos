@@ -11,9 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// FIXME: How to deal with foreign key constraint constraint ?
-// pq: insert or update on table "tokens" violates foreign key constraint "tokens_user_id_fkey"
-// FIXME: How to mock token without touching time.Time ?
 func TestInsert(t *testing.T) {
 	ctx := context.Background()
 
@@ -36,8 +33,28 @@ func TestInsert(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Create fake user
+	query := `
+	INSERT INTO users (name, email, password_hash, activated)
+	VALUES ($1, $2, $3, $4)
+	RETURNING id`
+
+	args := []interface{}{
+		"Alice Smith",
+		"alice@example.com",
+		`\x24326124313224765a682f57676e6246446c4f696757654d62616849756874642f3363526b75576558655469782e374f71524c372e78746570635479`,
+		true,
+	}
+
+	var user domain.User
+
+	err = db.QueryRowContext(ctx, query, args...).Scan(&user.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	// test Insert
-	wantToken, err := domain.GenerateToken(1, 30*time.Minute, domain.ScopeActivation)
+	wantToken, err := domain.GenerateToken(user.ID, 30*time.Minute, domain.ScopeActivation)
 	if err != nil {
 		t.Fatal("fail to generate token")
 	}
@@ -50,10 +67,13 @@ func TestInsert(t *testing.T) {
 
 	// do db query to get inserted token
 	var gotToken domain.Token
-	query := `SELECT hash, user_id, expiry, scope FROM tokens WHERE user_id = 1`
-	err = db.QueryRowContext(ctx, query).Scan(&gotToken.Hash, &gotToken.UserID, &gotToken.Expiry, &gotToken.Scope)
+	query = `SELECT hash, user_id, expiry, scope FROM tokens WHERE user_id = $1`
+	err = db.QueryRowContext(ctx, query, user.ID).Scan(&gotToken.Hash, &gotToken.UserID, &gotToken.Expiry, &gotToken.Scope)
 	assert.NoError(t, err)
 
-	t.Log(gotToken)
-	//assert.Equal(t, wantToken, gotToken, "should be equal")
+	// We don't care about Expiry, we just make sure that hash, userid,
+	// scope are the same, them we can say that these two token are equal.
+	assert.Equal(t, wantToken.Hash, gotToken.Hash, "should be equal")
+	assert.Equal(t, wantToken.UserID, gotToken.UserID, "should be equal")
+	assert.Equal(t, wantToken.Scope, gotToken.Scope, "should be equal")
 }
