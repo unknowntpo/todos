@@ -1,25 +1,25 @@
-package workerpool
+package naivepool
 
 import (
 	"context"
-	"fmt"
 	"sync"
 )
 
+// jobFunc represents the function that will be executed by workers.
 type jobFunc func()
 
 type Pool struct {
-	// we use jobChan to communicate between caller of Pool and Pool.
+	// We use jobChan to communicate between caller of Pool and Pool.
 	jobChan chan jobFunc
-	// we use workerChan to send job from Pool to workers.
+	// We use workerChan to send job from Pool to workers.
 	workerChan chan jobFunc
 	maxJobs    int
 	maxWorkers int
-	// use waitgroup to wait for workers done its job and retire.
+	// Use waitgroup to wait for workers done its job and retire.
 	wg sync.WaitGroup
 }
 
-// Init inits goroutine pool with capacity of jobchan and workerchan
+// New inits goroutine pool with capacity of jobchan and workerchan.
 func New(maxJobs, maxWorkers int) *Pool {
 	p := &Pool{
 		jobChan:    make(chan jobFunc, maxJobs),
@@ -30,6 +30,8 @@ func New(maxJobs, maxWorkers int) *Pool {
 
 	return p
 }
+
+// Start starts dispatching jobs to workers.
 func (p *Pool) Start(ctx context.Context) {
 	// Dispatch workers.
 	p.wg.Add(p.maxWorkers)
@@ -43,10 +45,8 @@ func (p *Pool) Start(ctx context.Context) {
 			// Received a job.
 			// Dispatch it to workers.
 			case job := <-p.jobChan:
-				fmt.Println("pool send a job to workerChan")
 				p.workerChan <- job
 			case <-ctx.Done():
-				fmt.Println("Pool received cancel")
 				return
 			default:
 			}
@@ -63,8 +63,6 @@ func (p *Pool) Wait() {
 
 // Schedule sends the job the p.jobChan.
 func (p *Pool) Schedule(job jobFunc) {
-	fmt.Println("I send a job to pool")
-
 	p.jobChan <- job
 }
 
@@ -74,10 +72,8 @@ func (p *Pool) worker(ctx context.Context) {
 	for {
 		select {
 		case job := <-p.workerChan:
-			fmt.Println("worker received a job")
 			job()
 		case <-ctx.Done():
-			fmt.Println("worker retired!")
 			return
 		}
 	}

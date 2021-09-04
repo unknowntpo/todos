@@ -8,9 +8,9 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/unknowntpo/naivepool"
 	"github.com/unknowntpo/todos/config"
 	"github.com/unknowntpo/todos/internal/helpers/mailer"
-	"github.com/unknowntpo/todos/internal/helpers/workerpool"
 
 	"github.com/unknowntpo/todos/internal/logger"
 	"github.com/unknowntpo/todos/internal/logger/logrus"
@@ -27,7 +27,7 @@ var (
 type application struct {
 	config   *config.Config
 	database *sql.DB
-	pool     *workerpool.Pool
+	pool     *naivepool.Pool
 	mailer   mailer.Mailer
 }
 
@@ -47,7 +47,7 @@ func main() {
 	defer db.Close()
 
 	// Set up workerpool with max jobs and max workers.
-	pool := workerpool.New(5, 5)
+	pool := naivepool.New(5, 5)
 
 	// Publish a new "version" variable in the expvar handler containing our application
 	// version number.
