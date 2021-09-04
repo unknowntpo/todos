@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -98,7 +99,15 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// FIXME: cannot use user (type *domain.User) as type *swagger.User in field value.
-	err = helpers.WriteJSON(w, http.StatusAccepted, &swagger.UserRegistrationResponse{User: user}, nil)
+	err = helpers.WriteJSON(w, http.StatusAccepted, &swagger.UserRegistrationResponse{
+		User: &swagger.User{
+			Id:        fmt.Sprintf("%d", user.ID),
+			CreatedAt: user.CreatedAt.Format(time.RFC3339),
+			Name:      user.Name,
+			Email:     user.Email,
+			Activated: user.Activated,
+		},
+	}, nil)
 	if err != nil {
 		helpers.ServerErrorResponse(w, r, err)
 	}
