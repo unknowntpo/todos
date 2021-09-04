@@ -27,7 +27,7 @@ var (
 type application struct {
 	config   *config.Config
 	database *sql.DB
-	wp       *workerpool.Pool
+	pool     *workerpool.Pool
 	mailer   mailer.Mailer
 }
 
@@ -71,7 +71,7 @@ func main() {
 	app := &application{
 		config:   cfg,
 		database: db,
-		wp:       pool,
+		pool:     pool,
 		mailer:   mailer.New(cfg.Smtp.Host, cfg.Smtp.Port, cfg.Smtp.Username, cfg.Smtp.Password, cfg.Smtp.Sender),
 	}
 

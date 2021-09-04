@@ -24,11 +24,11 @@ func (app *application) serve() error {
 
 	shutdownErr := make(chan error)
 
-	// Start background goroutine handler.
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	// Starting worker pool.
+	poolCtx, poolCancel := context.WithCancel(context.Background())
+	defer poolCancel()
 
-	app.bg.Start(ctx)
+	app.pool.Start(poolCtx)
 
 	go func() {
 		// Why we need buffered channel ?
@@ -37,20 +37,24 @@ func (app *application) serve() error {
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 		s := <-quit
+
+		// Shutdown worker pool.
+		poolCancel()
+
 		logger.Log.PrintInfo("shutting down server", map[string]string{
 			"signal": s.String(),
 		})
 
-		// do shutdown routine.
-		ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-		defer cancel()
+		// do server shutdown routine.
+		serverCtx, serverCancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer serverCancel()
 
-		err := srv.Shutdown(ctx)
+		err := srv.Shutdown(serverCtx)
 		if err != nil {
 			shutdownErr <- err
 		}
 
-		app.bg.Wait()
+		app.pool.Wait()
 		shutdownErr <- nil
 	}()
 
