@@ -73,7 +73,13 @@ func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Requ
 
 	// Otherwise, if the password is correct, we generate a new token with a 24-hour
 	// expiry time and the scope 'authentication'.
-	token, err := t.TU.New(ctx, user.ID, 24*time.Hour, domain.ScopeAuthentication)
+	token, err := domain.GenerateToken(user.ID, 24*time.Hour, domain.ScopeAuthentication)
+	if err != nil {
+		helpers.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	err = t.TU.Insert(ctx, token)
 	if err != nil {
 		helpers.ServerErrorResponse(w, r, err)
 		return
