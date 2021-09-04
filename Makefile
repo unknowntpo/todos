@@ -72,7 +72,7 @@ run/compose/up:
 ## run/compose/down: shutdown the services
 .PHONY: run/compose/down
 run/compose/down:
-	@docker-compose down
+	@docker-compose -f docker-compose-prod.yml down
 
 ## db/migrations/new name=$1: create a new database migration
 .PHONY: db/migrations/new
