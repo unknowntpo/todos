@@ -2,15 +2,16 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/unknowntpo/naivepool"
 	swagger "github.com/unknowntpo/todos/docs/go"
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
 	"github.com/unknowntpo/todos/internal/helpers/mailer"
 	"github.com/unknowntpo/todos/internal/helpers/validator"
-	"github.com/unknowntpo/todos/internal/helpers/workerpool"
 
 	"github.com/unknowntpo/todos/internal/logger"
 
@@ -18,13 +19,13 @@ import (
 )
 
 type userAPI struct {
-	wp     *workerpool.Pool
+	pool   *naivepool.Pool
 	uu     domain.UserUsecase
 	mailer mailer.Mailer
 }
 
-func NewUserAPI(router *httprouter.Router, uu domain.UserUsecase, wp *workerpool.Pool, mailer mailer.Mailer) {
-	api := &userAPI{uu: uu, wp: wp, mailer: mailer}
+func NewUserAPI(router *httprouter.Router, uu domain.UserUsecase, pool *naivepool.Pool, mailer mailer.Mailer) {
+	api := &userAPI{uu: uu, pool: pool, mailer: mailer}
 
 	router.HandlerFunc(http.MethodPost, "/v1/users/registration", api.RegisterUser)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activation", api.ActivateUser)
@@ -85,7 +86,7 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u.wp.Schedule(func() {
+	u.pool.Schedule(func() {
 		data := map[string]interface{}{
 			"activationToken": token.Plaintext,
 			"userID":          user.ID,
@@ -97,8 +98,15 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		}
 	})
 
-	// FIXME: cannot use user (type *domain.User) as type *swagger.User in field value.
-	err = helpers.WriteJSON(w, http.StatusAccepted, &swagger.UserRegistrationResponse{User: user}, nil)
+	err = helpers.WriteJSON(w, http.StatusAccepted, &swagger.UserRegistrationResponse{
+		User: &swagger.User{
+			Id:        fmt.Sprintf("%d", user.ID),
+			CreatedAt: user.CreatedAt.Format(time.RFC3339),
+			Name:      user.Name,
+			Email:     user.Email,
+			Activated: user.Activated,
+		},
+	}, nil)
 	if err != nil {
 		helpers.ServerErrorResponse(w, r, err)
 	}

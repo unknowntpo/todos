@@ -90,7 +90,11 @@ db/migrations/up:
 .PHONY: db/start
 db/start:
 	@echo "Start a new postgres db with testdata..."
-	@docker-compose -f docker-compose-db.yml --env-file .envrc up -d --remove-orphans
+	@docker-compose -f docker-compose-db.yml --env-file .envrc up \
+	    -d \
+	    --remove-orphans \
+	    --force-recreate \
+	    --build
 
 ## db/stop: stop a postgres container.
 .PHONY: db/stop
