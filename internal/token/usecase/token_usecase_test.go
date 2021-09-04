@@ -12,10 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNew(t *testing.T) {
-	t.Fail()
-}
-
 func TestInsert(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		repo := new(mock.MockTokenRepo)

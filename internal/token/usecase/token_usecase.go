@@ -20,18 +20,6 @@ func NewTokenUsecase(tr domain.TokenRepository, timeout time.Duration) domain.To
 	}
 }
 
-func (tu *tokenUsecase) New(ctx context.Context, userID int64, ttl time.Duration, scope string) (*domain.Token, error) {
-	ctx, cancel := context.WithTimeout(ctx, tu.contextTimeout)
-	defer cancel()
-
-	token, err := tu.tr.New(ctx, userID, ttl, scope)
-	if err != nil {
-		// TODO: Improve error message chain.
-		return nil, fmt.Errorf("failed to create new token at token usecase: %w", err)
-	}
-	return token, nil
-}
-
 func (tu *tokenUsecase) Insert(ctx context.Context, token *domain.Token) error {
 	ctx, cancel := context.WithTimeout(ctx, tu.contextTimeout)
 	defer cancel()
@@ -43,6 +31,7 @@ func (tu *tokenUsecase) Insert(ctx context.Context, token *domain.Token) error {
 
 	return nil
 }
+
 func (tu *tokenUsecase) DeleteAllForUser(ctx context.Context, scope string, userID int64) error {
 	ctx, cancel := context.WithTimeout(ctx, tu.contextTimeout)
 	defer cancel()
