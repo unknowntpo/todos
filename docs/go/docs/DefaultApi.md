@@ -225,7 +225,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **V1UsersActivationPost**
-> V1UsersActivationPost(ctx, token)
+> UserActivationResponse V1UsersActivationPost(ctx, token)
 Activate the user by the given token.
 
 None.
@@ -239,7 +239,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
- (empty response body)
+[**UserActivationResponse**](UserActivationResponse.md)
 
 ### Authorization
 
@@ -248,7 +248,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
