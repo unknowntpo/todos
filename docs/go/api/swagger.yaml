@@ -181,7 +181,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserRegistrationResponse'
   /v1/users/activation:
-    post:
+    put:
       summary: Activate the user by the given token.
       description: None.
       parameters:

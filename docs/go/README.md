@@ -28,7 +28,7 @@ Class | Method | HTTP request | Description
 *DefaultApi* | [**V1UserIdTasksTaskIdDelete**](docs/DefaultApi.md#v1useridtaskstaskiddelete) | **Delete** /v1/{userId}/tasks/{taskId} | Delete task by id for specific user.
 *DefaultApi* | [**V1UserIdTasksTaskIdGet**](docs/DefaultApi.md#v1useridtaskstaskidget) | **Get** /v1/{userId}/tasks/{taskId} | Returns all tasks for user identified by userId.
 *DefaultApi* | [**V1UserIdTasksTaskIdPatch**](docs/DefaultApi.md#v1useridtaskstaskidpatch) | **Patch** /v1/{userId}/tasks/{taskId} | Update task for specific user.
-*DefaultApi* | [**V1UsersActivationPost**](docs/DefaultApi.md#v1usersactivationpost) | **Post** /v1/users/activation | Activate the user by the given token.
+*DefaultApi* | [**V1UsersActivationPut**](docs/DefaultApi.md#v1usersactivationput) | **Put** /v1/users/activation | Activate the user by the given token.
 *DefaultApi* | [**V1UsersRegistrationPost**](docs/DefaultApi.md#v1usersregistrationpost) | **Post** /v1/users/registration | Register user based on given information.
 
 ## Documentation For Models
