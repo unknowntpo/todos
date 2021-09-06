@@ -11,7 +11,7 @@ Method | HTTP request | Description
 [**V1UserIdTasksTaskIdDelete**](DefaultApi.md#V1UserIdTasksTaskIdDelete) | **Delete** /v1/{userId}/tasks/{taskId} | Delete task by id for specific user.
 [**V1UserIdTasksTaskIdGet**](DefaultApi.md#V1UserIdTasksTaskIdGet) | **Get** /v1/{userId}/tasks/{taskId} | Returns all tasks for user identified by userId.
 [**V1UserIdTasksTaskIdPatch**](DefaultApi.md#V1UserIdTasksTaskIdPatch) | **Patch** /v1/{userId}/tasks/{taskId} | Update task for specific user.
-[**V1UsersActivationPost**](DefaultApi.md#V1UsersActivationPost) | **Post** /v1/users/activation | Activate the user by the given token.
+[**V1UsersActivationPut**](DefaultApi.md#V1UsersActivationPut) | **Put** /v1/users/activation | Activate the user by the given token.
 [**V1UsersRegistrationPost**](DefaultApi.md#V1UsersRegistrationPost) | **Post** /v1/users/registration | Register user based on given information.
 
 # **V1HealthcheckGet**
@@ -224,8 +224,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **V1UsersActivationPost**
-> UserActivationResponse V1UsersActivationPost(ctx, token)
+# **V1UsersActivationPut**
+> UserActivationResponse V1UsersActivationPut(ctx, token)
 Activate the user by the given token.
 
 None.

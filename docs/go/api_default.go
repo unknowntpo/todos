@@ -688,9 +688,9 @@ None.
  * @param token token that represents the user who want to be activated.
 @return UserActivationResponse
 */
-func (a *DefaultApiService) V1UsersActivationPost(ctx context.Context, token string) (UserActivationResponse, *http.Response, error) {
+func (a *DefaultApiService) V1UsersActivationPut(ctx context.Context, token string) (UserActivationResponse, *http.Response, error) {
 	var (
-		localVarHttpMethod = strings.ToUpper("Post")
+		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
 		localVarFileName   string
 		localVarFileBytes  []byte
