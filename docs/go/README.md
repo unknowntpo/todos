@@ -46,6 +46,7 @@ Class | Method | HTTP request | Description
  - [UpdateTaskByIdRequest](docs/UpdateTaskByIdRequest.md)
  - [UpdateTaskByIdResponse](docs/UpdateTaskByIdResponse.md)
  - [User](docs/User.md)
+ - [UserActivationResponse](docs/UserActivationResponse.md)
  - [UserRegistrationRequest](docs/UserRegistrationRequest.md)
  - [UserRegistrationResponse](docs/UserRegistrationResponse.md)
 

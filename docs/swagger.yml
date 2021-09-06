@@ -177,6 +177,10 @@ paths:
       responses:
         '200':
           description: Returns activated user information.
+          content:
+            application/json:
+              schema:
+                $ref:  '#/components/schemas/UserActivationResponse'
   /v1/tokens/authentication:
     post:
       summary: Authenticate the user based on given token.
@@ -311,6 +315,10 @@ components:
         password:
           type: string
     UserRegistrationResponse:
+      properties:
+        user:
+          $ref: '#/components/schemas/User'  
+    UserActivationResponse:
       properties:
         user:
           $ref: '#/components/schemas/User'  

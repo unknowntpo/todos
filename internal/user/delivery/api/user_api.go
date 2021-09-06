@@ -21,6 +21,7 @@ import (
 type userAPI struct {
 	pool   *naivepool.Pool
 	uu     domain.UserUsecase
+	tu     domain.TokenUsecase
 	mailer mailer.Mailer
 }
 
@@ -113,5 +114,65 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
-	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"user": "ActivateUser called"}, nil)
+	// Read token from request query string.
+	tokenPlaintext := helpers.ReadString(r.URL.Query(), "token", "")
+
+	v := validator.New()
+
+	if domain.ValidateTokenPlaintext(v, tokenPlaintext); !v.Valid() {
+		helpers.FailedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	ctx := r.Context()
+
+	user, err := u.uu.GetForToken(ctx, domain.ScopeActivation, tokenPlaintext)
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrRecordNotFound):
+			v.AddError("token", "invalid or expired activation token")
+			helpers.FailedValidationResponse(w, r, v.Errors)
+		default:
+			helpers.ServerErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	// Update the user's activation status.
+	user.Activated = true
+
+	// Save the updated user record in our database, checking for any edit conflicts in
+	// the same way that we did for our movie records.
+	err = u.uu.Update(ctx, user)
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrEditConflict):
+			helpers.EditConflictResponse(w, r)
+		default:
+			helpers.ServerErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	// If everything went successfully, then we delete all activation tokens for the
+	// user.
+	err = u.tu.DeleteAllForUser(ctx, domain.ScopeActivation, user.ID)
+	if err != nil {
+		helpers.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	// Send the updated user details to the client in a JSON response.
+	err = helpers.WriteJSON(w, http.StatusOK, &swagger.UserActivationResponse{
+		User: &swagger.User{
+			Id:        fmt.Sprintf("%d", user.ID),
+			CreatedAt: user.CreatedAt.Format(time.RFC3339),
+			Name:      user.Name,
+			Email:     user.Email,
+			Activated: user.Activated,
+		},
+	}, nil)
+	if err != nil {
+		helpers.ServerErrorResponse(w, r, err)
+	}
 }
