@@ -2,37 +2,75 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/testutil"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/golang-migrate/migrate/v4"
+	//"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
+	"github.com/testcontainers/testcontainers-go"
 )
 
-func TestInsert(t *testing.T) {
+type RepoTestSuite struct {
+	suite.Suite
+	container testcontainers.Container
+	db        *sql.DB
+	mig       *migrate.Migrate
+}
+
+func (suite *RepoTestSuite) SetupSuite() {
 	ctx := context.Background()
 
-	// container and database
 	container, db, err := testutil.CreatePostgresTestContainer(ctx, "testdb")
 	if err != nil {
-		t.Fatal(err)
+		suite.T().Fatal(err)
 	}
-	defer db.Close()
-	defer container.Terminate(ctx)
+	suite.container = container
+	suite.db = db
 
-	// migration
 	mig, err := testutil.NewPgMigrator(db)
 	if err != nil {
-		t.Fatal(err)
+		suite.T().Fatal(err)
 	}
+	suite.mig = mig
+}
 
-	err = mig.Up()
+// TearDownSuite tears down the test suite by closing db connection,
+// terminates container.
+func (suite *RepoTestSuite) TearDownSuite() {
+	defer suite.db.Close()
+	ctx := context.Background()
+	defer suite.container.Terminate(ctx)
+}
+
+// SetupTest do migration up for each test.
+func (suite *RepoTestSuite) SetupTest() {
+	err := suite.mig.Up()
 	if err != nil {
-		t.Fatal(err)
+		suite.T().Fatal(err)
 	}
+}
 
+// SetupTest do migration down for each test to ensure the results of
+// this test won't affect to the result of next test.
+func (suite *RepoTestSuite) TearDownTest() {
+	err := suite.mig.Down()
+	if err != nil {
+		suite.T().Fatal(err)
+	}
+}
+
+// In order for 'go test' to run this suite, we need to create
+// a normal test function and pass our suite to suite.Run
+func TestRepoTestSuite(t *testing.T) {
+	suite.Run(t, new(RepoTestSuite))
+}
+
+func (suite *RepoTestSuite) TestInsert() {
 	// Create fake user
 	query := `
 	INSERT INTO users (name, email, password_hash, activated)
@@ -46,34 +84,34 @@ func TestInsert(t *testing.T) {
 		true,
 	}
 
+	// Insert the fake user into user table.
 	var user domain.User
 
-	err = db.QueryRowContext(ctx, query, args...).Scan(&user.ID)
+	ctx := context.TODO()
+	err := suite.db.QueryRowContext(ctx, query, args...).Scan(&user.ID)
 	if err != nil {
-		t.Fatal(err)
+		suite.T().Fatal(err)
 	}
 
-	// test Insert
+	// Test Insert
 	wantToken, err := domain.GenerateToken(user.ID, 30*time.Minute, domain.ScopeActivation)
 	if err != nil {
-		t.Fatal("fail to generate token")
+		suite.T().Fatal("fail to generate token")
 	}
 
-	ctx = context.TODO()
-
-	repo := NewTokenRepo(db)
+	repo := NewTokenRepo(suite.db)
 	err = repo.Insert(ctx, wantToken)
-	assert.NoError(t, err)
+	suite.NoError(err)
 
 	// do db query to get inserted token
 	var gotToken domain.Token
 	query = `SELECT hash, user_id, expiry, scope FROM tokens WHERE user_id = $1`
-	err = db.QueryRowContext(ctx, query, user.ID).Scan(&gotToken.Hash, &gotToken.UserID, &gotToken.Expiry, &gotToken.Scope)
-	assert.NoError(t, err)
+	err = suite.db.QueryRowContext(ctx, query, user.ID).Scan(&gotToken.Hash, &gotToken.UserID, &gotToken.Expiry, &gotToken.Scope)
+	suite.NoError(err)
 
 	// We don't care about Expiry, we just make sure that hash, userid,
 	// scope are the same, them we can say that these two token are equal.
-	assert.Equal(t, wantToken.Hash, gotToken.Hash, "should be equal")
-	assert.Equal(t, wantToken.UserID, gotToken.UserID, "should be equal")
-	assert.Equal(t, wantToken.Scope, gotToken.Scope, "should be equal")
+	suite.Equal(wantToken.Hash, gotToken.Hash, "should be equal")
+	suite.Equal(wantToken.UserID, gotToken.UserID, "should be equal")
+	suite.Equal(wantToken.Scope, gotToken.Scope, "should be equal")
 }
