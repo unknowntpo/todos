@@ -20,6 +20,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
+      target: config
     env_file:
       - ./.envrc
     depends_on:
