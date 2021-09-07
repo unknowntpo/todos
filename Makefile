@@ -100,7 +100,7 @@ db/start:
 .PHONY: db/stop
 db/stop:
 	@echo "Stop postgres db container..."
-	@docker-compose down
+	@docker-compose -f docker-compose-prod.yml down
 
 ## db/connect: connect to the database in postgres container
 .PHONY: db/connect
