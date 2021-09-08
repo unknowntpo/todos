@@ -24,10 +24,11 @@ import (
 type generalMiddleware struct {
 	config  *config.Config
 	usecase domain.UserUsecase
+	logger  logger.Logger
 }
 
-func New(cfg *config.Config, uu domain.UserUsecase) *generalMiddleware {
-	return &generalMiddleware{config: cfg, usecase: uu}
+func New(cfg *config.Config, uu domain.UserUsecase, logger logger.Logger) *generalMiddleware {
+	return &generalMiddleware{config: cfg, usecase: uu, logger: logger}
 }
 
 func (mid *generalMiddleware) RecoverPanic(next http.Handler) http.Handler {
@@ -37,7 +38,7 @@ func (mid *generalMiddleware) RecoverPanic(next http.Handler) http.Handler {
 				w.Header().Set("Connection", "close")
 				// TODO: How to handle panic?
 				// Try to log stack trace ?
-				logger.Log.PrintError(errors.New(fmt.Sprintf("%s", err)), nil)
+				mid.logger.PrintError(errors.New(fmt.Sprintf("%s", err)), nil)
 				helpers.ServerErrorResponse(w, r, fmt.Errorf("%s", err))
 			}
 		}()

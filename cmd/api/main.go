@@ -29,20 +29,19 @@ type application struct {
 	database *sql.DB
 	pool     *naivepool.Pool
 	mailer   mailer.Mailer
+	logger   logger.Logger
 }
 
 func main() {
 	cfg := setConfig()
 
-	err := logrus.RegisterLog()
-	if err != nil {
-		logger.Log.PrintFatal(fmt.Errorf("fail to set up logger: %v", err), nil)
-	}
+	// Use logrus.
+	logger := logrus.RegisterLog()
 
 	// set up db.
 	db, err := openDB(cfg)
 	if err != nil {
-		logger.Log.PrintFatal(err, nil)
+		logger.PrintFatal(err, nil)
 	}
 	defer db.Close()
 
@@ -73,11 +72,12 @@ func main() {
 		database: db,
 		pool:     pool,
 		mailer:   mailer.New(cfg.Smtp.Host, cfg.Smtp.Port, cfg.Smtp.Username, cfg.Smtp.Password, cfg.Smtp.Sender),
+		logger:   logger,
 	}
 
 	err = app.serve()
 	if err != nil {
-		logger.Log.PrintFatal(fmt.Errorf("server error: %v", err), nil)
+		logger.PrintFatal(fmt.Errorf("server error: %v", err), nil)
 	}
 }
 

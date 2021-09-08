@@ -9,8 +9,6 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/unknowntpo/todos/internal/logger"
 )
 
 func (app *application) serve() error {
@@ -41,7 +39,7 @@ func (app *application) serve() error {
 		// Shutdown worker pool.
 		poolCancel()
 
-		logger.Log.PrintInfo("shutting down server", map[string]string{
+		app.logger.PrintInfo("shutting down server", map[string]string{
 			"signal": s.String(),
 		})
 
@@ -58,7 +56,7 @@ func (app *application) serve() error {
 		shutdownErr <- nil
 	}()
 
-	logger.Log.PrintInfo("starting server", map[string]string{
+	app.logger.PrintInfo("starting server", map[string]string{
 		"addr": srv.Addr,
 		"env":  app.config.Env,
 	})
@@ -76,7 +74,7 @@ func (app *application) serve() error {
 		return err
 	}
 
-	logger.Log.PrintInfo("stopped server", map[string]string{
+	app.logger.PrintInfo("stopped server", map[string]string{
 		"addr": srv.Addr,
 	})
 

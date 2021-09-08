@@ -3,31 +3,18 @@ package helpers
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/unknowntpo/todos/internal/logger"
 )
-
-func logError(r *http.Request, err error) {
-	logger.Log.PrintError(err, map[string]string{
-		"request_method": r.Method,
-		"request_url":    r.URL.String(),
-	})
-}
 
 func errorResponse(w http.ResponseWriter, r *http.Request, status int, message interface{}) {
 	env := Envelope{"error": message}
 
 	err := WriteJSON(w, status, env, nil)
 	if err != nil {
-		// TODO: logger interface
-		logError(r, err)
 		w.WriteHeader(500)
 	}
 }
 
 func ServerErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logError(r, err)
-
 	message := "the server encountered a problem and could not process your request"
 	errorResponse(w, r, http.StatusInternalServerError, message)
 }
