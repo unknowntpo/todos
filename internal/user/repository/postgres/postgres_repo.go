@@ -4,10 +4,11 @@ import (
 	"context"
 	"crypto/sha256"
 	"database/sql"
-	"errors"
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
+
+	"github.com/pkg/errors"
 )
 
 type userRepo struct {

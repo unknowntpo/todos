@@ -3,10 +3,11 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
+
+	"github.com/pkg/errors"
 )
 
 type taskRepo struct {

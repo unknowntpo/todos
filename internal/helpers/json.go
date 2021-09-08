@@ -2,11 +2,12 @@ package helpers
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 func ReadJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
