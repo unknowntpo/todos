@@ -2,50 +2,58 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
-	"github.com/unknowntpo/todos/internal/domain/mock"
+	_repoMock "github.com/unknowntpo/todos/internal/domain/mock"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestInsert(t *testing.T) {
+	// When success, it should return no error.
 	t.Run("Success", func(t *testing.T) {
-		repo := new(mock.MockTokenRepo)
-		ctx := context.TODO()
+		repo := new(_repoMock.MockTokenRepo)
 		token, err := domain.GenerateToken(1, 30*time.Minute, domain.ScopeActivation)
 		assert.NoError(t, err)
 
-		repo.On("Insert", ctx, token).Return(nil)
+		ctx := context.TODO()
+		repo.On("Insert", mock.Anything, token).Return(nil)
 
-		err = repo.Insert(ctx, token)
+		tokenUsecase := NewTokenUsecase(repo, 3*time.Second)
+		err = tokenUsecase.Insert(ctx, token)
 		assert.NoError(t, err)
 
 		repo.AssertExpectations(t)
 	})
 
-	t.Run("Timeout", func(t *testing.T) {
-		repo := new(mock.MockTokenRepo)
+	// When failed on db timeout, it should return with following errors.
+	t.Run("Fail on db timeout", func(t *testing.T) {
+		t.Fail()
+	})
+
+	// When failed on nil token, it should return with domain.ErrNilObject.
+	t.Run("Fail on nil token", func(t *testing.T) {
+		repo := new(_repoMock.MockTokenRepo)
+
+		// Because we don't care the return value of mock repo, so just use
+		// (*Call).Maybe() to match expectation.
+		repo.On("Insert", mock.Anything, mock.Anything).Maybe()
+
+		var token *domain.Token
+
+		token = nil
+
 		ctx := context.TODO()
-		token, err := domain.GenerateToken(1, 30*time.Minute, domain.ScopeActivation)
-		assert.NoError(t, err)
 
-		// Simulate the deadline exceeded context.
-		ctx, cancel := context.WithDeadline(ctx, time.Now().Add(-7*time.Minute))
-		defer cancel()
-
-		wantErr := fmt.Errorf("failed to insert token at token usecase: context deadline exceeded")
-		repo.On("Insert", ctx, token).Return(wantErr)
-
-		gotErr := repo.Insert(ctx, token)
-		assert.Equal(t, wantErr, gotErr)
+		tokenUsecase := NewTokenUsecase(repo, 3*time.Second)
+		gotErr := tokenUsecase.Insert(ctx, token)
+		assert.Equal(t, domain.ErrNilObject, gotErr)
 
 		repo.AssertExpectations(t)
 	})
-
 }
 
 func TestDeleteAllForUser(t *testing.T) {
