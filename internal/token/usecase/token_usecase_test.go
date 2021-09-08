@@ -29,14 +29,30 @@ func TestInsert(t *testing.T) {
 		repo.AssertExpectations(t)
 	})
 
-	// When failed on db timeout, it sould return with following errors.
+	// When failed on db timeout, it should return with following errors.
 	t.Run("Fail on db timeout", func(t *testing.T) {
 		t.Fail()
 	})
 
-	// When failed on nil token, it sould return with nil token errors.
+	// When failed on nil token, it should return with domain.ErrNilObject.
 	t.Run("Fail on nil token", func(t *testing.T) {
-		t.Fail()
+		repo := new(_repoMock.MockTokenRepo)
+
+		// Because we don't care the return value of mock repo, so just use
+		// (*Call).Maybe() to match expectation.
+		repo.On("Insert", mock.Anything, mock.Anything).Maybe()
+
+		var token *domain.Token
+
+		token = nil
+
+		ctx := context.TODO()
+
+		tokenUsecase := NewTokenUsecase(repo, 3*time.Second)
+		gotErr := tokenUsecase.Insert(ctx, token)
+		assert.Equal(t, domain.ErrNilObject, gotErr)
+
+		repo.AssertExpectations(t)
 	})
 }
 

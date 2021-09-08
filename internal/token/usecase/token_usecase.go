@@ -21,6 +21,9 @@ func NewTokenUsecase(tr domain.TokenRepository, timeout time.Duration) domain.To
 }
 
 func (tu *tokenUsecase) Insert(ctx context.Context, token *domain.Token) error {
+	if token == nil {
+		return domain.ErrNilObject
+	}
 	ctx, cancel := context.WithTimeout(ctx, tu.contextTimeout)
 	defer cancel()
 	err := tu.tr.Insert(ctx, token)
