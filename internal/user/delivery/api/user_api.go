@@ -23,10 +23,16 @@ type userAPI struct {
 	uu     domain.UserUsecase
 	tu     domain.TokenUsecase
 	mailer mailer.Mailer
+	logger logger.Logger
 }
 
-func NewUserAPI(router *httprouter.Router, uu domain.UserUsecase, pool *naivepool.Pool, mailer mailer.Mailer) {
-	api := &userAPI{uu: uu, pool: pool, mailer: mailer}
+func NewUserAPI(router *httprouter.Router,
+	uu domain.UserUsecase,
+	pool *naivepool.Pool,
+	mailer mailer.Mailer,
+	logger logger.Logger) {
+
+	api := &userAPI{uu: uu, pool: pool, mailer: mailer, logger: logger}
 
 	router.HandlerFunc(http.MethodPost, "/v1/users/registration", api.RegisterUser)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activation", api.ActivateUser)
@@ -95,7 +101,7 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 		err = u.mailer.Send(user.Email, "user_welcome.tmpl", data)
 		if err != nil {
-			logger.Log.PrintError(err, nil)
+			u.logger.PrintError(err, nil)
 		}
 	})
 

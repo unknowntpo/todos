@@ -8,18 +8,20 @@ import (
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
 	"github.com/unknowntpo/todos/internal/helpers/validator"
+	"github.com/unknowntpo/todos/internal/logger"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
 )
 
 type tokenAPI struct {
-	TU domain.TokenUsecase
-	UU domain.UserUsecase
+	TU     domain.TokenUsecase
+	UU     domain.UserUsecase
+	logger logger.Logger
 }
 
-func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase, uu domain.UserUsecase) {
-	api := &tokenAPI{TU: tu, UU: uu}
+func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase, uu domain.UserUsecase, logger logger.Logger) {
+	api := &tokenAPI{TU: tu, UU: uu, logger: logger}
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", api.CreateAuthenticationToken)
 }
 

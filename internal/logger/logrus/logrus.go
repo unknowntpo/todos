@@ -12,8 +12,8 @@ type logrusWrapper struct {
 	*logrus.Logger
 }
 
-func RegisterLog() error {
-	newLogger := &logrusWrapper{
+func RegisterLog() logger.Logger {
+	return &logrusWrapper{
 		Logger: &logrus.Logger{
 			Out:       os.Stdout,
 			Formatter: new(logrus.JSONFormatter),
@@ -21,10 +21,6 @@ func RegisterLog() error {
 			Level:     logrus.DebugLevel,
 		},
 	}
-
-	// Let logger.Logger interface use logrus.Logger as implementation.
-	logger.SetLogger(newLogger)
-	return nil
 }
 
 func (lw *logrusWrapper) PrintInfo(message string, properties map[string]string) {

@@ -14,11 +14,12 @@ import (
 )
 
 type taskAPI struct {
-	TU domain.TaskUsecase
+	TU     domain.TaskUsecase
+	logger logger.Logger
 }
 
-func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase) {
-	api := &taskAPI{TU: tu}
+func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.Logger) {
+	api := &taskAPI{TU: tu, logger: logger}
 	router.HandlerFunc(http.MethodGet, "/v1/tasks", api.GetAll)
 	router.HandlerFunc(http.MethodGet, "/v1/tasks/:id", api.GetByID)
 	router.HandlerFunc(http.MethodPost, "/v1/tasks", api.Insert)
@@ -48,7 +49,7 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, domain.ErrRecordNotFound):
 			helpers.NotFoundResponse(w, r)
 		default:
-			logger.Log.PrintError(err, nil)
+			t.logger.PrintError(err, nil)
 			helpers.ServerErrorResponse(w, r, err)
 		}
 		return
@@ -66,7 +67,7 @@ func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
 func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadIDParam(r)
 	if err != nil {
-		logger.Log.PrintError(err, nil)
+		t.logger.PrintError(err, nil)
 		helpers.NotFoundResponse(w, r)
 		return
 	}
@@ -75,7 +76,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	task, err := t.TU.GetByID(ctx, id)
 	if err != nil {
 		// TODO: errors.Is
-		logger.Log.PrintError(err, nil)
+		t.logger.PrintError(err, nil)
 		helpers.ServerErrorResponse(w, r, err)
 	}
 
