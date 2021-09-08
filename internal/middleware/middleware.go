@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"errors"
 	"expvar"
 	"fmt"
 	"net/http"
@@ -17,6 +16,7 @@ import (
 	"github.com/unknowntpo/todos/internal/logger"
 
 	"github.com/felixge/httpsnoop"
+	"github.com/pkg/errors"
 	"github.com/tomasen/realip"
 	"golang.org/x/time/rate"
 )

@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -10,6 +9,7 @@ import (
 	"github.com/unknowntpo/todos/internal/helpers/validator"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/pkg/errors"
 )
 
 func ReadIDParam(r *http.Request) (int64, error) {

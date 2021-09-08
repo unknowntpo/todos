@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"net/http"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/unknowntpo/todos/internal/helpers/validator"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/pkg/errors"
 )
 
 type tokenAPI struct {

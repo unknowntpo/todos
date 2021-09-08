@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/unknowntpo/todos/internal/domain"
@@ -10,6 +9,8 @@ import (
 	"github.com/unknowntpo/todos/internal/logger"
 
 	"github.com/julienschmidt/httprouter"
+
+	"github.com/pkg/errors"
 )
 
 type taskAPI struct {

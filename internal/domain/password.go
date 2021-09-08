@@ -1,8 +1,7 @@
 package domain
 
 import (
-	"errors"
-
+	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 

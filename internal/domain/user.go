@@ -2,9 +2,9 @@ package domain
 
 import (
 	"context"
-	"errors"
-
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 var (
