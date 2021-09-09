@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"expvar"
 	"fmt"
+	"os"
 	"runtime"
 	"time"
 
@@ -13,7 +14,7 @@ import (
 	"github.com/unknowntpo/todos/internal/helpers/mailer"
 
 	"github.com/unknowntpo/todos/internal/logger"
-	"github.com/unknowntpo/todos/internal/logger/logrus"
+	"github.com/unknowntpo/todos/internal/logger/zerolog"
 
 	_ "github.com/lib/pq"
 )
@@ -36,7 +37,9 @@ func main() {
 	cfg := setConfig()
 
 	// Use logrus.
-	logger := logrus.RegisterLog()
+	//logger := logrus.RegisterLog()
+	// Use zerolog
+	logger := zerolog.RegisterLog(os.Stdout)
 
 	// set up db.
 	db, err := openDB(cfg)

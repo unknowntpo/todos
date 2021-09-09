@@ -11,6 +11,8 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.14.1
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.10.2
+	github.com/pkg/errors v0.9.1
+	github.com/rs/zerolog v1.15.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
 	github.com/testcontainers/testcontainers-go v0.11.1
