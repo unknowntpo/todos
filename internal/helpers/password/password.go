@@ -43,13 +43,3 @@ func (p *Password) Matches(plaintextPassword string) (bool, error) {
 
 	return true, nil
 }
-
-// GetPlainText returns the plain text password, if plain text password is not set, we return the empty string.
-func (p *Password) GetPlainText() string {
-	return p.plaintext
-}
-
-// GetHash returns the hash version of password, if the hash is not set, return nil.
-func (p *Password) GetHash() []byte {
-	return p.hash
-}
