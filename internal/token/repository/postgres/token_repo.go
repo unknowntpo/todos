@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
 )
@@ -14,18 +13,6 @@ type tokenRepo struct {
 
 func NewTokenRepo(DB *sql.DB) domain.TokenRepository {
 	return &tokenRepo{DB}
-}
-
-// New is a shortcut which creates a new Token struct and then inserts the
-// data in the tokens table.
-func (tr *tokenRepo) New(ctx context.Context, userID int64, ttl time.Duration, scope string) (*domain.Token, error) {
-	token, err := domain.GenerateToken(userID, ttl, scope)
-	if err != nil {
-		return nil, err
-	}
-
-	err = tr.Insert(ctx, token)
-	return token, err
 }
 
 // Insert adds the data for a specific token to the tokens table.
