@@ -39,7 +39,7 @@ func (app *application) serve() error {
 		// Shutdown worker pool.
 		poolCancel()
 
-		app.logger.PrintInfo("shutting down server", map[string]string{
+		app.logger.PrintInfo("shutting down server", map[string]interface{}{
 			"signal": s.String(),
 		})
 
@@ -56,7 +56,7 @@ func (app *application) serve() error {
 		shutdownErr <- nil
 	}()
 
-	app.logger.PrintInfo("starting server", map[string]string{
+	app.logger.PrintInfo("starting server", map[string]interface{}{
 		"addr": srv.Addr,
 		"env":  app.config.Env,
 	})
@@ -74,7 +74,7 @@ func (app *application) serve() error {
 		return err
 	}
 
-	app.logger.PrintInfo("stopped server", map[string]string{
+	app.logger.PrintInfo("stopped server", map[string]interface{}{
 		"addr": srv.Addr,
 	})
 
