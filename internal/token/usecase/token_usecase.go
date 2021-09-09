@@ -2,10 +2,12 @@ package usecase
 
 import (
 	"context"
-	"fmt"
+
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
+
+	"github.com/pkg/errors"
 )
 
 type tokenUsecase struct {
@@ -29,7 +31,7 @@ func (tu *tokenUsecase) Insert(ctx context.Context, token *domain.Token) error {
 	err := tu.tr.Insert(ctx, token)
 	if err != nil {
 		// TODO: Improve error message chain.
-		return fmt.Errorf("failed to insert token at token usecase: %w", err)
+		return errors.WithMessage(err, "token usecase.insert")
 	}
 
 	return nil
@@ -42,7 +44,7 @@ func (tu *tokenUsecase) DeleteAllForUser(ctx context.Context, scope string, user
 	err := tu.tr.DeleteAllForUser(ctx, scope, userID)
 	if err != nil {
 		// TODO: Improve error message chain.
-		return fmt.Errorf("failed to delete all token for user %d at token usecase: %w", userID, err)
+		return errors.WithMessagef(err, "token usecase.deleteallforuser.userID = %d", userID)
 	}
 
 	return nil

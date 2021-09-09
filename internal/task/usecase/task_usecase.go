@@ -2,11 +2,12 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
+
+	"github.com/pkg/errors"
 )
 
 type taskUsecase struct {
@@ -33,11 +34,12 @@ func (tu *taskUsecase) GetByID(ctx context.Context, id int64) (*domain.Task, err
 
 	task, err := tu.taskRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("fail to get task by id from task repo: %w", err)
+		return nil, errors.WithMessage(err, "task usecase.GetByID")
 	}
 	return task, nil
 }
 func (tu *taskUsecase) Insert(ctx context.Context, task *domain.Task) error {
+	// TODO: Implement it.
 	return nil
 }
 func (tu *taskUsecase) Update(ctx context.Context, id int64, taskUpdated *domain.Task) (*domain.Task, error) {
@@ -46,11 +48,13 @@ func (tu *taskUsecase) Update(ctx context.Context, id int64, taskUpdated *domain
 
 	taskUpdated, err := tu.taskRepo.Update(ctx, id, taskUpdated)
 	if err != nil {
-		return nil, fmt.Errorf("fail to update task from task usecase: %v", err)
+		return nil, errors.WithMessage(err, "task usecase.Update")
+
 	}
 	return taskUpdated, nil
 }
 
 func (tu *taskUsecase) Delete(ctx context.Context, id int64) error {
+	// TODO: Implement it.
 	return nil
 }
