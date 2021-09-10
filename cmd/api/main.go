@@ -36,10 +36,8 @@ type application struct {
 func main() {
 	cfg := setConfig()
 
-	// Use logrus.
-	//logger := logrus.RegisterLog()
 	// Use zerolog
-	logger := zerolog.RegisterLog(os.Stdout)
+	logger := zerolog.New(os.Stdout)
 
 	// set up db.
 	db, err := openDB(cfg)

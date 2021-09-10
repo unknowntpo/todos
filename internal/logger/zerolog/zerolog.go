@@ -14,7 +14,7 @@ type zerologWrapper struct {
 	logger *zerolog.Logger
 }
 
-func RegisterLog(out io.Writer) logger.Logger {
+func New(out io.Writer) logger.Logger {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 
