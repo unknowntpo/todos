@@ -115,3 +115,8 @@ func (suite *RepoTestSuite) TestInsert() {
 	suite.Equal(wantToken.UserID, gotToken.UserID, "should be equal")
 	suite.Equal(wantToken.Scope, gotToken.Scope, "should be equal")
 }
+
+func (suite *RepoTestSuite) TestDeleteAllForUser() {
+	// TODO: Implement tests.
+	suite.T().Fail()
+}
