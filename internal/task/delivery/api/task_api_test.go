@@ -4,12 +4,22 @@ import (
 	"testing"
 )
 
+func TestGetAll(t *testing.T) {
+	t.Fail()
+}
+
 func TestGetByID(t *testing.T) {
 	t.Fail()
 }
 
-func TestGetByIDIntegration(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
+func TestInsert(t *testing.T) {
+	t.Fail()
+}
+
+func TestUpdate(t *testing.T) {
+	t.Fail()
+}
+
+func TestDelete(t *testing.T) {
+	t.Fail()
 }
