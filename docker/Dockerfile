@@ -1,8 +1,7 @@
 ## base stage
 FROM golang:alpine as base
 
-RUN apk update && \
-apk add --no-cache curl \
+RUN apk add --no-cache curl \
 git \
 bash \
 make \
@@ -18,7 +17,6 @@ WORKDIR /app
 # copy module files first so that they don't need to be downloaded again if no change
 COPY go.mod .
 COPY go.sum .
-RUN go mod download
 RUN go mod verify
 
 COPY . .
@@ -27,8 +25,6 @@ RUN make build/api
 
 ## it-test stage
 FROM base AS it-test
-
-RUN apk --no-cache add bash make build-base
 
 WORKDIR /app/
 # COPY source files to container
@@ -39,8 +35,6 @@ CMD ["./it-test.sh"]
 
 # config stage
 FROM base AS config
-
-RUN apk --no-cache add bash make
 
 WORKDIR /app/
 #COPY --from=base /app/bin .
