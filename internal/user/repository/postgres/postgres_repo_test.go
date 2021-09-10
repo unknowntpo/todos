@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"testing"
-	//	"time"
+	//"time"
 
-	//	"github.com/unknowntpo/todos/internal/domain"
+	//"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/testutil"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -70,22 +70,21 @@ func TestRepoTestSuite(t *testing.T) {
 	suite.Run(t, new(RepoTestSuite))
 }
 
-func (suite *RepoTestSuite) TestGetAll() {
-	suite.T().Fail()
-}
-
-func (suite *RepoTestSuite) TestGetByID() {
-	suite.T().Fail()
-}
-
 func (suite *RepoTestSuite) TestInsert() {
 	suite.T().Fail()
 }
 
-func (suite *RepoTestSuite) TestUpdate() {
+func (suite *RepoTestSuite) TestGetByEmail() {
+	// TODO: Implement tests.
 	suite.T().Fail()
 }
 
-func (suite *RepoTestSuite) TestDelete() {
+func (suite *RepoTestSuite) TestUpdate() {
+	// TODO: Implement tests.
+	suite.T().Fail()
+}
+
+func (suite *RepoTestSuite) TestGetForToken() {
+	// TODO: Implement tests.
 	suite.T().Fail()
 }
