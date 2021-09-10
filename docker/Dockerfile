@@ -26,8 +26,6 @@ RUN make build/api
 ## it-test stage
 FROM base AS it-test
 
-RUN apk --no-cache add bash make build-base
-
 WORKDIR /app/
 # COPY source files to container
 COPY --from=base /app/docker/it-test.sh .
@@ -37,8 +35,6 @@ CMD ["./it-test.sh"]
 
 # config stage
 FROM base AS config
-
-RUN apk --no-cache add bash make
 
 WORKDIR /app/
 #COPY --from=base /app/bin .
