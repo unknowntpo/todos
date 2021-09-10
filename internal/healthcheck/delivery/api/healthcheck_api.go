@@ -22,8 +22,6 @@ func NewHealthcheckAPI(router *httprouter.Router, version, env string) {
 }
 
 func (h *healthcheckAPI) Healthcheck(w http.ResponseWriter, r *http.Request) {
-	panic("delibrated panic at healthcheck api")
-
 	err := helpers.WriteJSON(w, http.StatusOK, &swagger.HealthcheckResponse{
 		Status:      "available",
 		Version:     h.version,
