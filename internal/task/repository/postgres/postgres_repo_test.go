@@ -2,43 +2,90 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"testing"
-	"time"
+	//	"time"
 
-	"github.com/unknowntpo/todos/internal/domain"
+	//	"github.com/unknowntpo/todos/internal/domain"
+	"github.com/unknowntpo/todos/internal/testutil"
 
-	"github.com/DATA-DOG/go-sqlmock"
-	_ "github.com/lib/pq"
-	"github.com/stretchr/testify/assert"
+	"github.com/golang-migrate/migrate/v4"
+	//"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
+	"github.com/testcontainers/testcontainers-go"
 )
 
-func TestGetByID(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	assert.NoError(t, err)
-	defer db.Close()
+type RepoTestSuite struct {
+	suite.Suite
+	container testcontainers.Container
+	db        *sql.DB
+	mig       *migrate.Migrate
+}
 
-	// Set up mock data.
-	fakeTime := time.Now()
-	row := sqlmock.NewRows([]string{"id", "created_at", "title", "content", "done", "version"}).
-		AddRow(1, fakeTime, "task1", "do work", false, 1)
-	mock.ExpectQuery("SELECT (.+) FROM tasks WHERE id = ?").WithArgs(1).WillReturnRows(row)
+func (suite *RepoTestSuite) SetupSuite() {
+	ctx := context.Background()
 
-	repo := NewTaskRepo(db)
-	task, err := repo.GetByID(context.TODO(), 1)
-	assert.NoError(t, err)
-
-	wantTask := &domain.Task{
-		ID:        1,
-		CreatedAt: fakeTime,
-		Title:     "task1",
-		Content:   "do work",
-		Done:      false,
-		Version:   1,
+	container, db, err := testutil.CreatePostgresTestContainer(ctx, "testdb")
+	if err != nil {
+		suite.T().Fatal(err)
 	}
+	suite.container = container
+	suite.db = db
 
-	assert.Equal(t, wantTask, task)
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
+	mig, err := testutil.NewPgMigrator(db)
+	if err != nil {
+		suite.T().Fatal(err)
 	}
+	suite.mig = mig
+}
+
+// TearDownSuite tears down the test suite by closing db connection,
+// terminates container.
+func (suite *RepoTestSuite) TearDownSuite() {
+	defer suite.db.Close()
+	ctx := context.Background()
+	defer suite.container.Terminate(ctx)
+}
+
+// SetupTest do migration up for each test.
+func (suite *RepoTestSuite) SetupTest() {
+	err := suite.mig.Up()
+	if err != nil {
+		suite.T().Fatal(err)
+	}
+}
+
+// SetupTest do migration down for each test to ensure the results of
+// this test won't affect to the result of next test.
+func (suite *RepoTestSuite) TearDownTest() {
+	err := suite.mig.Down()
+	if err != nil {
+		suite.T().Fatal(err)
+	}
+}
+
+// In order for 'go test' to run this suite, we need to create
+// a normal test function and pass our suite to suite.Run
+func TestRepoTestSuite(t *testing.T) {
+	suite.Run(t, new(RepoTestSuite))
+}
+
+func (suite *RepoTestSuite) TestGetAll() {
+	suite.T().Fail()
+}
+
+func (suite *RepoTestSuite) TestGetByID() {
+	suite.T().Fail()
+}
+
+func (suite *RepoTestSuite) TestInsert() {
+	suite.T().Fail()
+}
+
+func (suite *RepoTestSuite) TestUpdate() {
+	suite.T().Fail()
+}
+
+func (suite *RepoTestSuite) TestDelete() {
+	suite.T().Fail()
 }
