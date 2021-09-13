@@ -19,20 +19,21 @@ import (
 )
 
 type userAPI struct {
-	pool   *naivepool.Pool
 	uu     domain.UserUsecase
 	tu     domain.TokenUsecase
+	pool   *naivepool.Pool
 	mailer mailer.Mailer
 	logger logger.Logger
 }
 
 func NewUserAPI(router *httprouter.Router,
 	uu domain.UserUsecase,
+	tu domain.TokenUsecase,
 	pool *naivepool.Pool,
 	mailer mailer.Mailer,
 	logger logger.Logger) {
 
-	api := &userAPI{uu: uu, pool: pool, mailer: mailer, logger: logger}
+	api := &userAPI{uu: uu, tu: tu, pool: pool, mailer: mailer, logger: logger}
 
 	router.HandlerFunc(http.MethodPost, "/v1/users/registration", api.RegisterUser)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activation", api.ActivateUser)
@@ -80,15 +81,24 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 			v.AddError("email", "a user with this email address already exists")
 			helpers.FailedValidationResponse(w, r, v.Errors)
 		default:
+			u.logger.PrintError(err, nil)
 			helpers.ServerErrorResponse(w, r, err)
 		}
 		return
 	}
 
 	// After the user record has been created in the database, generate a new activation
-	// token for the user.
+	// token for the user, and insert it to the database.
 	token, err := domain.GenerateToken(user.ID, 3*24*time.Hour, domain.ScopeActivation)
 	if err != nil {
+		helpers.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	err = u.tu.Insert(ctx, token)
+	if err != nil {
+		err = errors.WithMessage(err, "failed.token.api.insert")
+		u.logger.PrintError(err, nil)
 		helpers.ServerErrorResponse(w, r, err)
 		return
 	}
@@ -115,6 +125,9 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		},
 	}, nil)
 	if err != nil {
+		err = errors.WithMessage(err, "failed to send json response. token.api")
+		u.logger.PrintError(err, nil)
+
 		helpers.ServerErrorResponse(w, r, err)
 	}
 }

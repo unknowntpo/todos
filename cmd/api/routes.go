@@ -29,18 +29,18 @@ func (app *application) newRoutes() http.Handler {
 	router := httprouter.New()
 	_healthcheckAPI.NewHealthcheckAPI(router, version, app.config.Env)
 
-	// mock the repo
-	// maybe its stub ?
 	taskRepo := mock.NewTaskRepo()
-	taskUsecase := _taskUsecase.NewTaskUsecase(taskRepo, 3*time.Second)
-	_taskAPI.NewTaskAPI(router, taskUsecase, app.logger)
-
 	userRepo := _userRepoPostgres.NewUserRepo(app.database)
-	userUsecase := _userUsecase.NewUserUsecase(userRepo, 3*time.Second)
-	_userAPI.NewUserAPI(router, userUsecase, app.pool, app.mailer, app.logger)
-
 	tokenRepo := _tokenRepoPostgres.NewTokenRepo(app.database)
+
+	// usecase
+	taskUsecase := _taskUsecase.NewTaskUsecase(taskRepo, 3*time.Second)
+	userUsecase := _userUsecase.NewUserUsecase(userRepo, 3*time.Second)
 	tokenUsecase := _tokenUsecase.NewTokenUsecase(tokenRepo, 3*time.Second)
+
+	// delivery
+	_taskAPI.NewTaskAPI(router, taskUsecase, app.logger)
+	_userAPI.NewUserAPI(router, userUsecase, tokenUsecase, app.pool, app.mailer, app.logger)
 	_tokenAPI.NewTokenAPI(router, tokenUsecase, userUsecase, app.logger)
 
 	router.Handler(http.MethodGet, "/debug/vars", expvar.Handler())
