@@ -15,7 +15,7 @@ type zerologWrapper struct {
 }
 
 func New(out io.Writer) logger.Logger {
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	//	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 
 	log := zerolog.New(out).With().Stack().Timestamp().Logger()
