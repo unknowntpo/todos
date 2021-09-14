@@ -136,6 +136,61 @@ func (suite *RepoTestSuite) TestInsert() {
 }
 
 func (suite *RepoTestSuite) TestDeleteAllForUser() {
-	// TODO: Implement tests.
-	suite.T().Fail()
+	suite.Run("Success", func() {
+		// create activation token
+		actToken, err := domain.GenerateToken(suite.fakeuser.ID, 30*time.Minute, domain.ScopeActivation)
+		if err != nil {
+			suite.T().Fatal("fail to generate activation token")
+		}
+
+		// create authentication token
+		authToken, err := domain.GenerateToken(suite.fakeuser.ID, 30*time.Minute, domain.ScopeAuthentication)
+		if err != nil {
+			suite.T().Fatal("fail to generate authentication token")
+		}
+
+		// create new repo
+		repo := NewTokenRepo(suite.db)
+
+		// Insert both activation token and authentication token to repo
+		ctx := context.TODO()
+		err = repo.Insert(ctx, actToken)
+		suite.NoError(err)
+		err = repo.Insert(ctx, authToken)
+		suite.NoError(err)
+
+		// invoke DeleteAllForUser for activation
+		err = repo.DeleteAllForUser(ctx, domain.ScopeActivation, suite.fakeuser.ID)
+		suite.NoError(err)
+
+		// assert activation token is deleted.
+		var gotActToken domain.Token
+		query := `SELECT hash, user_id, expiry, scope FROM tokens WHERE user_id = $1 AND scope = $2`
+		err = suite.db.QueryRowContext(ctx, query, suite.fakeuser.ID, domain.ScopeActivation).Scan(&gotActToken.Hash, &gotActToken.UserID, &gotActToken.Expiry, &gotActToken.Scope)
+		suite.ErrorIs(err, sql.ErrNoRows)
+
+		// assert authentication token is still there.
+		var gotAuthToken domain.Token
+		query = `SELECT hash, user_id, expiry, scope FROM tokens WHERE user_id = $1 AND scope = $2`
+		err = suite.db.QueryRowContext(ctx, query, suite.fakeuser.ID, domain.ScopeAuthentication).Scan(&gotAuthToken.Hash, &gotAuthToken.UserID, &gotAuthToken.Expiry, &gotAuthToken.Scope)
+		suite.NoError(err)
+
+		suite.Equal(authToken.Hash, gotAuthToken.Hash, "hash should be equal")
+		suite.Equal(authToken.UserID, gotAuthToken.UserID, "user id should be equal")
+		suite.Equal(authToken.Scope, gotAuthToken.Scope, "scope should be equal")
+	})
+
+	suite.Run("Fail on timeout", func() {
+		// Create a deadline-exceeded context
+		ctx, cancel := context.WithTimeout(context.Background(), -7*time.Minute)
+		defer cancel()
+		token, err := domain.GenerateToken(suite.fakeuser.ID, 30*time.Minute, domain.ScopeActivation)
+		if err != nil {
+			suite.T().Fatal("fail to generate token")
+		}
+
+		repo := NewTokenRepo(suite.db)
+		err = repo.Insert(ctx, token)
+		suite.ErrorIs(err, context.DeadlineExceeded)
+	})
 }
