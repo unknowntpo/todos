@@ -22,12 +22,18 @@ func NewTaskUsecase(t domain.TaskRepository, timeout time.Duration) domain.TaskU
 }
 
 func (tu *taskUsecase) GetAll(ctx context.Context, title string, filters domain.Filters) ([]*domain.Task, domain.Metadata, error) {
-	return nil, domain.Metadata{}, nil
+	ctx, cancel := context.WithTimeout(ctx, tu.contextTimeout)
+	defer cancel()
+
+	tasks, metadata, err := tu.taskRepo.GetAll(ctx, title, filters)
+	if err != nil {
+		return nil, domain.Metadata{}, errors.WithMessage(err, "task usecase.GetAll")
+	}
+	return tasks, metadata, nil
 }
 
 // Just call repo layer method for now.
 func (tu *taskUsecase) GetByID(ctx context.Context, id int64) (*domain.Task, error) {
-	// TODO: What does it canceled ? The slow function?
 	ctx, cancel := context.WithTimeout(ctx, tu.contextTimeout)
 	defer cancel()
 
@@ -38,7 +44,13 @@ func (tu *taskUsecase) GetByID(ctx context.Context, id int64) (*domain.Task, err
 	return task, nil
 }
 func (tu *taskUsecase) Insert(ctx context.Context, task *domain.Task) error {
-	// TODO: Implement it.
+	ctx, cancel := context.WithTimeout(ctx, tu.contextTimeout)
+	defer cancel()
+
+	err := tu.taskRepo.Insert(ctx, task)
+	if err != nil {
+		return errors.WithMessage(err, "task usecase.Insert")
+	}
 	return nil
 }
 func (tu *taskUsecase) Update(ctx context.Context, id int64, taskUpdated *domain.Task) (*domain.Task, error) {
@@ -54,6 +66,12 @@ func (tu *taskUsecase) Update(ctx context.Context, id int64, taskUpdated *domain
 }
 
 func (tu *taskUsecase) Delete(ctx context.Context, id int64) error {
-	// TODO: Implement it.
+	ctx, cancel := context.WithTimeout(ctx, tu.contextTimeout)
+	defer cancel()
+
+	err := tu.taskRepo.Delete(ctx, id)
+	if err != nil {
+		return errors.WithMessage(err, "task usecase.Delete")
+	}
 	return nil
 }
