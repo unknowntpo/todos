@@ -4,4 +4,4 @@ ls -l
 # set up logfile location to /var/log/app.
 
 # ./api with args
-./api -db-dsn=$TODOS_DB_DSN -cors-trusted-origins="http://localhost:8080"
+./api -c ./app_config.prod.yml

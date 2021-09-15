@@ -1,15 +1,99 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
 	"github.com/unknowntpo/todos/config"
+
+	"github.com/spf13/viper"
 )
 
-// config set the configuration and  returns the config struct.
+var defaultConf = []byte(`
+app:
+  port: 4000
+  env: development
+  db:
+    dsn: "postgres://todos:pa55word@localhost/todos?sslmode=disable"
+    max_open_conns: 25
+    max_idle_conns: 25
+    max_idle_time: 15m
+  limiter:
+    rps: 2
+    burst: 4
+    enabled: True
+  smtp:
+    host: "smtp.mailtrap.io"
+    port: 25
+    username: "bd2857ac6e1116"
+    password: "6f9845a2b11721"
+    sender: "TODOs <no-reply@todos.unknowntpo.net>"
+  cors:
+    trusted_origins:
+      - http://localhost:8080
+`)
+
+func setConfig() *config.Config {
+	viper.SetConfigType("yml")
+	viper.AutomaticEnv()        // read in environment variables that match
+	viper.SetEnvPrefix("TODOS") // will be uppercased automatically
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	var configPath string
+	flag.StringVar(&configPath, "c", "", "Configuration file path.")
+	flag.Parse()
+
+	if configPath != "" {
+		content, err := ioutil.ReadFile(configPath)
+		if err != nil {
+			fmt.Errorf("failed to load config file: %v", err)
+			os.Exit(1)
+		}
+
+		viper.ReadConfig(bytes.NewBuffer(content))
+	} else {
+		// At here, user doesn't specify config file location.
+		// So we load default config.
+		viper.ReadConfig(bytes.NewBuffer(defaultConf))
+	}
+
+	var cfg config.Config
+
+	cfg.Port = viper.GetInt("app.port")
+	//fmt.Println("is port set ?", viper.IsSet("app.port"))
+	cfg.Env = viper.GetString("app.env")
+	cfg.DB = config.DB{
+		Dsn:          viper.GetString("app.db.dsn"),
+		MaxOpenConns: viper.GetInt("app.db.max_open_conns"),
+		MaxIdleConns: viper.GetInt("app.db.max_idle_conns"),
+		MaxIdleTime:  viper.GetString("app.db.max_idle_time"),
+	}
+	cfg.Limiter = config.Limiter{
+		Rps:     viper.GetFloat64("app.limiter.rps"),
+		Burst:   viper.GetInt("app.limiter.burst"),
+		Enabled: viper.GetBool("app.limiter.enabled"),
+	}
+	cfg.Smtp = config.Smtp{
+		Host:     viper.GetString("app.smtp.host"),
+		Port:     viper.GetInt("app.smtp.port"),
+		Username: viper.GetString("app.smtp.username"),
+		Password: viper.GetString("app.smtp.password"),
+		Sender:   viper.GetString("app.smtp.sender"),
+	}
+	cfg.Cors = config.Cors{
+		TrustedOrigins: viper.GetStringSlice("app.cors.trusted_origins"),
+	}
+
+	fmt.Println(cfg)
+	return &cfg
+}
+
+// Note: Read config from flag, we left it for now.
+/*
 func setConfig() *config.Config {
 	var cfg config.Config
 
@@ -58,3 +142,4 @@ func setConfig() *config.Config {
 
 	return &cfg
 }
+*/
