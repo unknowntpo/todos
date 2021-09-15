@@ -22,12 +22,12 @@ All URIs are relative to *https://todos.unknowntpo.net*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *DefaultApi* | [**V1HealthcheckGet**](docs/DefaultApi.md#v1healthcheckget) | **Get** /v1/healthcheck | Returns status of service.
+*DefaultApi* | [**V1TasksGet**](docs/DefaultApi.md#v1tasksget) | **Get** /v1/tasks | Returns all tasks for user identified by userId.
+*DefaultApi* | [**V1TasksPost**](docs/DefaultApi.md#v1taskspost) | **Post** /v1/tasks | Create a new task for user &#x27;user_id&#x27;
+*DefaultApi* | [**V1TasksTaskIdDelete**](docs/DefaultApi.md#v1taskstaskiddelete) | **Delete** /v1/tasks/{taskId} | Delete task by id for specific user.
+*DefaultApi* | [**V1TasksTaskIdGet**](docs/DefaultApi.md#v1taskstaskidget) | **Get** /v1/tasks/{taskId} | Returns all tasks for user identified by userId.
+*DefaultApi* | [**V1TasksTaskIdPatch**](docs/DefaultApi.md#v1taskstaskidpatch) | **Patch** /v1/tasks/{taskId} | Update task for specific user.
 *DefaultApi* | [**V1TokensAuthenticationPost**](docs/DefaultApi.md#v1tokensauthenticationpost) | **Post** /v1/tokens/authentication | Authenticate the user based on given token.
-*DefaultApi* | [**V1UserIdTasksGet**](docs/DefaultApi.md#v1useridtasksget) | **Get** /v1/{userId}/tasks | Returns all tasks for user identified by userId.
-*DefaultApi* | [**V1UserIdTasksPost**](docs/DefaultApi.md#v1useridtaskspost) | **Post** /v1/{userId}/tasks | Create a new task for user &#x27;user_id&#x27;
-*DefaultApi* | [**V1UserIdTasksTaskIdDelete**](docs/DefaultApi.md#v1useridtaskstaskiddelete) | **Delete** /v1/{userId}/tasks/{taskId} | Delete task by id for specific user.
-*DefaultApi* | [**V1UserIdTasksTaskIdGet**](docs/DefaultApi.md#v1useridtaskstaskidget) | **Get** /v1/{userId}/tasks/{taskId} | Returns all tasks for user identified by userId.
-*DefaultApi* | [**V1UserIdTasksTaskIdPatch**](docs/DefaultApi.md#v1useridtaskstaskidpatch) | **Patch** /v1/{userId}/tasks/{taskId} | Update task for specific user.
 *DefaultApi* | [**V1UsersActivationPut**](docs/DefaultApi.md#v1usersactivationput) | **Put** /v1/users/activation | Activate the user by the given token.
 *DefaultApi* | [**V1UsersRegistrationPost**](docs/DefaultApi.md#v1usersregistrationpost) | **Post** /v1/users/registration | Register user based on given information.
 

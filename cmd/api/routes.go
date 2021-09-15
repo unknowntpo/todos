@@ -5,12 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/unknowntpo/todos/internal/domain/mock"
 	_healthcheckAPI "github.com/unknowntpo/todos/internal/healthcheck/delivery/api"
 
 	_taskAPI "github.com/unknowntpo/todos/internal/task/delivery/api"
+	_taskRepoPostgres "github.com/unknowntpo/todos/internal/task/repository/postgres"
 	_taskUsecase "github.com/unknowntpo/todos/internal/task/usecase"
-	//_taskRepoPostgres "github.com/unknowntpo/todos/internal/task/repository/postgres"
 
 	_userAPI "github.com/unknowntpo/todos/internal/user/delivery/api"
 	_userRepoPostgres "github.com/unknowntpo/todos/internal/user/repository/postgres"
@@ -29,7 +28,7 @@ func (app *application) newRoutes() http.Handler {
 	router := httprouter.New()
 	_healthcheckAPI.NewHealthcheckAPI(router, version, app.config.Env)
 
-	taskRepo := mock.NewTaskRepo()
+	taskRepo := _taskRepoPostgres.NewTaskRepo(app.database)
 	userRepo := _userRepoPostgres.NewUserRepo(app.database)
 	tokenRepo := _tokenRepoPostgres.NewTokenRepo(app.database)
 
