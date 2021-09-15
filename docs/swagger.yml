@@ -20,12 +20,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthcheckResponse'
-  /v1/{userId}/tasks:
+  /v1/tasks:
     get:
       summary: Returns all tasks for user identified by userId.
       parameters:
         - name: userId
-          in: path
+          in: query
           required: true
           description: user's id.
           schema:
@@ -44,7 +44,7 @@ paths:
       description: None.
       parameters:
         - name: userId
-          in: path
+          in: query
           required: true
           description: user's id.
           schema:
@@ -63,12 +63,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateTaskResponse'  
-  /v1/{userId}/tasks/{taskId}:
+  /v1/tasks/{taskId}:
     get:
       summary: Returns all tasks for user identified by userId.
       parameters:
         - name: userId
-          in: path
+          in: query
           required: true
           description: user's id.
           schema:
@@ -94,7 +94,7 @@ paths:
       summary: Update task for specific user.
       parameters:
         - name: userId
-          in: path
+          in: query
           required: true
           description: user's id.
           schema:
@@ -125,7 +125,7 @@ paths:
       summary: Delete task by id for specific user.
       parameters:
         - name: userId
-          in: path
+          in: query
           required: true
           description: user's id.
           schema:
@@ -256,7 +256,6 @@ components:
         done:
           type: boolean
       required:
-        - user_id
         - title
         - content
         - done
