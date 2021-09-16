@@ -42,7 +42,7 @@ services:
       dockerfile: ./docker/Dockerfile
       target: config
     healthcheck:
-      test: ["CMD-SHELL", "psql $$TODOS_DB_DSN -c SELECT * FROM tasks"]
+      test: ["CMD-SHELL", "psql $$TODOS_APP_DB_DSN -c SELECT * FROM tasks"]
       interval: 10s
       timeout: 5s
       retries: 5

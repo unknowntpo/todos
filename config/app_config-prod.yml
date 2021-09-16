@@ -1,0 +1,20 @@
+app:
+  port: 4000
+  env: production
+  db:
+    max_open_conns: 25
+    max_idle_conns: 25
+    max_idle_time: 15m
+  limiter:
+    rps: 2
+    burst: 4
+    enabled: True
+  smtp:
+    host: "smtp.mailtrap.io"
+    port: 25
+    username: "bd2857ac6e1116"
+    password: "6f9845a2b11721"
+    sender: "TODOs <no-reply@todos.unknowntpo.net>"
+  cors:
+    trusted_origins:
+      - localhost:8080
