@@ -1,3 +1,4 @@
+include .envrc
 # ==================================================================================== #
 # HELPERS
 # ==================================================================================== #
@@ -55,7 +56,9 @@ build/api:
 ## run/api: run the cmd/api application with trusted origin = swagger UI server
 .PHONY: run/api
 run/api: db/start
-	@go run ./cmd/api -c ./app_config.dev.yml
+	@TODOS_APP_DB_DSN=$(TODOS_APP_DB_DSN_LOCAL) go run ./cmd/api -c ./config/app_config.dev.yml
+
+
 
 ## run/compose/up: run the services
 .PHONY: run/compose/up
@@ -81,8 +84,7 @@ db/migrations/new:
 .PHONY: db/migrations/up
 db/migrations/up:
 	@echo 'Running up migrations...'
-	#FIXME: How to escape $ ?
-	migrate -path ./migrations -database ${db-dsn} up
+	migrate -path ./migrations -database $(TODOS_APP_DB_DSN) up
 
 ## db/start: start a postgres container with testdata
 .PHONY: db/start
@@ -105,7 +107,7 @@ db/stop:
 db/connect:
 	# FIXME: How to escape $ ?
 	# Note: TODOS_DB_DSN comes from viper generated env var
-	@docker exec -it todos_devdb psql $TODOS_DB_DSN
+	@docker exec -it todos_devdb psql $(TODOS_APP_DB_DSN_LOCAL)
 
 ## docs/gen: use swagger codegen to generate API documentation
 .PHONY: docs/gen

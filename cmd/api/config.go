@@ -18,7 +18,6 @@ app:
   port: 4000
   env: development
   db:
-    dsn: "postgres://todos:pa55word@localhost/todos?sslmode=disable"
     max_open_conns: 25
     max_idle_conns: 25
     max_idle_time: 15m
@@ -47,8 +46,6 @@ func setConfig() *config.Config {
 	flag.StringVar(&configPath, "c", "", "Configuration file path.")
 	flag.Parse()
 
-	fmt.Println("is dsn set?", viper.IsSet("app.db.dsn"))
-
 	if configPath != "" {
 		content, err := ioutil.ReadFile(configPath)
 		if err != nil {
@@ -66,7 +63,6 @@ func setConfig() *config.Config {
 	var cfg config.Config
 
 	cfg.Port = viper.GetInt("app.port")
-	//fmt.Println("is port set ?", viper.IsSet("app.port"))
 	cfg.Env = viper.GetString("app.env")
 	cfg.DB = config.DB{
 		Dsn:          viper.GetString("app.db.dsn"),

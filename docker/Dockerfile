@@ -54,6 +54,7 @@ WORKDIR /app/
 COPY --from=base /app/bin .
 COPY --from=base /app/.envrc .
 COPY --from=base /app/docker/entrypoint.sh .
+COPY --from=base /app/config/app_config.prod.yml .
 
 EXPOSE 4000
 
