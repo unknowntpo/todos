@@ -100,8 +100,6 @@ db/stop:
 ## db/connect: connect to the database in postgres container
 .PHONY: db/connect
 db/connect:
-	# FIXME: How to escape $ ?
-	# Note: TODOS_DB_DSN comes from viper generated env var
 	@docker exec -it todos_devdb psql $(TODOS_APP_DB_DSN_LOCAL)
 
 ## docs/gen: use swagger codegen to generate API documentation
