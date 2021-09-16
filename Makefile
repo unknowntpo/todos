@@ -21,13 +21,8 @@ test/unit:
 ## test/integration: execute integration test
 .PHONY: test/integration
 test/integration:
-	@docker-compose -f docker-compose-it-test.yml --env-file .envrc up \
-	    --abort-on-container-exit \
-	    --build \
-	    --remove-orphans
-	@docker-compose -f docker-compose-it-test.yml down
-
-
+	@echo "Running integration tests using testcontainers..."
+	@go test -v ./... -run=Integration -cover -race
 
 # ==================================================================================== #
 # BUILD
