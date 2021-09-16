@@ -42,7 +42,7 @@ build/docker/image:
 .PHONY: build/api
 build/api:
 	@echo 'Building cmd/api...'
-	go build -ldflags=${linker_flags} -o=./bin/api ./cmd/api
+	CGO_ENABLED=0 go build -ldflags=${linker_flags} -o=./bin/api ./cmd/api
 
 # ==================================================================================== #
 # DEVELOPMENT

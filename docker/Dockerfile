@@ -27,7 +27,6 @@ RUN make build/api
 FROM base AS config
 
 WORKDIR /app/
-#COPY --from=base /app/bin .
 COPY --from=base /app/Makefile .
 COPY --from=base /app/.envrc .
 COPY --from=base /usr/local/bin/migrate /usr/local/bin
@@ -38,14 +37,12 @@ COPY --from=base /app/docker/config.sh .
 CMD ["./config.sh"]
 
 # Production stage
-FROM alpine AS production
+FROM scratch AS production
 
 WORKDIR /app/
 COPY --from=base /app/bin .
-COPY --from=base /app/.envrc .
-COPY --from=base /app/docker/entrypoint.sh .
 COPY --from=base /app/config/app_config-prod.yml .
 
 EXPOSE 4000
 
-CMD ["./entrypoint.sh"]
+CMD ["./api", "-c", "./app_config-prod.yml"]
