@@ -14,12 +14,12 @@ import (
 )
 
 type taskAPI struct {
-	TU     domain.TaskUsecase
+	tu     domain.TaskUsecase
 	logger logger.Logger
 }
 
 func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.Logger) {
-	api := &taskAPI{TU: tu, logger: logger}
+	api := &taskAPI{tu: tu, logger: logger}
 	router.HandlerFunc(http.MethodGet, "/v1/tasks", api.GetAll)
 	router.HandlerFunc(http.MethodGet, "/v1/tasks/:id", api.GetByID)
 	router.HandlerFunc(http.MethodPost, "/v1/tasks", api.Insert)
@@ -30,8 +30,41 @@ func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.
 // GetAll gets all tasks.
 // TODO: GetAll should get all tasks with specific user id.
 func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
-	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"debug": "GetAll called"}, nil)
+	var input struct {
+		Title string
+		domain.Filters
+	}
 
+	v := validator.New()
+
+	qs := r.URL.Query()
+
+	input.Title = helpers.ReadString(qs, "title", "")
+	input.Page = helpers.ReadInt(qs, "page", 1, v)
+	input.PageSize = helpers.ReadInt(qs, "page_size", 20, v)
+
+	input.Sort = helpers.ReadString(qs, "sort", "id")
+	input.Filters.SortSafelist = []string{"id", "title", "-id", "-title"}
+
+	if domain.ValidateFilters(v, input.Filters); !v.Valid() {
+		helpers.FailedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	ctx := r.Context()
+	tasks, metadata, err := t.tu.GetAll(ctx, input.Title, input.Filters)
+	if err != nil {
+		helpers.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	err = helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{
+		"metadata": metadata,
+		"tasks":    tasks,
+	}, nil)
+	if err != nil {
+		helpers.ServerErrorResponse(w, r, err)
+	}
 }
 
 // GetByID gets a task by its id.
@@ -43,7 +76,7 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	task, err := t.TU.GetByID(ctx, id)
+	task, err := t.tu.GetByID(ctx, id)
 	if err != nil {
 		switch {
 		case errors.Is(err, domain.ErrRecordNotFound):
@@ -73,7 +106,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	task, err := t.TU.GetByID(ctx, id)
+	task, err := t.tu.GetByID(ctx, id)
 	if err != nil {
 		// TODO: errors.Is
 		t.logger.PrintError(err, nil)
@@ -113,7 +146,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx = r.Context()
-	taskUpdated, err := t.TU.Update(ctx, id, task)
+	taskUpdated, err := t.tu.Update(ctx, id, task)
 	if err != nil {
 		// TODO: errors.Is() to determine which error we got.
 		helpers.ServerErrorResponse(w, r, err)
