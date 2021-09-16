@@ -23,16 +23,6 @@ COPY . .
 
 RUN make build/api
 
-## it-test stage
-FROM base AS it-test
-
-WORKDIR /app/
-# COPY source files to container
-COPY --from=base /app/docker/it-test.sh .
-COPY --from=base /app .
-
-CMD ["./it-test.sh"]
-
 # config stage
 FROM base AS config
 
