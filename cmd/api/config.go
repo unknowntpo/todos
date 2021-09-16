@@ -47,10 +47,12 @@ func setConfig() *config.Config {
 	flag.StringVar(&configPath, "c", "", "Configuration file path.")
 	flag.Parse()
 
+	fmt.Println("is dsn set?", viper.IsSet("app.db.dsn"))
+
 	if configPath != "" {
 		content, err := ioutil.ReadFile(configPath)
 		if err != nil {
-			fmt.Errorf("failed to load config file: %v", err)
+			fmt.Printf("failed to load config file: %v", err)
 			os.Exit(1)
 		}
 
