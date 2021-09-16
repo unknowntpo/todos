@@ -4,14 +4,6 @@ import (
 	"github.com/unknowntpo/todos/internal/helpers/validator"
 )
 
-/*
-type Validator interface {
-	Valid() bool
-	AddError(key, message string)
-	Check(ok bool, key, message string)
-}
-*/
-
 // ValidateTask check if task match the constrains.
 func ValidateTask(v *validator.Validator, task *Task) {
 	v.Check(task.Title != "", "title", "must be provided")
@@ -57,4 +49,16 @@ func ValidateUser(v *validator.Validator, user *User) {
 func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {
 	v.Check(tokenPlaintext != "", "token", "must be provided")
 	v.Check(len(tokenPlaintext) == 26, "token", "must be 26 bytes long")
+}
+
+// ValidateFilters checks if the constraints are satisfied or not.
+func ValidateFilters(v *validator.Validator, f Filters) {
+	// Check that the page and page_size parameters contain sensible values.
+	v.Check(f.Page > 0, "page", "must be greater than zero")
+	v.Check(f.Page <= 10_000_000, "page", "must be a maximum of 10 million")
+	v.Check(f.PageSize > 0, "page_size", "must be greater than zero")
+	v.Check(f.PageSize <= 100, "page_size", "must be a maximum of 100")
+
+	// Check that the sort parameter matches a value in the safelist.
+	v.Check(validator.In(f.Sort, f.SortSafelist...), "sort", "invalid sort value")
 }

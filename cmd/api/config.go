@@ -86,7 +86,6 @@ func setConfig() *config.Config {
 		TrustedOrigins: viper.GetStringSlice("app.cors.trusted_origins"),
 	}
 
-	fmt.Println(cfg)
 	return &cfg
 }
 
