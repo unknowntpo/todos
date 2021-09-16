@@ -56,7 +56,7 @@ build/api:
 ## run/api: run the cmd/api application with trusted origin = swagger UI server
 .PHONY: run/api
 run/api: db/start
-	@TODOS_APP_DB_DSN=$(TODOS_APP_DB_DSN_LOCAL) go run ./cmd/api -c ./config/app_config.dev.yml
+	@TODOS_APP_DB_DSN=$(TODOS_APP_DB_DSN_LOCAL) go run ./cmd/api -c ./config/app_config-dev.yml
 
 
 
