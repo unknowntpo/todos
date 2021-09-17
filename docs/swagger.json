@@ -1,0 +1,46 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is the api documentation of TODOS server.",
+        "title": "TODOS API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:4000",
+    "basePath": "/",
+    "paths": {
+        "/v1/healthcheck": {
+            "get": {
+                "description": "None.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Show status of service.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.HealthcheckResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.HealthcheckResponse": {
+            "type": "object",
+            "properties": {
+                "environment": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

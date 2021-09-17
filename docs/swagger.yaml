@@ -1,0 +1,30 @@
+basePath: /
+definitions:
+  api.HealthcheckResponse:
+    properties:
+      environment:
+        type: string
+      status:
+        type: string
+      version:
+        type: string
+    type: object
+host: localhost:4000
+info:
+  contact: {}
+  description: This is the api documentation of TODOS server.
+  title: TODOS API
+  version: "1.0"
+paths:
+  /v1/healthcheck:
+    get:
+      description: None.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.HealthcheckResponse'
+      summary: Show status of service.
+swagger: "2.0"

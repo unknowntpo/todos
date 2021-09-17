@@ -33,6 +33,11 @@ type application struct {
 	logger   logger.Logger
 }
 
+// @title TODOS API
+// @version 1.0
+// @description This is the api documentation of TODOS server.
+// @host localhost:4000
+// @BasePath /
 func main() {
 	cfg := setConfig()
 
