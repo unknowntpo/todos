@@ -106,7 +106,11 @@ db/connect:
 .PHONY: docs/gen
 docs/gen:
 	@echo "Generating swagger API documentation..."
-	@swag init --dir ./cmd/api -o ./docs
+	@swag init --dir ./cmd/api \
+	    --parseDependency \
+	    --parseInternal \
+	    -o ./docs
+
 
 ## docs/show: use swaggerUI container to show API documentation. 
 .PHONY: docs/show
