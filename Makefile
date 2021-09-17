@@ -106,17 +106,14 @@ db/connect:
 .PHONY: docs/gen
 docs/gen:
 	@echo "Generating swagger API documentation..."
-	@docker run --rm -v ${PWD}/docs:/local swaggerapi/swagger-codegen-cli-v3 generate \
-	    -i /local/swagger.yml \
-	    -l go \
-	    -o /local/go
+	@swag init --dir ./cmd/api -o ./docs
 
 ## docs/show: use swaggerUI container to show API documentation. 
 .PHONY: docs/show
 docs/show:
 	@echo "Showing swagger API documentation at :8080..."
 	@docker run --rm -d -p 8080:8080 \
-	-e SWAGGER_JSON='/docs/swagger.yml' \
+	-e SWAGGER_JSON='/docs/swagger.yaml' \
 	-e BASE_URL='/' \
 	--mount type=bind,source="$(shell pwd)"/docs,target=/docs \
 	swaggerapi/swagger-ui
