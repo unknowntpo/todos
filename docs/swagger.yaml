@@ -12,6 +12,15 @@ definitions:
       token:
         $ref: '#/definitions/domain.Token'
     type: object
+  api.GetAllTasksResponse:
+    properties:
+      metadata:
+        $ref: '#/definitions/domain.Metadata'
+      tasks:
+        items:
+          $ref: '#/definitions/domain.Task'
+        type: array
+    type: object
   api.HealthcheckResponse:
     properties:
       environment:
@@ -21,12 +30,45 @@ definitions:
       version:
         type: string
     type: object
+  domain.Metadata:
+    properties:
+      current_page:
+        type: integer
+      first_page:
+        type: integer
+      last_page:
+        type: integer
+      page_size:
+        type: integer
+      total_records:
+        type: integer
+    type: object
+  domain.Task:
+    properties:
+      content:
+        description: task content
+        type: string
+      done:
+        description: true if task is done
+        type: boolean
+      id:
+        description: Unique integer ID for the task
+        type: integer
+      title:
+        description: task title
+        type: string
+      version:
+        description: The version number starts at 1 and will be incremented each
+        type: integer
+    type: object
   domain.Token:
     properties:
       expiry:
         type: string
       token:
         type: string
+    type: object
+  helpers.ErrorResponse:
     type: object
 host: localhost:4000
 info:
@@ -46,6 +88,56 @@ paths:
           schema:
             $ref: '#/definitions/api.HealthcheckResponse'
       summary: Show status of service.
+  /v1/tasks:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User Id
+        in: query
+        name: userId
+        required: true
+        type: integer
+      - description: title filter
+        in: query
+        name: title
+        type: string
+      - description: sort filter
+        in: query
+        name: sort
+        type: string
+      - description: id filter
+        in: query
+        name: id
+        type: string
+      - description: page filter
+        in: query
+        name: page
+        type: string
+      - description: page size filter
+        in: query
+        name: page_size
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GetAllTasksResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+      summary: Gets all tasks for specific user.
   /v1/tokens/authentication:
     post:
       consumes:
