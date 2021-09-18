@@ -40,6 +40,82 @@ var doc = `{
                 }
             }
         },
+        "/v1/tasks": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets all tasks for specific user.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User Id",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "title filter",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "sort filter",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "id filter",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "page filter",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "page size filter",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.GetAllTasksResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/tokens/authentication": {
             "post": {
                 "description": "None.",
@@ -92,6 +168,20 @@ var doc = `{
                 }
             }
         },
+        "api.GetAllTasksResponse": {
+            "type": "object",
+            "properties": {
+                "metadata": {
+                    "$ref": "#/definitions/domain.Metadata"
+                },
+                "tasks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Task"
+                    }
+                }
+            }
+        },
         "api.HealthcheckResponse": {
             "type": "object",
             "properties": {
@@ -106,6 +196,51 @@ var doc = `{
                 }
             }
         },
+        "domain.Metadata": {
+            "type": "object",
+            "properties": {
+                "current_page": {
+                    "type": "integer"
+                },
+                "first_page": {
+                    "type": "integer"
+                },
+                "last_page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total_records": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.Task": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "task content",
+                    "type": "string"
+                },
+                "done": {
+                    "description": "true if task is done",
+                    "type": "boolean"
+                },
+                "id": {
+                    "description": "Unique integer ID for the task",
+                    "type": "integer"
+                },
+                "title": {
+                    "description": "task title",
+                    "type": "string"
+                },
+                "version": {
+                    "description": "The version number starts at 1 and will be incremented each",
+                    "type": "integer"
+                }
+            }
+        },
         "domain.Token": {
             "type": "object",
             "properties": {
@@ -116,6 +251,9 @@ var doc = `{
                     "type": "string"
                 }
             }
+        },
+        "helpers.ErrorResponse": {
+            "type": "object"
         }
     }
 }`

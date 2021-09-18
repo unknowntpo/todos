@@ -18,6 +18,39 @@ type taskAPI struct {
 	logger logger.Logger
 }
 
+type CreateTaskRequest struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Done    bool   `json:"done"`
+}
+
+type CreateTaskResponse struct {
+	Task *domain.Task `json:"task"`
+}
+
+type DeleteTaskByIdResponse struct {
+	Message string `json:"message"`
+}
+
+type GetAllTasksResponse struct {
+	Metadata *domain.Metadata `json:"metadata"`
+	Tasks    []*domain.Task   `json:"tasks"`
+}
+
+type GetTaskByIdResponse struct {
+	Task *domain.Task `json:"task"`
+}
+
+type UpdateTaskByIdRequest struct {
+	Title   string `json:"title,omitempty"`
+	Content string `json:"content,omitempty"`
+	Done    bool   `json:"done,omitempty"`
+}
+
+type UpdateTaskByIdResponse struct {
+	Task *domain.Task `json:"updated_task"`
+}
+
 func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.Logger) {
 	api := &taskAPI{tu: tu, logger: logger}
 	router.HandlerFunc(http.MethodGet, "/v1/tasks", api.GetAll)
@@ -29,6 +62,21 @@ func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.
 
 // GetAll gets all tasks.
 // TODO: GetAll should get all tasks with specific user id.
+// @Summary Gets all tasks for specific user.
+// @Description: None.
+// @Accept  json
+// @Produce  json
+// @Param userId query int true "User Id"
+// @Param title query string false "title filter"
+// @Param sort query string false "sort filter"
+// @Param id query string false "id filter"
+// @Param page query string false "page filter"
+// @Param page_size query string false "page size filter"
+// @Success 200 {object} GetAllTasksResponse
+// @Failure 400 {object} helpers.ErrorResponse
+// @Failure 404 {object} helpers.ErrorResponse
+// @Failure 500 {object} helpers.ErrorResponse
+// @Router /v1/tasks [get]
 func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title string
