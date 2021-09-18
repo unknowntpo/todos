@@ -39,9 +39,59 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/v1/tokens/authentication": {
+            "post": {
+                "description": "None.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create authentication token for user.",
+                "parameters": [
+                    {
+                        "description": "authentication request body",
+                        "name": "authentication_request_body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.AuthenticationRequestBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.AuthenticationResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "api.AuthenticationRequestBody": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.AuthenticationResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "$ref": "#/definitions/domain.Token"
+                }
+            }
+        },
         "api.HealthcheckResponse": {
             "type": "object",
             "properties": {
@@ -52,6 +102,17 @@ var doc = `{
                     "type": "string"
                 },
                 "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Token": {
+            "type": "object",
+            "properties": {
+                "expiry": {
+                    "type": "string"
+                },
+                "token": {
                     "type": "string"
                 }
             }

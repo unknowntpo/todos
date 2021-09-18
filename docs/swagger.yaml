@@ -1,5 +1,17 @@
 basePath: /
 definitions:
+  api.AuthenticationRequestBody:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  api.AuthenticationResponse:
+    properties:
+      token:
+        $ref: '#/definitions/domain.Token'
+    type: object
   api.HealthcheckResponse:
     properties:
       environment:
@@ -7,6 +19,13 @@ definitions:
       status:
         type: string
       version:
+        type: string
+    type: object
+  domain.Token:
+    properties:
+      expiry:
+        type: string
+      token:
         type: string
     type: object
 host: localhost:4000
@@ -27,4 +46,24 @@ paths:
           schema:
             $ref: '#/definitions/api.HealthcheckResponse'
       summary: Show status of service.
+  /v1/tokens/authentication:
+    post:
+      consumes:
+      - application/json
+      description: None.
+      parameters:
+      - description: authentication request body
+        in: body
+        name: authentication_request_body
+        required: true
+        schema:
+          $ref: '#/definitions/api.AuthenticationRequestBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AuthenticationResponse'
+      summary: Create authentication token for user.
 swagger: "2.0"

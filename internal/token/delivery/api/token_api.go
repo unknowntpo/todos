@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	swagger "github.com/unknowntpo/todos/docs/go"
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
 	"github.com/unknowntpo/todos/internal/helpers/validator"
@@ -20,16 +19,30 @@ type tokenAPI struct {
 	logger logger.Logger
 }
 
+type AuthenticationRequestBody struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type AuthenticationResponse struct {
+	Token *domain.Token `json:"token"`
+}
+
 func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase, uu domain.UserUsecase, logger logger.Logger) {
 	api := &tokenAPI{TU: tu, UU: uu, logger: logger}
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", api.CreateAuthenticationToken)
 }
 
+// @Summary Create authentication token for user.
+// @Description None.
+// @Accept  json
+// @Produce  json
+// @Param authentication_request_body body AuthenticationRequestBody true "authentication request body"
+// @Success 200 {object} AuthenticationResponse
+// @Router /v1/tokens/authentication [post]
 func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Request) {
-	//helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"debug": "CreateAuthenticationToken called"}, nil)
-
 	// Parse the email and password from the request body.
-	var input swagger.AuthenticationRequest
+	var input AuthenticationRequestBody
 
 	err := helpers.ReadJSON(w, r, &input)
 	if err != nil {
@@ -91,9 +104,8 @@ func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Requ
 	// status code.
 	err = helpers.WriteJSON(w,
 		http.StatusCreated,
-		&swagger.AuthenticationResponse{
-			Token:  token.Plaintext,
-			Expiry: token.Expiry.Format(time.RFC3339),
+		&AuthenticationResponse{
+			Token: token,
 		}, nil)
 	if err != nil {
 		helpers.ServerErrorResponse(w, r, err)
