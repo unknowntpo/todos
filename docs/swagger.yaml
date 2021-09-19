@@ -53,6 +53,25 @@ definitions:
       title:
         type: string
     type: object
+  api.UserActivationResponse:
+    properties:
+      user:
+        $ref: '#/definitions/domain.User'
+    type: object
+  api.UserRegistrationRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  api.UserRegistrationResponse:
+    properties:
+      user:
+        $ref: '#/definitions/domain.User'
+    type: object
   domain.Metadata:
     properties:
       current_page:
@@ -89,6 +108,19 @@ definitions:
       expiry:
         type: string
       token:
+        type: string
+    type: object
+  domain.User:
+    properties:
+      activated:
+        type: boolean
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
         type: string
     type: object
   helpers.ErrorResponse:
@@ -160,7 +192,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helpers.ErrorResponse'
-      summary: Gets all tasks for specific user.
+      summary: Get all tasks for specific user.
     post:
       consumes:
       - application/json
@@ -195,7 +227,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helpers.ErrorResponse'
-      summary: Insert task for specific user.
+      summary: Create a new task for specific user.
   /v1/tasks/{taskId}:
     delete:
       consumes:
@@ -264,7 +296,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/helpers.ErrorResponse'
-      summary: Gets task by id for specific user.
+      summary: Get task by id for specific user.
     patch:
       consumes:
       - application/json
@@ -325,4 +357,63 @@ paths:
           schema:
             $ref: '#/definitions/api.AuthenticationResponse'
       summary: Create authentication token for user.
+  /v1/users/activation:
+    put:
+      parameters:
+      - description: activation token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.UserActivationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+      summary: Activate user based on given token.
+  /v1/users/registration:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request body
+        in: body
+        name: reqBody
+        required: true
+        schema:
+          $ref: '#/definitions/api.UserRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/api.UserRegistrationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+      summary: Register user based on given information.
 swagger: "2.0"

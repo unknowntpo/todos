@@ -1,12 +1,10 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/unknowntpo/naivepool"
-	swagger "github.com/unknowntpo/todos/docs/go"
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
 	"github.com/unknowntpo/todos/internal/helpers/mailer"
@@ -26,6 +24,20 @@ type userAPI struct {
 	logger logger.Logger
 }
 
+type UserRegistrationResponse struct {
+	User *domain.User `json:"user"`
+}
+
+type UserRegistrationRequest struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type UserActivationResponse struct {
+	User *domain.User `json:"user"`
+}
+
 func NewUserAPI(router *httprouter.Router,
 	uu domain.UserUsecase,
 	tu domain.TokenUsecase,
@@ -39,9 +51,20 @@ func NewUserAPI(router *httprouter.Router,
 	router.HandlerFunc(http.MethodPut, "/v1/users/activation", api.ActivateUser)
 }
 
+// RegisterUser registers user based on given information.
+// @Summary Register user based on given information.
+// @Description: None.
+// @Accept  json
+// @Produce  json
+// @Param reqBody body UserRegistrationRequest true "request body"
+// @Success 202 {object} UserRegistrationResponse
+// @Failure 400 {object} helpers.ErrorResponse
+// @Failure 404 {object} helpers.ErrorResponse
+// @Failure 500 {object} helpers.ErrorResponse
+// @Router /v1/users/registration [post]
 func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	// Create an anonymous struct to hold the expected data from the request body.
-	var input swagger.UserRegistrationRequest
+	var input UserRegistrationRequest
 
 	// Parse the request body into the anonymous struct.
 	err := helpers.ReadJSON(w, r, &input)
@@ -115,15 +138,7 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		}
 	})
 
-	err = helpers.WriteJSON(w, http.StatusAccepted, &swagger.UserRegistrationResponse{
-		User: &swagger.User{
-			Id:        fmt.Sprintf("%d", user.ID),
-			CreatedAt: user.CreatedAt.Format(time.RFC3339),
-			Name:      user.Name,
-			Email:     user.Email,
-			Activated: user.Activated,
-		},
-	}, nil)
+	err = helpers.WriteJSON(w, http.StatusAccepted, &UserRegistrationResponse{User: user}, nil)
 	if err != nil {
 		err = errors.WithMessage(err, "failed to send json response. token.api")
 		u.logger.PrintError(err, nil)
@@ -132,6 +147,16 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ActivateUser activates user based on given token.
+// @Summary Activate user based on given token.
+// @Description: None.
+// @Produce  json
+// @Param token query string true "activation token"
+// @Success 200 {object} UserActivationResponse
+// @Failure 400 {object} helpers.ErrorResponse
+// @Failure 404 {object} helpers.ErrorResponse
+// @Failure 500 {object} helpers.ErrorResponse
+// @Router /v1/users/activation [put]
 func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
 	// Read token from request query string.
 	tokenPlaintext := helpers.ReadString(r.URL.Query(), "token", "")
@@ -182,15 +207,7 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send the updated user details to the client in a JSON response.
-	err = helpers.WriteJSON(w, http.StatusOK, &swagger.UserActivationResponse{
-		User: &swagger.User{
-			Id:        fmt.Sprintf("%d", user.ID),
-			CreatedAt: user.CreatedAt.Format(time.RFC3339),
-			Name:      user.Name,
-			Email:     user.Email,
-			Activated: user.Activated,
-		},
-	}, nil)
+	err = helpers.WriteJSON(w, http.StatusOK, &UserActivationResponse{User: user}, nil)
 	if err != nil {
 		helpers.ServerErrorResponse(w, r, err)
 	}
