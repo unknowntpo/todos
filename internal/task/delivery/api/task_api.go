@@ -116,6 +116,17 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetByID gets a task by its id.
+// @Summary Gets task by id for specific user.
+// @Description: None.
+// @Accept  json
+// @Produce  json
+// @Param userId query int true "User Id"
+// @Param taskId path int true "Task Id"
+// @Success 200 {object} GetAllTasksResponse
+// @Failure 400 {object} helpers.ErrorResponse
+// @Failure 404 {object} helpers.ErrorResponse
+// @Failure 500 {object} helpers.ErrorResponse
+// @Router /v1/tasks/{taskId} [get]
 func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadIDParam(r)
 	if err != nil {
@@ -140,11 +151,34 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 // Insert inserts a new task.
+// @Summary Insert task for specific user.
+// @Description: None.
+// @Accept  json
+// @Produce  json
+// @Param userId query int true "User Id"
+// @Param reqBody body CreateTaskRequest true "create task request body"
+// @Success 201 {object} domain.Task
+// @Failure 400 {object} helpers.ErrorResponse
+// @Failure 404 {object} helpers.ErrorResponse
+// @Failure 500 {object} helpers.ErrorResponse
+// @Router /v1/tasks [post]
 func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"debug": "Insert called"}, nil)
 }
 
-// Update updates an exist task.
+// Update updates an exist task for specific user.
+// @Summary Update task for specific user.
+// @Description: None.
+// @Accept  json
+// @Produce  json
+// @Param userId query int true "User Id"
+// @Param taskId path int true "Task id"
+// @Param reqBody body UpdateTaskByIdRequest true "request body"
+// @Success 200 {object} domain.Task
+// @Failure 400 {object} helpers.ErrorResponse
+// @Failure 404 {object} helpers.ErrorResponse
+// @Failure 500 {object} helpers.ErrorResponse
+// @Router /v1/tasks/{taskId} [patch]
 func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadIDParam(r)
 	if err != nil {
@@ -205,6 +239,17 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 // Delete delets an exist task.
+// @Summary Delete task for specific user.
+// @Description: None.
+// @Accept  json
+// @Produce  json
+// @Param userId query int true "User Id"
+// @Param taskId path int true "Task id"
+// @Success 200 {object} DeleteTaskByIdResponse
+// @Failure 400 {object} helpers.ErrorResponse
+// @Failure 404 {object} helpers.ErrorResponse
+// @Failure 500 {object} helpers.ErrorResponse
+// @Router /v1/tasks/{taskId} [delete]
 func (t *taskAPI) Delete(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"debug": "Delete called"}, nil)
 }
