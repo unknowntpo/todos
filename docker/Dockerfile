@@ -1,11 +1,46 @@
-## base stage
-FROM golang:alpine as base
+# build base
+FROM golang:alpine as build-base
 
 RUN apk add --no-cache curl \
 git \
 bash \
 make \
-build-base \
+build-base
+
+WORKDIR /app
+
+COPY go.mod .
+COPY go.sum .
+RUN go mod verify
+
+COPY internal ./internal
+COPY cmd ./cmd
+COPY config ./config
+COPY docs ./docs
+COPY vendor ./vendor
+COPY Makefile .
+COPY .envrc .
+COPY app_config* .
+
+RUN make build/api
+
+# Production stage
+FROM scratch AS production
+
+WORKDIR /app/
+COPY --from=build-base /app/bin .
+COPY --from=build-base /app/app_config-prod.yml .
+
+EXPOSE 4000
+
+CMD ["./api", "-c", "./app_config-prod.yml"]
+
+# config base
+FROM alpine as config-base
+RUN apk add --no-cache curl \
+git \
+bash \
+make \
 postgresql-client
 
 ARG MIGRATE_VERSION=4.7.1
@@ -14,35 +49,21 @@ RUN tar -xzf /tmp/migrate.linux-amd64.tar.gz -C /usr/local/bin && mv /usr/local/
 
 WORKDIR /app
 
-# copy module files first so that they don't need to be downloaded again if no change
-COPY go.mod .
-COPY go.sum .
-RUN go mod verify
-
-COPY . .
-
-RUN make build/api
+COPY Makefile .
+COPY .envrc .
+COPY migrations ./migrations
+COPY testdata ./testdata
+COPY docker ./docker
 
 # config stage
-FROM base AS config
+FROM config-base AS config
 
 WORKDIR /app/
-COPY --from=base /app/Makefile .
-COPY --from=base /app/.envrc .
-COPY --from=base /usr/local/bin/migrate /usr/local/bin
-COPY --from=base /app/migrations ./migrations/
-COPY --from=base /app/testdata ./testdata/
-COPY --from=base /app/docker/config.sh .
+COPY --from=config-base /app/Makefile .
+COPY --from=config-base /app/.envrc .
+COPY --from=config-base /usr/local/bin/migrate /usr/local/bin
+COPY --from=config-base /app/migrations ./migrations/
+COPY --from=config-base /app/testdata ./testdata/
+COPY --from=config-base /app/docker/config.sh .
 
 CMD ["./config.sh"]
-
-# Production stage
-FROM scratch AS production
-
-WORKDIR /app/
-COPY --from=base /app/bin .
-COPY --from=base /app/config/app_config-prod.yml .
-
-EXPOSE 4000
-
-CMD ["./api", "-c", "./app_config-prod.yml"]
