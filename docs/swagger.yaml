@@ -12,6 +12,20 @@ definitions:
       token:
         $ref: '#/definitions/domain.Token'
     type: object
+  api.CreateTaskRequest:
+    properties:
+      content:
+        type: string
+      done:
+        type: boolean
+      title:
+        type: string
+    type: object
+  api.DeleteTaskByIdResponse:
+    properties:
+      message:
+        type: string
+    type: object
   api.GetAllTasksResponse:
     properties:
       metadata:
@@ -28,6 +42,15 @@ definitions:
       status:
         type: string
       version:
+        type: string
+    type: object
+  api.UpdateTaskByIdRequest:
+    properties:
+      content:
+        type: string
+      done:
+        type: boolean
+      title:
         type: string
     type: object
   domain.Metadata:
@@ -138,6 +161,150 @@ paths:
           schema:
             $ref: '#/definitions/helpers.ErrorResponse'
       summary: Gets all tasks for specific user.
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User Id
+        in: query
+        name: userId
+        required: true
+        type: integer
+      - description: create task request body
+        in: body
+        name: reqBody
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Task'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+      summary: Insert task for specific user.
+  /v1/tasks/{taskId}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: User Id
+        in: query
+        name: userId
+        required: true
+        type: integer
+      - description: Task id
+        in: path
+        name: taskId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.DeleteTaskByIdResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+      summary: Delete task for specific user.
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User Id
+        in: query
+        name: userId
+        required: true
+        type: integer
+      - description: Task Id
+        in: path
+        name: taskId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GetAllTasksResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+      summary: Gets task by id for specific user.
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: User Id
+        in: query
+        name: userId
+        required: true
+        type: integer
+      - description: Task id
+        in: path
+        name: taskId
+        required: true
+        type: integer
+      - description: request body
+        in: body
+        name: reqBody
+        required: true
+        schema:
+          $ref: '#/definitions/api.UpdateTaskByIdRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Task'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ErrorResponse'
+      summary: Update task for specific user.
   /v1/tokens/authentication:
     post:
       consumes:
