@@ -20,8 +20,17 @@ COPY go.sum .
 RUN go mod verify
 
 COPY . .
+#COPY internal ./internal
+#COPY cmd ./cmd
+#COPY vendor ./vendor
+#COPY Makefile .
+#COPY .envrc .
 
 RUN make build/api
+
+#COPY migrations ./migrations
+#COPY testdata ./testdata
+#COPY docker ./docker
 
 # config stage
 FROM base AS config
@@ -41,7 +50,7 @@ FROM scratch AS production
 
 WORKDIR /app/
 COPY --from=base /app/bin .
-COPY --from=base /app/config/app_config-prod.yml .
+COPY --from=base /app/app_config-prod.yml .
 
 EXPOSE 4000
 
