@@ -48,7 +48,7 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Gets all tasks for specific user.",
+                "summary": "Get all tasks for specific user.",
                 "parameters": [
                     {
                         "type": "integer",
@@ -122,7 +122,7 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Insert task for specific user.",
+                "summary": "Create a new task for specific user.",
                 "parameters": [
                     {
                         "type": "integer",
@@ -177,7 +177,7 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Gets task by id for specific user.",
+                "summary": "Get task by id for specific user.",
                 "parameters": [
                     {
                         "type": "integer",
@@ -363,6 +363,97 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/v1/users/activation": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Activate user based on given token.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "activation token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.UserActivationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/registration": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Register user based on given information.",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "reqBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.UserRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/api.UserRegistrationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -449,6 +540,36 @@ var doc = `{
                 }
             }
         },
+        "api.UserActivationResponse": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "$ref": "#/definitions/domain.User"
+                }
+            }
+        },
+        "api.UserRegistrationRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.UserRegistrationResponse": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "$ref": "#/definitions/domain.User"
+                }
+            }
+        },
         "domain.Metadata": {
             "type": "object",
             "properties": {
@@ -501,6 +622,26 @@ var doc = `{
                     "type": "string"
                 },
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.User": {
+            "type": "object",
+            "properties": {
+                "activated": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }

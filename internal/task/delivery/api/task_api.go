@@ -62,7 +62,7 @@ func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.
 
 // GetAll gets all tasks.
 // TODO: GetAll should get all tasks with specific user id.
-// @Summary Gets all tasks for specific user.
+// @Summary Get all tasks for specific user.
 // @Description: None.
 // @Accept  json
 // @Produce  json
@@ -116,7 +116,7 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetByID gets a task by its id.
-// @Summary Gets task by id for specific user.
+// @Summary Get task by id for specific user.
 // @Description: None.
 // @Accept  json
 // @Produce  json
@@ -151,7 +151,7 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 // Insert inserts a new task.
-// @Summary Insert task for specific user.
+// @Summary Create a new task for specific user.
 // @Description: None.
 // @Accept  json
 // @Produce  json
