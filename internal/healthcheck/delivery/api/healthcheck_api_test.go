@@ -28,9 +28,9 @@ func TestHealthcheckHandler(t *testing.T) {
 
 	wantBody :=
 		`{
-	"status": "available",
-	"environment": "development",
-	"version": "v3.14"
+	"Status": "available",
+	"Environment": "development",
+	"Version": "v3.14"
 }
 `
 	assert.Equal(t, wantBody, w.Body.String(), "response body must be equal")
