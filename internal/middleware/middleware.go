@@ -21,17 +21,17 @@ import (
 	"golang.org/x/time/rate"
 )
 
-type generalMiddleware struct {
+type Middleware struct {
 	config  *config.Config
 	usecase domain.UserUsecase
 	logger  logger.Logger
 }
 
-func New(cfg *config.Config, uu domain.UserUsecase, logger logger.Logger) *generalMiddleware {
-	return &generalMiddleware{config: cfg, usecase: uu, logger: logger}
+func New(cfg *config.Config, uu domain.UserUsecase, logger logger.Logger) *Middleware {
+	return &Middleware{config: cfg, usecase: uu, logger: logger}
 }
 
-func (mid *generalMiddleware) RecoverPanic(next http.Handler) http.Handler {
+func (mid *Middleware) RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -47,7 +47,7 @@ func (mid *generalMiddleware) RecoverPanic(next http.Handler) http.Handler {
 	})
 }
 
-func (mid *generalMiddleware) RateLimit(next http.Handler) http.Handler {
+func (mid *Middleware) RateLimit(next http.Handler) http.Handler {
 	type client struct {
 		limiter  *rate.Limiter
 		lastSeen time.Time
@@ -112,7 +112,7 @@ func (mid *generalMiddleware) RateLimit(next http.Handler) http.Handler {
 	})
 }
 
-func (mid *generalMiddleware) Authenticate(next http.Handler) http.Handler {
+func (mid *Middleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// This indicates to any caches that the response may vary
 		// based on the value of the Authorization
@@ -163,7 +163,7 @@ func (mid *generalMiddleware) Authenticate(next http.Handler) http.Handler {
 }
 
 // RequireAuthenticatedUser checks that a user is not anonymous.
-func (mid *generalMiddleware) RequireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
+func (mid *Middleware) RequireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := helpers.ContextGetUser(r)
 
@@ -177,7 +177,7 @@ func (mid *generalMiddleware) RequireAuthenticatedUser(next http.HandlerFunc) ht
 }
 
 // RequireActivatedUser checks if a user is both authenticated and activated.
-func (mid *generalMiddleware) RequireActivatedUser(next http.HandlerFunc) http.HandlerFunc {
+func (mid *Middleware) RequireActivatedUser(next http.HandlerFunc) http.HandlerFunc {
 	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Retrieve the user information from the request context.
 		user := helpers.ContextGetUser(r)
@@ -194,7 +194,7 @@ func (mid *generalMiddleware) RequireActivatedUser(next http.HandlerFunc) http.H
 	return mid.RequireAuthenticatedUser(fn)
 }
 
-func (mid *generalMiddleware) Metrics(next http.Handler) http.Handler {
+func (mid *Middleware) Metrics(next http.Handler) http.Handler {
 	// Initialize the new expvar variables when the middleware chain is first built.
 	totalRequestsReceived := expvar.NewInt("total_requests_received")
 	totalResponsesSent := expvar.NewInt("total_responses_sent")
@@ -228,7 +228,7 @@ func (mid *generalMiddleware) Metrics(next http.Handler) http.Handler {
 	})
 }
 
-func (mid *generalMiddleware) EnableCORS(next http.Handler) http.Handler {
+func (mid *Middleware) EnableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Add the "Vary: Origin" header.
 		w.Header().Add("Vary", "Origin")

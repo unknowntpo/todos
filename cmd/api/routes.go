@@ -40,8 +40,11 @@ func (app *application) newRoutes() http.Handler {
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, 3*time.Second)
 	tokenUsecase := _tokenUsecase.NewTokenUsecase(tokenRepo, 3*time.Second)
 
+	// middleware
+	genMid := _generalMiddleware.New(app.config, userUsecase, app.logger)
+
 	// delivery
-	_taskAPI.NewTaskAPI(router, taskUsecase, app.logger)
+	_taskAPI.NewTaskAPI(router, taskUsecase, app.logger, genMid)
 	_userAPI.NewUserAPI(router, userUsecase, tokenUsecase, app.pool, app.mailer, app.logger)
 	_tokenAPI.NewTokenAPI(router, tokenUsecase, userUsecase, app.logger)
 
@@ -50,9 +53,6 @@ func (app *application) newRoutes() http.Handler {
 	router.Handler(http.MethodGet, "/swagger/:any", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:4000/swagger/doc.json"), //The url pointing to API definition
 	))
-
-	// TODO: Add middleware
-	genMid := _generalMiddleware.New(app.config, userUsecase, app.logger)
 
 	return genMid.Metrics(genMid.RecoverPanic(genMid.EnableCORS(genMid.RateLimit(genMid.Authenticate(router)))))
 	//return app.metrics(app.recoverPanic(app.enableCORS(app.rateLimit(app.authenticate(router)))))

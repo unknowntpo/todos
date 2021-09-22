@@ -7,16 +7,12 @@ import (
 	"github.com/unknowntpo/todos/internal/helpers"
 	"github.com/unknowntpo/todos/internal/helpers/validator"
 	"github.com/unknowntpo/todos/internal/logger"
+	"github.com/unknowntpo/todos/internal/middleware"
 
 	"github.com/julienschmidt/httprouter"
 
 	"github.com/pkg/errors"
 )
-
-type taskAPI struct {
-	tu     domain.TaskUsecase
-	logger logger.Logger
-}
 
 type CreateTaskRequest struct {
 	Title   string `json:"title"`
@@ -51,13 +47,19 @@ type UpdateTaskByIdResponse struct {
 	Task *domain.Task `json:"updated_task"`
 }
 
-func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.Logger) {
-	api := &taskAPI{tu: tu, logger: logger}
-	router.HandlerFunc(http.MethodGet, "/v1/tasks", api.GetAll)
-	router.HandlerFunc(http.MethodGet, "/v1/tasks/:id", api.GetByID)
-	router.HandlerFunc(http.MethodPost, "/v1/tasks", api.Insert)
-	router.HandlerFunc(http.MethodPatch, "/v1/tasks/:id", api.Update)
-	router.HandlerFunc(http.MethodDelete, "/v1/tasks/:id", api.Delete)
+type taskAPI struct {
+	tu     domain.TaskUsecase
+	logger logger.Logger
+	mid    *middleware.Middleware
+}
+
+func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.Logger, mid *middleware.Middleware) {
+	api := &taskAPI{tu: tu, logger: logger, mid: mid}
+	router.HandlerFunc(http.MethodGet, "/v1/tasks", mid.RequireAuthenticatedUser(api.GetAll))
+	router.HandlerFunc(http.MethodGet, "/v1/tasks/:id", mid.RequireAuthenticatedUser(api.GetByID))
+	router.HandlerFunc(http.MethodPost, "/v1/tasks", mid.RequireAuthenticatedUser(api.Insert))
+	router.HandlerFunc(http.MethodPatch, "/v1/tasks/:id", mid.RequireAuthenticatedUser(api.Update))
+	router.HandlerFunc(http.MethodDelete, "/v1/tasks/:id", mid.RequireAuthenticatedUser(api.Delete))
 }
 
 // GetAll gets all tasks.
