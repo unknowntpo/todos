@@ -68,6 +68,7 @@ func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.
 // @Description: None.
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param userId query int true "User Id"
 // @Param title query string false "title filter"
 // @Param sort query string false "sort filter"
@@ -122,6 +123,7 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 // @Description: None.
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param userId query int true "User Id"
 // @Param taskId path int true "Task Id"
 // @Success 200 {object} GetAllTasksResponse
@@ -157,6 +159,7 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Description: None.
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param userId query int true "User Id"
 // @Param reqBody body CreateTaskRequest true "create task request body"
 // @Success 201 {object} domain.Task
@@ -173,6 +176,7 @@ func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
 // @Description: None.
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param userId query int true "User Id"
 // @Param taskId path int true "Task id"
 // @Param reqBody body UpdateTaskByIdRequest true "request body"
@@ -245,6 +249,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 // @Description: None.
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param userId query int true "User Id"
 // @Param taskId path int true "Task id"
 // @Success 200 {object} DeleteTaskByIdResponse
