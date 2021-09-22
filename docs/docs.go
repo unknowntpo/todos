@@ -51,6 +51,14 @@ var doc = `{
                 "summary": "Get all tasks for specific user.",
                 "parameters": [
                     {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "User Id",
                         "name": "userId",
@@ -125,6 +133,14 @@ var doc = `{
                 "summary": "Create a new task for specific user.",
                 "parameters": [
                     {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "User Id",
                         "name": "userId",
@@ -180,6 +196,14 @@ var doc = `{
                 "summary": "Get task by id for specific user.",
                 "parameters": [
                     {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "User Id",
                         "name": "userId",
@@ -231,6 +255,14 @@ var doc = `{
                 "summary": "Delete task for specific user.",
                 "parameters": [
                     {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "User Id",
                         "name": "userId",
@@ -281,6 +313,14 @@ var doc = `{
                 ],
                 "summary": "Update task for specific user.",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "User Id",

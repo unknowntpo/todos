@@ -148,6 +148,12 @@ paths:
       consumes:
       - application/json
       parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: User Id
         in: query
         name: userId
@@ -197,6 +203,12 @@ paths:
       consumes:
       - application/json
       parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: User Id
         in: query
         name: userId
@@ -233,6 +245,12 @@ paths:
       consumes:
       - application/json
       parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: User Id
         in: query
         name: userId
@@ -267,6 +285,12 @@ paths:
       consumes:
       - application/json
       parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: User Id
         in: query
         name: userId
@@ -301,6 +325,12 @@ paths:
       consumes:
       - application/json
       parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: User Id
         in: query
         name: userId
