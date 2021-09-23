@@ -58,11 +58,10 @@ run/api: db/start
 ## run/compose/up: run the services
 .PHONY: run/compose/up
 run/compose/up:
+	@DOCKER_BUILDKIT=1 docker-compose -f docker-compose-prod.yml build --parallel
 	@docker-compose -f docker-compose-prod.yml --env-file .envrc up \
 	    -d \
-	    --build \
 	    --remove-orphans \
-	    --force-recreate
 
 ## run/compose/down: shutdown the services
 .PHONY: run/compose/down
@@ -85,17 +84,16 @@ db/migrations/up:
 .PHONY: db/start
 db/start:
 	@echo "Start a new postgres db with testdata..."
+	@DOCKER_BUILDKIT=1 docker-compose -f docker-compose-db.yml build --parallel
 	@docker-compose -f docker-compose-db.yml --env-file .envrc up \
 	    -d \
 	    --remove-orphans \
-	    --force-recreate \
-	    --build
 
 ## db/stop: stop a postgres container.
 .PHONY: db/stop
 db/stop:
 	@echo "Stop postgres db container..."
-	@docker-compose -f docker-compose-prod.yml down
+	@docker-compose -f docker-compose-db.yml down
 
 ## db/connect: connect to the database in postgres container
 .PHONY: db/connect
