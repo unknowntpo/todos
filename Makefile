@@ -58,11 +58,10 @@ run/api: db/start
 ## run/compose/up: run the services
 .PHONY: run/compose/up
 run/compose/up:
+	@DOCKER_BUILDKIT=1 docker-compose -f docker-compose-prod.yml build --parallel
 	@docker-compose -f docker-compose-prod.yml --env-file .envrc up \
 	    -d \
-	    --build \
 	    --remove-orphans \
-	    --force-recreate
 
 ## run/compose/down: shutdown the services
 .PHONY: run/compose/down
