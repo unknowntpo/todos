@@ -46,8 +46,8 @@
                     },
                     {
                         "type": "integer",
-                        "description": "User Id",
-                        "name": "userId",
+                        "description": "User ID",
+                        "name": "userID",
                         "in": "query",
                         "required": true
                     },
@@ -128,8 +128,8 @@
                     },
                     {
                         "type": "integer",
-                        "description": "User Id",
-                        "name": "userId",
+                        "description": "User ID",
+                        "name": "userID",
                         "in": "query",
                         "required": true
                     },
@@ -171,7 +171,7 @@
                 }
             }
         },
-        "/v1/tasks/{taskId}": {
+        "/v1/tasks/{taskID}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -191,15 +191,15 @@
                     },
                     {
                         "type": "integer",
-                        "description": "User Id",
-                        "name": "userId",
+                        "description": "User ID",
+                        "name": "userID",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "Task Id",
-                        "name": "taskId",
+                        "description": "Task ID",
+                        "name": "taskID",
                         "in": "path",
                         "required": true
                     }
@@ -250,15 +250,15 @@
                     },
                     {
                         "type": "integer",
-                        "description": "User Id",
-                        "name": "userId",
+                        "description": "User ID",
+                        "name": "userID",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "Task id",
-                        "name": "taskId",
+                        "description": "Task ID",
+                        "name": "taskID",
                         "in": "path",
                         "required": true
                     }
@@ -267,7 +267,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.DeleteTaskByIdResponse"
+                            "$ref": "#/definitions/api.DeleteTaskByIDResponse"
                         }
                     },
                     "400": {
@@ -309,15 +309,15 @@
                     },
                     {
                         "type": "integer",
-                        "description": "User Id",
-                        "name": "userId",
+                        "description": "User ID",
+                        "name": "userID",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "Task id",
-                        "name": "taskId",
+                        "description": "Task ID",
+                        "name": "taskID",
                         "in": "path",
                         "required": true
                     },
@@ -327,7 +327,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.UpdateTaskByIdRequest"
+                            "$ref": "#/definitions/api.UpdateTaskByIDRequest"
                         }
                     }
                 ],
@@ -516,7 +516,7 @@
                 }
             }
         },
-        "api.DeleteTaskByIdResponse": {
+        "api.DeleteTaskByIDResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -552,7 +552,7 @@
                 }
             }
         },
-        "api.UpdateTaskByIdRequest": {
+        "api.UpdateTaskByIDRequest": {
             "type": "object",
             "properties": {
                 "content": {
