@@ -81,6 +81,8 @@ func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.
 // @Failure 500 {object} helpers.ErrorResponse
 // @Router /v1/tasks [get]
 func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
+	user := helpers.ContextGetUser(r)
+
 	var input struct {
 		Title string
 		domain.Filters
@@ -103,7 +105,7 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	tasks, metadata, err := t.tu.GetAll(ctx, input.Title, input.Filters)
+	tasks, metadata, err := t.tu.GetAll(ctx, user.ID, input.Title, input.Filters)
 	if err != nil {
 		helpers.ServerErrorResponse(w, r, err)
 		return
@@ -132,6 +134,8 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} helpers.ErrorResponse
 // @Router /v1/tasks/{taskId} [get]
 func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
+	user := helpers.ContextGetUser(r)
+
 	id, err := helpers.ReadIDParam(r)
 	if err != nil {
 		helpers.NotFoundResponse(w, r)
@@ -139,7 +143,7 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	task, err := t.tu.GetByID(ctx, id)
+	task, err := t.tu.GetByID(ctx, user.ID, id)
 	if err != nil {
 		switch {
 		case errors.Is(err, domain.ErrRecordNotFound):
@@ -168,6 +172,9 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} helpers.ErrorResponse
 // @Router /v1/tasks [post]
 func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
+	user := helpers.ContextGetUser(r)
+	_ = user
+
 	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"debug": "Insert called"}, nil)
 }
 
@@ -186,7 +193,9 @@ func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} helpers.ErrorResponse
 // @Router /v1/tasks/{taskId} [patch]
 func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
-	id, err := helpers.ReadIDParam(r)
+	user := helpers.ContextGetUser(r)
+
+	taskID, err := helpers.ReadIDParam(r)
 	if err != nil {
 		t.logger.PrintError(err, nil)
 		helpers.NotFoundResponse(w, r)
@@ -194,7 +203,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	task, err := t.tu.GetByID(ctx, id)
+	task, err := t.tu.GetByID(ctx, user.ID, taskID)
 	if err != nil {
 		// TODO: errors.Is
 		t.logger.PrintError(err, nil)
@@ -234,7 +243,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx = r.Context()
-	taskUpdated, err := t.tu.Update(ctx, id, task)
+	taskUpdated, err := t.tu.Update(ctx, user.ID, taskID, task)
 	if err != nil {
 		// TODO: errors.Is() to determine which error we got.
 		helpers.ServerErrorResponse(w, r, err)
@@ -258,5 +267,8 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} helpers.ErrorResponse
 // @Router /v1/tasks/{taskId} [delete]
 func (t *taskAPI) Delete(w http.ResponseWriter, r *http.Request) {
+	user := helpers.ContextGetUser(r)
+	_ = user
+
 	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"debug": "Delete called"}, nil)
 }

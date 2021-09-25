@@ -18,7 +18,7 @@ func NewTaskRepo(DB *sql.DB) domain.TaskRepository {
 	return &taskRepo{DB}
 }
 
-func (tr *taskRepo) GetAll(ctx context.Context, title string, filters domain.Filters) ([]*domain.Task, domain.Metadata, error) {
+func (tr *taskRepo) GetAll(ctx context.Context, userID int64, title string, filters domain.Filters) ([]*domain.Task, domain.Metadata, error) {
 	query := fmt.Sprintf(`
         SELECT count(*) OVER(), id, created_at, title, content, done, version
         FROM tasks
@@ -69,8 +69,8 @@ func (tr *taskRepo) GetAll(ctx context.Context, title string, filters domain.Fil
 	return tasks, metadata, nil
 }
 
-func (tr *taskRepo) GetByID(ctx context.Context, id int64) (*domain.Task, error) {
-	if id < 1 {
+func (tr *taskRepo) GetByID(ctx context.Context, userID int64, taskID int64) (*domain.Task, error) {
+	if taskID < 1 {
 		return nil, domain.ErrRecordNotFound
 	}
 
@@ -81,7 +81,7 @@ func (tr *taskRepo) GetByID(ctx context.Context, id int64) (*domain.Task, error)
 
 	var task domain.Task
 
-	err := tr.DB.QueryRowContext(ctx, query, id).Scan(
+	err := tr.DB.QueryRowContext(ctx, query, taskID).Scan(
 		&task.ID,
 		&task.CreatedAt,
 		&task.Title,
@@ -101,13 +101,13 @@ func (tr *taskRepo) GetByID(ctx context.Context, id int64) (*domain.Task, error)
 	return &task, nil
 }
 
-func (tr *taskRepo) Insert(ctx context.Context, task *domain.Task) error {
+func (tr *taskRepo) Insert(ctx context.Context, userID int64, task *domain.Task) error {
 	return nil
 }
-func (tr *taskRepo) Update(ctx context.Context, id int64, task *domain.Task) (*domain.Task, error) {
+func (tr *taskRepo) Update(ctx context.Context, userID int64, taskID int64, task *domain.Task) (*domain.Task, error) {
 	return nil, nil
 }
 
-func (tr *taskRepo) Delete(ctx context.Context, id int64) error {
+func (tr *taskRepo) Delete(ctx context.Context, userID int64, taskID int64) error {
 	return nil
 }
