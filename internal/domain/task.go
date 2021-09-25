@@ -8,6 +8,7 @@ import (
 // Task represent the data structure of our task object.
 type Task struct {
 	ID        int64     `json:"id"`      // Unique integer ID for the task
+	userID    int64     `json:"user_id"` // integer ID for the task owner
 	CreatedAt time.Time `json:"-"`       // Timestamp for when the task is added to our database
 	Title     string    `json:"title"`   // task title
 	Content   string    `json:"content"` // task content
@@ -17,17 +18,17 @@ type Task struct {
 }
 
 type TaskUsecase interface {
-	GetAll(ctx context.Context, title string, filters Filters) ([]*Task, Metadata, error)
-	GetByID(ctx context.Context, id int64) (*Task, error)
-	Insert(ctx context.Context, task *Task) error
-	Update(ctx context.Context, id int64, task *Task) (*Task, error)
-	Delete(ctx context.Context, id int64) error
+	GetAll(ctx context.Context, userID int64, title string, filters Filters) ([]*Task, Metadata, error)
+	GetByID(ctx context.Context, userID int64, taskID int64) (*Task, error)
+	Insert(ctx context.Context, userID int64, task *Task) error
+	Update(ctx context.Context, userID int64, taskID int64, task *Task) (*Task, error)
+	Delete(ctx context.Context, userID int64, taskID int64) error
 }
 
 type TaskRepository interface {
-	GetAll(ctx context.Context, title string, filters Filters) ([]*Task, Metadata, error)
-	GetByID(ctx context.Context, id int64) (*Task, error)
-	Insert(ctx context.Context, task *Task) error
-	Update(ctx context.Context, id int64, task *Task) (*Task, error)
-	Delete(ctx context.Context, id int64) error
+	GetAll(ctx context.Context, userID int64, title string, filters Filters) ([]*Task, Metadata, error)
+	GetByID(ctx context.Context, userID int64, taskID int64) (*Task, error)
+	Insert(ctx context.Context, userID int64, task *Task) error
+	Update(ctx context.Context, userID int64, taskID int64, task *Task) (*Task, error)
+	Delete(ctx context.Context, userID int64, taskID int64) error
 }

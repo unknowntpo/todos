@@ -60,8 +60,8 @@ var doc = `{
                     },
                     {
                         "type": "integer",
-                        "description": "User Id",
-                        "name": "userId",
+                        "description": "User ID",
+                        "name": "userID",
                         "in": "query",
                         "required": true
                     },
@@ -142,8 +142,8 @@ var doc = `{
                     },
                     {
                         "type": "integer",
-                        "description": "User Id",
-                        "name": "userId",
+                        "description": "User ID",
+                        "name": "userID",
                         "in": "query",
                         "required": true
                     },
@@ -185,7 +185,7 @@ var doc = `{
                 }
             }
         },
-        "/v1/tasks/{taskId}": {
+        "/v1/tasks/{taskID}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -205,15 +205,15 @@ var doc = `{
                     },
                     {
                         "type": "integer",
-                        "description": "User Id",
-                        "name": "userId",
+                        "description": "User ID",
+                        "name": "userID",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "Task Id",
-                        "name": "taskId",
+                        "description": "Task ID",
+                        "name": "taskID",
                         "in": "path",
                         "required": true
                     }
@@ -264,15 +264,15 @@ var doc = `{
                     },
                     {
                         "type": "integer",
-                        "description": "User Id",
-                        "name": "userId",
+                        "description": "User ID",
+                        "name": "userID",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "Task id",
-                        "name": "taskId",
+                        "description": "Task ID",
+                        "name": "taskID",
                         "in": "path",
                         "required": true
                     }
@@ -281,7 +281,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.DeleteTaskByIdResponse"
+                            "$ref": "#/definitions/api.DeleteTaskByIDResponse"
                         }
                     },
                     "400": {
@@ -323,15 +323,15 @@ var doc = `{
                     },
                     {
                         "type": "integer",
-                        "description": "User Id",
-                        "name": "userId",
+                        "description": "User ID",
+                        "name": "userID",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "Task id",
-                        "name": "taskId",
+                        "description": "Task ID",
+                        "name": "taskID",
                         "in": "path",
                         "required": true
                     },
@@ -341,7 +341,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.UpdateTaskByIdRequest"
+                            "$ref": "#/definitions/api.UpdateTaskByIDRequest"
                         }
                     }
                 ],
@@ -530,7 +530,7 @@ var doc = `{
                 }
             }
         },
-        "api.DeleteTaskByIdResponse": {
+        "api.DeleteTaskByIDResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -566,7 +566,7 @@ var doc = `{
                 }
             }
         },
-        "api.UpdateTaskByIdRequest": {
+        "api.UpdateTaskByIDRequest": {
             "type": "object",
             "properties": {
                 "content": {

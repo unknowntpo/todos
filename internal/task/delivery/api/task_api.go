@@ -24,7 +24,7 @@ type CreateTaskResponse struct {
 	Task *domain.Task `json:"task"`
 }
 
-type DeleteTaskByIdResponse struct {
+type DeleteTaskByIDResponse struct {
 	Message string `json:"message"`
 }
 
@@ -33,17 +33,17 @@ type GetAllTasksResponse struct {
 	Tasks    []*domain.Task   `json:"tasks"`
 }
 
-type GetTaskByIdResponse struct {
+type GetTaskByIDResponse struct {
 	Task *domain.Task `json:"task"`
 }
 
-type UpdateTaskByIdRequest struct {
+type UpdateTaskByIDRequest struct {
 	Title   string `json:"title,omitempty"`
 	Content string `json:"content,omitempty"`
 	Done    bool   `json:"done,omitempty"`
 }
 
-type UpdateTaskByIdResponse struct {
+type UpdateTaskByIDResponse struct {
 	Task *domain.Task `json:"updated_task"`
 }
 
@@ -69,7 +69,7 @@ func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param userId query int true "User Id"
+// @Param userID query int true "User ID"
 // @Param title query string false "title filter"
 // @Param sort query string false "sort filter"
 // @Param id query string false "id filter"
@@ -81,6 +81,8 @@ func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.
 // @Failure 500 {object} helpers.ErrorResponse
 // @Router /v1/tasks [get]
 func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
+	user := helpers.ContextGetUser(r)
+
 	var input struct {
 		Title string
 		domain.Filters
@@ -103,7 +105,7 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	tasks, metadata, err := t.tu.GetAll(ctx, input.Title, input.Filters)
+	tasks, metadata, err := t.tu.GetAll(ctx, user.ID, input.Title, input.Filters)
 	if err != nil {
 		helpers.ServerErrorResponse(w, r, err)
 		return
@@ -118,20 +120,22 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GetByID gets a task by its id.
-// @Summary Get task by id for specific user.
+// GetByID gets a task by its ID.
+// @Summary Get task by ID for specific user.
 // @Description: None.
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param userId query int true "User Id"
-// @Param taskId path int true "Task Id"
+// @Param userID query int true "User ID"
+// @Param taskID path int true "Task ID"
 // @Success 200 {object} GetAllTasksResponse
 // @Failure 400 {object} helpers.ErrorResponse
 // @Failure 404 {object} helpers.ErrorResponse
 // @Failure 500 {object} helpers.ErrorResponse
-// @Router /v1/tasks/{taskId} [get]
+// @Router /v1/tasks/{taskID} [get]
 func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
+	user := helpers.ContextGetUser(r)
+
 	id, err := helpers.ReadIDParam(r)
 	if err != nil {
 		helpers.NotFoundResponse(w, r)
@@ -139,7 +143,7 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	task, err := t.tu.GetByID(ctx, id)
+	task, err := t.tu.GetByID(ctx, user.ID, id)
 	if err != nil {
 		switch {
 		case errors.Is(err, domain.ErrRecordNotFound):
@@ -160,7 +164,7 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param userId query int true "User Id"
+// @Param userID query int true "User ID"
 // @Param reqBody body CreateTaskRequest true "create task request body"
 // @Success 201 {object} domain.Task
 // @Failure 400 {object} helpers.ErrorResponse
@@ -168,6 +172,9 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} helpers.ErrorResponse
 // @Router /v1/tasks [post]
 func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
+	user := helpers.ContextGetUser(r)
+	_ = user
+
 	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"debug": "Insert called"}, nil)
 }
 
@@ -177,16 +184,18 @@ func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param userId query int true "User Id"
-// @Param taskId path int true "Task id"
-// @Param reqBody body UpdateTaskByIdRequest true "request body"
+// @Param userID query int true "User ID"
+// @Param taskID path int true "Task ID"
+// @Param reqBody body UpdateTaskByIDRequest true "request body"
 // @Success 200 {object} domain.Task
 // @Failure 400 {object} helpers.ErrorResponse
 // @Failure 404 {object} helpers.ErrorResponse
 // @Failure 500 {object} helpers.ErrorResponse
-// @Router /v1/tasks/{taskId} [patch]
+// @Router /v1/tasks/{taskID} [patch]
 func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
-	id, err := helpers.ReadIDParam(r)
+	user := helpers.ContextGetUser(r)
+
+	taskID, err := helpers.ReadIDParam(r)
 	if err != nil {
 		t.logger.PrintError(err, nil)
 		helpers.NotFoundResponse(w, r)
@@ -194,7 +203,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	task, err := t.tu.GetByID(ctx, id)
+	task, err := t.tu.GetByID(ctx, user.ID, taskID)
 	if err != nil {
 		// TODO: errors.Is
 		t.logger.PrintError(err, nil)
@@ -234,7 +243,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx = r.Context()
-	taskUpdated, err := t.tu.Update(ctx, id, task)
+	taskUpdated, err := t.tu.Update(ctx, user.ID, taskID, task)
 	if err != nil {
 		// TODO: errors.Is() to determine which error we got.
 		helpers.ServerErrorResponse(w, r, err)
@@ -250,13 +259,16 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param userId query int true "User Id"
-// @Param taskId path int true "Task id"
-// @Success 200 {object} DeleteTaskByIdResponse
+// @Param userID query int true "User ID"
+// @Param taskID path int true "Task ID"
+// @Success 200 {object} DeleteTaskByIDResponse
 // @Failure 400 {object} helpers.ErrorResponse
 // @Failure 404 {object} helpers.ErrorResponse
 // @Failure 500 {object} helpers.ErrorResponse
-// @Router /v1/tasks/{taskId} [delete]
+// @Router /v1/tasks/{taskID} [delete]
 func (t *taskAPI) Delete(w http.ResponseWriter, r *http.Request) {
+	user := helpers.ContextGetUser(r)
+	_ = user
+
 	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"debug": "Delete called"}, nil)
 }
