@@ -1,2 +1,2 @@
 # TODOS: A todo list written in go, with clean architecture inside.
-[![Build Status](https://cloud.drone.io/api/badges/unknowntpo/todos/status.svg)](https://cloud.drone.io/unknowntpo/todos) [![Build Status](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/unknowntpo/todos?utm_source=godoc)
+[![Build Status](https://cloud.drone.io/api/badges/unknowntpo/todos/status.svg)](https://cloud.drone.io/unknowntpo/todos) [![Go.Dev](https://godoc.org/github.com/unknowntpo/todos?status.svg=)](https://pkg.go.dev/github.com/unknowntpo/todos?utm_source=godoc) [![Go Report Card](https://goreportcard.com/badge/github.com/unknowntpo/todos)](https://goreportcard.com/report/github.com/unknowntpo/todos)
