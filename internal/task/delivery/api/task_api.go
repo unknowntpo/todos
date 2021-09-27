@@ -63,13 +63,12 @@ func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, logger logger.
 }
 
 // GetAll gets all tasks.
-// TODO: GetAll should get all tasks with specific user id.
+// TODO: GetAll should get all tasks for specific user.
 // @Summary Get all tasks for specific user.
 // @Description: None.
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param userID query int true "User ID"
 // @Param title query string false "title filter"
 // @Param sort query string false "sort filter"
 // @Param id query string false "id filter"
@@ -107,6 +106,7 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	tasks, metadata, err := t.tu.GetAll(ctx, user.ID, input.Title, input.Filters)
 	if err != nil {
+		t.logger.PrintError(err, nil)
 		helpers.ServerErrorResponse(w, r, err)
 		return
 	}
@@ -116,6 +116,7 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 		"tasks":    tasks,
 	}, nil)
 	if err != nil {
+		t.logger.PrintError(err, nil)
 		helpers.ServerErrorResponse(w, r, err)
 	}
 }
@@ -126,7 +127,6 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param userID query int true "User ID"
 // @Param taskID path int true "Task ID"
 // @Success 200 {object} GetAllTasksResponse
 // @Failure 400 {object} helpers.ErrorResponse
@@ -218,6 +218,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	// readJSON
 	err = helpers.ReadJSON(w, r, &input)
 	if err != nil {
+		t.logger.PrintError(err, nil)
 		helpers.ServerErrorResponse(w, r, err)
 	}
 
@@ -246,6 +247,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	taskUpdated, err := t.tu.Update(ctx, user.ID, taskID, task)
 	if err != nil {
 		// TODO: errors.Is() to determine which error we got.
+		t.logger.PrintError(err, nil)
 		helpers.ServerErrorResponse(w, r, err)
 	}
 

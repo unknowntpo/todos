@@ -59,13 +59,6 @@ var doc = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
                         "type": "string",
                         "description": "title filter",
                         "name": "title",
@@ -193,7 +186,7 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get task by id for specific user.",
+                "summary": "Get task by ID for specific user.",
                 "parameters": [
                     {
                         "type": "string",
@@ -201,13 +194,6 @@ var doc = `{
                         "description": "Insert your access token",
                         "name": "Authorization",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "userID",
-                        "in": "query",
                         "required": true
                     },
                     {
@@ -648,6 +634,10 @@ var doc = `{
                 "title": {
                     "description": "task title",
                     "type": "string"
+                },
+                "user_id": {
+                    "description": "integer ID for the task owner",
+                    "type": "integer"
                 },
                 "version": {
                     "description": "The version number starts at 1 and will be incremented each",

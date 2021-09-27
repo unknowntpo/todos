@@ -20,13 +20,14 @@ func NewTaskRepo(DB *sql.DB) domain.TaskRepository {
 
 func (tr *taskRepo) GetAll(ctx context.Context, userID int64, title string, filters domain.Filters) ([]*domain.Task, domain.Metadata, error) {
 	query := fmt.Sprintf(`
-        SELECT count(*) OVER(), id, created_at, title, content, done, version
+        SELECT count(*) OVER(), id, user_id, created_at, title, content, done, version
         FROM tasks
         WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '') 
+	AND user_id = $2
         ORDER BY %s %s, id ASC
-	LIMIT $2 OFFSET $3`, filters.SortColumn(), filters.SortDirection())
+	LIMIT $3 OFFSET $4`, filters.SortColumn(), filters.SortDirection())
 
-	args := []interface{}{title, filters.Limit(), filters.Offset()}
+	args := []interface{}{title, userID, filters.Limit(), filters.Offset()}
 
 	rows, err := tr.DB.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -44,6 +45,7 @@ func (tr *taskRepo) GetAll(ctx context.Context, userID int64, title string, filt
 		err := rows.Scan(
 			&totalRecords,
 			&task.ID,
+			&task.UserID,
 			&task.CreatedAt,
 			&task.Title,
 			&task.Content,
@@ -61,7 +63,12 @@ func (tr *taskRepo) GetAll(ctx context.Context, userID int64, title string, filt
 	// When the rows.Next() loop has finished, call rows.Err() to retrieve any error
 	// that was encountered during the iteration.
 	if err = rows.Err(); err != nil {
-		return nil, domain.Metadata{}, err
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, domain.Metadata{}, errors.Errorf("taskRepo.GetAll: %v", domain.ErrRecordNotFound)
+		default:
+			return nil, domain.Metadata{}, errors.WithMessage(err, "taskRepo.GetAll:")
+		}
 	}
 
 	metadata := domain.CalculateMetadata(totalRecords, filters.Page, filters.PageSize)
@@ -75,14 +82,16 @@ func (tr *taskRepo) GetByID(ctx context.Context, userID int64, taskID int64) (*d
 	}
 
 	query := `
-	SELECT id, created_at, title, content, done, version
+	SELECT id, user_id, created_at, title, content, done, version
 	FROM tasks
-	WHERE id = $1`
+	WHERE id = $1
+	AND user_id = $2`
 
 	var task domain.Task
 
-	err := tr.DB.QueryRowContext(ctx, query, taskID).Scan(
+	err := tr.DB.QueryRowContext(ctx, query, taskID, userID).Scan(
 		&task.ID,
+		&task.UserID,
 		&task.CreatedAt,
 		&task.Title,
 		&task.Content,
@@ -92,9 +101,9 @@ func (tr *taskRepo) GetByID(ctx context.Context, userID int64, taskID int64) (*d
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, domain.ErrRecordNotFound
+			return nil, errors.Errorf("taskRepo.GetByID: %v", domain.ErrRecordNotFound)
 		default:
-			return nil, err
+			return nil, errors.WithMessage(err, "taskRepo.GetByID:")
 		}
 	}
 
