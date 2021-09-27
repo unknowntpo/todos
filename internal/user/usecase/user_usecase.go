@@ -25,7 +25,7 @@ func (uu *userUsecase) GetByEmail(ctx context.Context, email string) (*domain.Us
 	user, err := uu.userRepo.GetByEmail(ctx, email)
 	if err != nil {
 		// TODO: Improve error chain message
-		return nil, errors.WithMessage(err, "user.usecase.GetByEmail")
+		return nil, errors.WithMessage(err, "userUsecase.GetByEmail")
 	}
 	return user, nil
 }
@@ -36,7 +36,7 @@ func (uu *userUsecase) Insert(ctx context.Context, user *domain.User) error {
 	err := uu.userRepo.Insert(ctx, user)
 	if err != nil {
 		// TODO: Improve error chain message
-		return errors.WithMessage(err, "user.usecase.Insert")
+		return errors.WithMessage(err, "userUsecase.Insert")
 	}
 	return nil
 }
@@ -47,7 +47,7 @@ func (uu *userUsecase) GetForToken(ctx context.Context, tokenScope, tokenPlainte
 	user, err := uu.userRepo.GetForToken(ctx, tokenScope, tokenPlaintext)
 	if err != nil {
 		// TODO: Improve error chain message
-		return nil, errors.WithMessage(err, "user.usecase.GetForToken")
+		return nil, errors.WithMessage(err, "userUsecase.GetForToken")
 	}
 	return user, nil
 }
@@ -58,7 +58,7 @@ func (uu *userUsecase) Update(ctx context.Context, user *domain.User) error {
 	err := uu.userRepo.Update(ctx, user)
 	if err != nil {
 		// TODO: Improve error chain message
-		return errors.WithMessage(err, "user.usecase.Update")
+		return errors.WithMessage(err, "userUsecase.Update")
 	}
 	return nil
 }

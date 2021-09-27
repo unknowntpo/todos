@@ -8,7 +8,7 @@ import (
 // Task represent the data structure of our task object.
 type Task struct {
 	ID        int64     `json:"id"`      // Unique integer ID for the task
-	userID    int64     `json:"user_id"` // integer ID for the task owner
+	UserID    int64     `json:"user_id"` // integer ID for the task owner
 	CreatedAt time.Time `json:"-"`       // Timestamp for when the task is added to our database
 	Title     string    `json:"title"`   // task title
 	Content   string    `json:"content"` // task content

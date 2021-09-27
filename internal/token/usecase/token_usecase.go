@@ -28,7 +28,7 @@ func (tu *tokenUsecase) Insert(ctx context.Context, token *domain.Token) error {
 	err := tu.tr.Insert(ctx, token)
 	if err != nil {
 		// TODO: Improve error message chain.
-		return errors.WithMessage(err, "token usecase.insert")
+		return errors.WithMessage(err, "tokenUsecase.insert")
 	}
 
 	return nil
@@ -41,7 +41,7 @@ func (tu *tokenUsecase) DeleteAllForUser(ctx context.Context, scope string, user
 	err := tu.tr.DeleteAllForUser(ctx, scope, userID)
 	if err != nil {
 		// TODO: Improve error message chain.
-		return errors.WithMessagef(err, "token usecase.deleteallforuser.userID = %d", userID)
+		return errors.WithMessagef(err, "tokenUsecase.deleteallforuser.userID = %d", userID)
 	}
 
 	return nil

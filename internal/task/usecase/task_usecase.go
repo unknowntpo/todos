@@ -27,7 +27,7 @@ func (tu *taskUsecase) GetAll(ctx context.Context, userID int64, title string, f
 
 	tasks, metadata, err := tu.taskRepo.GetAll(ctx, userID, title, filters)
 	if err != nil {
-		return nil, domain.Metadata{}, errors.WithMessage(err, "task usecase.GetAll")
+		return nil, domain.Metadata{}, errors.WithMessage(err, "taskUsecase.GetAll")
 	}
 	return tasks, metadata, nil
 }
@@ -39,7 +39,7 @@ func (tu *taskUsecase) GetByID(ctx context.Context, userID int64, taskID int64) 
 
 	task, err := tu.taskRepo.GetByID(ctx, userID, taskID)
 	if err != nil {
-		return nil, errors.WithMessage(err, "task usecase.GetByID")
+		return nil, errors.WithMessage(err, "taskUsecase.GetByID")
 	}
 	return task, nil
 }
@@ -49,7 +49,7 @@ func (tu *taskUsecase) Insert(ctx context.Context, userID int64, task *domain.Ta
 
 	err := tu.taskRepo.Insert(ctx, userID, task)
 	if err != nil {
-		return errors.WithMessage(err, "task usecase.Insert")
+		return errors.WithMessage(err, "taskUsecase.Insert")
 	}
 	return nil
 }
@@ -59,7 +59,7 @@ func (tu *taskUsecase) Update(ctx context.Context, userID int64, taskID int64, t
 
 	taskUpdated, err := tu.taskRepo.Update(ctx, userID, taskID, taskUpdated)
 	if err != nil {
-		return nil, errors.WithMessage(err, "task usecase.Update")
+		return nil, errors.WithMessage(err, "taskUsecase.Update")
 
 	}
 	return taskUpdated, nil
@@ -71,7 +71,7 @@ func (tu *taskUsecase) Delete(ctx context.Context, userID int64, taskID int64) e
 
 	err := tu.taskRepo.Delete(ctx, userID, taskID)
 	if err != nil {
-		return errors.WithMessage(err, "task usecase.Delete")
+		return errors.WithMessage(err, "taskUsecase.Delete")
 	}
 	return nil
 }
