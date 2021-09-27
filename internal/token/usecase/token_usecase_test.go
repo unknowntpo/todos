@@ -54,5 +54,40 @@ func TestInsert(t *testing.T) {
 }
 
 func TestDeleteAllForUser(t *testing.T) {
-	t.Fail()
+	// When success, it should return no error.
+	t.Run("Success", func(t *testing.T) {
+		// init token usecase with mock token repo
+		repo := new(_repoMock.MockTokenRepo)
+		// Set expectations
+		repo.On("DeleteAllForUser", mock.Anything, domain.ScopeActivation, mock.MatchedBy(func(userID int64) bool {
+			return userID == 1
+		})).Return(nil)
+
+		tokenUsecase := NewTokenUsecase(repo, 3*time.Second)
+
+		ctx := context.TODO()
+		gotErr := tokenUsecase.DeleteAllForUser(ctx, domain.ScopeActivation, 1)
+		assert.NoError(t, gotErr)
+
+		repo.AssertExpectations(t)
+	})
+
+	t.Run("Fail with some errors", func(t *testing.T) {
+		repo := new(_repoMock.MockTokenRepo)
+
+		ctx := context.TODO()
+		dummyUserID := int64(1)
+		dummyErr := errors.New("error in mock token repo")
+		repo.On("DeleteAllForUser", mock.Anything, domain.ScopeActivation, mock.MatchedBy(func(userID int64) bool {
+			return userID == dummyUserID
+		})).Return(dummyErr)
+
+		tokenUsecase := NewTokenUsecase(repo, 3*time.Second)
+		gotErr := tokenUsecase.DeleteAllForUser(ctx, domain.ScopeActivation, dummyUserID)
+
+		wantErr := errors.WithMessagef(dummyErr, "token usecase.deleteallforuser.userID = %d", dummyUserID)
+		assert.Equal(t, wantErr, gotErr)
+
+		repo.AssertExpectations(t)
+	})
 }
