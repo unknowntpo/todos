@@ -16,28 +16,21 @@ func NewUserUsecase() domain.UserUsecase {
 
 // GetByEmail returns dummy user
 func (m *mockUserUsecase) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
-	user := &domain.User{
-		ID:        1,
-		CreatedAt: time.Now(),
-		Name:      "Alice Smith",
-		Email:     "alice@example.com",
-		Activated: true,
-		Version:   1,
-	}
-
-	err := user.Password.Set("pa55word")
-	if err != nil {
-		return nil, fmt.Errorf("in mock user usecase,fail to set password for dummy user: %v", err)
-	}
-
-	return user, nil
+	args := m.Called(ctx, email)
+	return args.Get(0).(*domain.User), args.Error(1)
 }
+
 func (m *mockUserUsecase) Insert(ctx context.Context, user *domain.User) error {
-	return nil
+	args := m.Called(ctx, email)
+	return args.Error(0)
 }
+
 func (m *mockUserUsecase) GetForToken(ctx context.Context, tokenScope, tokenPlaintext string) (*domain.User, error) {
-	return nil, nil
+	args := m.Called(ctx, tokenScope, tokenPlaintext)
+	return args.Get(0).(*domain.User), args.Error(1)
 }
+
 func (m *mockUserUsecase) Update(ctx context.Context, user *domain.User) error {
-	return nil
+	args := m.Called(ctx, user)
+	return args.Error(0)
 }
