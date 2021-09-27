@@ -21,8 +21,9 @@ psql $TODOS_APP_DB_DSN -c '\d'
 # dump testdata
 
 echo "Dumping testdata..."
-psql $TODOS_APP_DB_DSN -f ./testdata/dummytask.sql
 psql $TODOS_APP_DB_DSN -f ./testdata/dummyuser.sql
+psql $TODOS_APP_DB_DSN -f ./testdata/dummytask.sql
+
 
 # make config container keep running
 ping google.com
