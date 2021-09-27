@@ -5,9 +5,13 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
+
+	"github.com/stretchr/testify/mock"
 )
 
-type MockTokenUsecase struct{}
+type MockTokenUsecase struct {
+	mock.Mock
+}
 
 func NewTokenUsecase() domain.TokenUsecase {
 	return &MockTokenUsecase{}

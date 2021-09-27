@@ -2,13 +2,15 @@ package mock
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
+
+	"github.com/stretchr/testify/mock"
 )
 
-type mockUserUsecase struct{}
+type mockUserUsecase struct {
+	mock.Mock
+}
 
 func NewUserUsecase() domain.UserUsecase {
 	return &mockUserUsecase{}
@@ -21,7 +23,7 @@ func (m *mockUserUsecase) GetByEmail(ctx context.Context, email string) (*domain
 }
 
 func (m *mockUserUsecase) Insert(ctx context.Context, user *domain.User) error {
-	args := m.Called(ctx, email)
+	args := m.Called(ctx, user)
 	return args.Error(0)
 }
 

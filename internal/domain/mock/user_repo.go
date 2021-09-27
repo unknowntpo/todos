@@ -4,9 +4,13 @@ import (
 	"context"
 
 	"github.com/unknowntpo/todos/internal/domain"
+
+	"github.com/stretchr/testify/mock"
 )
 
-type mockUserRepo struct{}
+type mockUserRepo struct {
+	mock.Mock
+}
 
 func NewUserRepo() domain.UserRepository {
 	return &mockUserRepo{}
