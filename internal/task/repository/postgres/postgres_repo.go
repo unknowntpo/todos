@@ -111,12 +111,61 @@ func (tr *taskRepo) GetByID(ctx context.Context, userID int64, taskID int64) (*d
 }
 
 func (tr *taskRepo) Insert(ctx context.Context, userID int64, task *domain.Task) error {
-	return nil
+	query := `INSERT INTO tasks (user_id, title, content, done)
+	      VALUES ($1, $2, $3, $4)
+	      RETURNING id, created_at, version`
+	args := []interface{}{userID, task.Title, task.Content, task.Done}
+
+	return tr.DB.QueryRowContext(ctx, query, args...).Scan(&task.ID, &task.CreatedAt, &task.Version)
 }
-func (tr *taskRepo) Update(ctx context.Context, userID int64, taskID int64, task *domain.Task) (*domain.Task, error) {
-	return nil, nil
+
+func (tr *taskRepo) Update(ctx context.Context, task *domain.Task) error {
+	query := `UPDATE tasks
+        SET title = $1, content = $2, done = $3, version = version + 1
+	WHERE id = $4 AND user_id = $5 AND version = $6
+	RETURNING version`
+
+	args := []interface{}{
+		task.Title,
+		task.Content,
+		task.Done,
+		task.ID,
+		task.UserID,
+		task.Version,
+	}
+
+	if err := tr.DB.QueryRowContext(ctx, query, args...).Scan(&task.Version); err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return errors.Errorf("taskRepo.Update: %v", domain.ErrRecordNotFound)
+		default:
+			return errors.WithMessage(err, "taskRepo.Update:")
+		}
+	}
+
+	return nil
 }
 
 func (tr *taskRepo) Delete(ctx context.Context, userID int64, taskID int64) error {
+	query := `DELETE FROM tasks
+        WHERE id = $1 AND user_id = $2`
+
+	result, err := tr.DB.ExecContext(ctx, query, taskID, userID)
+	if err != nil {
+		return errors.WithMessage(err, "taskRepo.Delete:")
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return errors.WithMessage(err, "taskRepo.Delete:")
+	}
+
+	// If no rows were affected, we know that the tasks table didn't contain a record
+	// with the provided ID at the moment we tried to delete it. In that case we
+	// return an ErrRecordNotFound error.
+	if rowsAffected == 0 {
+		return errors.Errorf("taskRepo.Delete: %v", domain.ErrRecordNotFound)
+	}
+
 	return nil
 }

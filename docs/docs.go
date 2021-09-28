@@ -309,13 +309,6 @@ var doc = `{
                     },
                     {
                         "type": "integer",
-                        "description": "User ID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "Task ID",
                         "name": "taskID",
                         "in": "path",

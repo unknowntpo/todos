@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/unknowntpo/todos/internal/domain"
@@ -172,10 +173,52 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} helpers.ErrorResponse
 // @Router /v1/tasks [post]
 func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
+	var input CreateTaskRequest
 	user := helpers.ContextGetUser(r)
 	_ = user
 
-	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"debug": "Insert called"}, nil)
+	err := helpers.ReadJSON(w, r, &input)
+	if err != nil {
+		helpers.BadRequestResponse(w, r, err)
+		return
+	}
+
+	task := &domain.Task{
+		Title:   input.Title,
+		Content: input.Content,
+		Done:    input.Done,
+	}
+
+	// validate the request
+	v := validator.New()
+
+	if domain.ValidateTask(v, task); !v.Valid() {
+		helpers.FailedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	ctx := r.Context()
+	err = t.tu.Insert(ctx, user.ID, task)
+	if err != nil {
+		t.logger.PrintError(err, nil)
+		helpers.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	// When sending a HTTP response, we want to include a Location header to let the
+	// client know which URL they can find the newly-created resource at. We make an
+	// empty http.Header map and then use the Set() method to add a new Location header,
+	// interpolating the system-generated ID for our new task in the URL.
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/tasks/%d", task.ID))
+
+	// Write a JSON response with a 201 Created status code, the task data in the
+	// response body, and the Location header.
+	err = helpers.WriteJSON(w, http.StatusCreated, helpers.Envelope{"task": task}, headers)
+	if err != nil {
+		t.logger.PrintError(err, nil)
+		helpers.ServerErrorResponse(w, r, err)
+	}
 }
 
 // Update updates an exist task for specific user.
@@ -184,7 +227,6 @@ func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param userID query int true "User ID"
 // @Param taskID path int true "Task ID"
 // @Param reqBody body UpdateTaskByIDRequest true "request body"
 // @Success 200 {object} domain.Task
@@ -236,15 +278,13 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 
 	v := validator.New()
 
-	// Call the ValidateMovie() function and return a response containing the errors if
-	// any of the checks fail.
 	if domain.ValidateTask(v, task); !v.Valid() {
 		helpers.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	ctx = r.Context()
-	taskUpdated, err := t.tu.Update(ctx, user.ID, taskID, task)
+	err = t.tu.Update(ctx, task)
 	if err != nil {
 		// TODO: errors.Is() to determine which error we got.
 		t.logger.PrintError(err, nil)
@@ -252,7 +292,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// write updated JSON to
-	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"task": taskUpdated}, nil)
+	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"task": task}, nil)
 }
 
 // Delete delets an exist task.
@@ -270,7 +310,30 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 // @Router /v1/tasks/{taskID} [delete]
 func (t *taskAPI) Delete(w http.ResponseWriter, r *http.Request) {
 	user := helpers.ContextGetUser(r)
-	_ = user
 
-	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"debug": "Delete called"}, nil)
+	// Extract the task ID from the URL.
+	taskID, err := helpers.ReadIDParam(r)
+	if err != nil {
+		helpers.NotFoundResponse(w, r)
+		return
+	}
+
+	ctx := r.Context()
+	err = t.tu.Delete(ctx, user.ID, taskID)
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrRecordNotFound):
+			helpers.NotFoundResponse(w, r)
+		default:
+			t.logger.PrintError(err, nil)
+			helpers.ServerErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"message": "task successfully deleted"}, nil)
+	if err != nil {
+		t.logger.PrintError(err, nil)
+		helpers.ServerErrorResponse(w, r, err)
+	}
 }
