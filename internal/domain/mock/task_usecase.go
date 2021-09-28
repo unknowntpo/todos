@@ -31,9 +31,9 @@ func (m *MockTaskUsecase) Insert(ctx context.Context, userID int64, task *domain
 	return args.Error(0)
 }
 
-func (m *MockTaskUsecase) Update(ctx context.Context, userID int64, taskID int64, task *domain.Task) (*domain.Task, error) {
-	args := m.Called(ctx, userID, taskID, task)
-	return args.Get(0).(*domain.Task), args.Error(1)
+func (m *MockTaskUsecase) Update(ctx context.Context, task *domain.Task) error {
+	args := m.Called(ctx, task)
+	return args.Error(0)
 }
 
 func (m *MockTaskUsecase) Delete(ctx context.Context, userID int64, taskID int64) error {

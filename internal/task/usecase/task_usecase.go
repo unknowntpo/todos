@@ -53,16 +53,15 @@ func (tu *taskUsecase) Insert(ctx context.Context, userID int64, task *domain.Ta
 	}
 	return nil
 }
-func (tu *taskUsecase) Update(ctx context.Context, userID int64, taskID int64, taskUpdated *domain.Task) (*domain.Task, error) {
+func (tu *taskUsecase) Update(ctx context.Context, task *domain.Task) error {
 	ctx, cancel := context.WithTimeout(ctx, tu.contextTimeout)
 	defer cancel()
 
-	taskUpdated, err := tu.taskRepo.Update(ctx, userID, taskID, taskUpdated)
+	err := tu.taskRepo.Update(ctx, task)
 	if err != nil {
-		return nil, errors.WithMessage(err, "taskUsecase.Update")
-
+		return errors.WithMessage(err, "taskUsecase.Update")
 	}
-	return taskUpdated, nil
+	return nil
 }
 
 func (tu *taskUsecase) Delete(ctx context.Context, userID int64, taskID int64) error {

@@ -21,7 +21,7 @@ type TaskUsecase interface {
 	GetAll(ctx context.Context, userID int64, title string, filters Filters) ([]*Task, Metadata, error)
 	GetByID(ctx context.Context, userID int64, taskID int64) (*Task, error)
 	Insert(ctx context.Context, userID int64, task *Task) error
-	Update(ctx context.Context, userID int64, taskID int64, task *Task) (*Task, error)
+	Update(ctx context.Context, task *Task) error
 	Delete(ctx context.Context, userID int64, taskID int64) error
 }
 
@@ -29,6 +29,6 @@ type TaskRepository interface {
 	GetAll(ctx context.Context, userID int64, title string, filters Filters) ([]*Task, Metadata, error)
 	GetByID(ctx context.Context, userID int64, taskID int64) (*Task, error)
 	Insert(ctx context.Context, userID int64, task *Task) error
-	Update(ctx context.Context, userID int64, taskID int64, task *Task) (*Task, error)
+	Update(ctx context.Context, task *Task) error
 	Delete(ctx context.Context, userID int64, taskID int64) error
 }
