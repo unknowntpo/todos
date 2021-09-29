@@ -70,7 +70,6 @@ func TestRepoTestSuite(t *testing.T) {
 }
 
 func (suite *RepoTestSuite) TestInsert() {
-	// Success
 	suite.Run("Success", func() {
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
@@ -91,15 +90,9 @@ func (suite *RepoTestSuite) TestInsert() {
 		suite.Equal(user.Email, gotUser.Email, "email should be equal")
 		suite.Equal(user.Password.Hash, gotUser.Password.Hash, "password_hash should be equal")
 	})
-	// Timeout
-	// prepare repo
-	// declare a deadline exceeded context.
-	// err := repo.Insert(ctx, user)
-	// assert error is context.DeadlineExceeded.
-	// Check if the user is inserted.
 	suite.Run("Fail on timeout", func() {
 		repo := NewUserRepo(suite.db)
-		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
+		user := testutil.NewFakeUser(suite.T(), "Ben Johnson", "ben@example.com", "pa55word", true)
 
 		// Create a deadline-exceeded context
 		ctx, cancel := context.WithTimeout(context.Background(), -7*time.Minute)
@@ -111,8 +104,49 @@ func (suite *RepoTestSuite) TestInsert() {
 }
 
 func (suite *RepoTestSuite) TestGetByEmail() {
-	// TODO: Implement tests.
-	suite.T().Fail()
+	suite.Run("Success", func() {
+		repo := NewUserRepo(suite.db)
+		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
+
+		// insert user into testdb
+		ctx := context.TODO()
+		if err := repo.Insert(ctx, user); err != nil {
+			// means our implementation of Insert method has some bug !
+			suite.T().Fatalf("failed to insert user into database: %v", err)
+		}
+
+		// call GetByEmail
+		gotUser, err := repo.GetByEmail(ctx, user.Email)
+		suite.NoError(err)
+		// assert user we got is want we want.
+		suite.Equal(user.ID, gotUser.ID, "user ID should be equal")
+		suite.Equal(user.Name, gotUser.Name, "user name should be equal")
+		suite.Equal(user.Email, gotUser.Email, "email should be equal")
+		suite.Equal(user.Password.Hash, gotUser.Password.Hash, "password_hash should be equal")
+	})
+	suite.Run("Fail on timeout", func() {
+		repo := NewUserRepo(suite.db)
+		// Because subtests in suite.Run() doesn't trigger SetupTest() and TearDownTest(),
+		// so we have to use a new user instead.
+		// Or we will get 'duplicate email' error.
+		// See this issue for more information:
+		// https://github.com/stretchr/testify/issues/1031
+		user := testutil.NewFakeUser(suite.T(), "Ben Johnson", "ben@example.com", "pa55word", true)
+
+		// insert user into testdb
+		ctx := context.TODO()
+		if err := repo.Insert(ctx, user); err != nil {
+			// means our implementation of Insert method has some bug !
+			suite.T().Fatalf("failed to insert user into database: %v", err)
+		}
+
+		// Create a deadline-exceeded context
+		ctx, cancel := context.WithTimeout(context.Background(), -7*time.Minute)
+		defer cancel()
+
+		_, err := repo.GetByEmail(ctx, user.Email)
+		suite.ErrorIs(err, context.DeadlineExceeded)
+	})
 }
 
 func (suite *RepoTestSuite) TestUpdate() {
