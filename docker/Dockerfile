@@ -14,6 +14,7 @@ COPY go.sum .
 RUN go mod verify
 
 COPY internal ./internal
+COPY pkg ./pkg
 COPY cmd ./cmd
 COPY config ./config
 COPY docs ./docs

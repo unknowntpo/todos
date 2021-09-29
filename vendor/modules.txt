@@ -232,7 +232,6 @@ github.com/testcontainers/testcontainers-go/wait
 github.com/tomasen/realip
 # github.com/unknowntpo/naivepool v0.0.0-20210904101536-972bf63909ca
 ## explicit
-github.com/unknowntpo/naivepool
 # go.opencensus.io v0.23.0
 go.opencensus.io
 go.opencensus.io/internal

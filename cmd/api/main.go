@@ -9,9 +9,9 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/unknowntpo/naivepool"
 	"github.com/unknowntpo/todos/config"
 	"github.com/unknowntpo/todos/internal/helpers/mailer"
+	"github.com/unknowntpo/todos/pkg/naivepool"
 
 	"github.com/unknowntpo/todos/internal/logger"
 	"github.com/unknowntpo/todos/internal/logger/zerolog"

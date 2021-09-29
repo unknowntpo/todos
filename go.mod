@@ -23,7 +23,6 @@ require (
 	github.com/swaggo/swag v1.7.1
 	github.com/testcontainers/testcontainers-go v0.11.1
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce
-	github.com/unknowntpo/naivepool v0.0.0-20210904101536-972bf63909ca
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/net v0.0.0-20210916014120-12bc252f5db8 // indirect
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
