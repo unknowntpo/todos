@@ -4,13 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"testing"
-	//"time"
+	"time"
 
-	//"github.com/unknowntpo/todos/internal/domain"
+	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/testutil"
 
 	"github.com/golang-migrate/migrate/v4"
-	//"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
 )
@@ -71,7 +70,44 @@ func TestRepoTestSuite(t *testing.T) {
 }
 
 func (suite *RepoTestSuite) TestInsert() {
-	suite.T().Fail()
+	// Success
+	suite.Run("Success", func() {
+		repo := NewUserRepo(suite.db)
+		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
+
+		ctx := context.TODO()
+		err := repo.Insert(ctx, user)
+		suite.NoError(err, "error should be nil")
+		// Check if the user is inserted.
+		query := `SELECT id, name, email, password_hash FROM users
+		WHERE id = $1`
+
+		var gotUser domain.User
+		err = suite.db.QueryRowContext(ctx, query, user.ID).Scan(&gotUser.ID, &gotUser.Name, &gotUser.Email, &gotUser.Password.Hash)
+		suite.NoError(err)
+
+		suite.Equal(user.ID, gotUser.ID, "user ID should be equal")
+		suite.Equal(user.Name, gotUser.Name, "user name should be equal")
+		suite.Equal(user.Email, gotUser.Email, "email should be equal")
+		suite.Equal(user.Password.Hash, gotUser.Password.Hash, "password_hash should be equal")
+	})
+	// Timeout
+	// prepare repo
+	// declare a deadline exceeded context.
+	// err := repo.Insert(ctx, user)
+	// assert error is context.DeadlineExceeded.
+	// Check if the user is inserted.
+	suite.Run("Fail on timeout", func() {
+		repo := NewUserRepo(suite.db)
+		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
+
+		// Create a deadline-exceeded context
+		ctx, cancel := context.WithTimeout(context.Background(), -7*time.Minute)
+		defer cancel()
+
+		err := repo.Insert(ctx, user)
+		suite.ErrorIs(err, context.DeadlineExceeded)
+	})
 }
 
 func (suite *RepoTestSuite) TestGetByEmail() {

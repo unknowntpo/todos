@@ -54,30 +54,28 @@ func (suite *RepoTestSuite) SetupTest() {
 		suite.T().Fatal(err)
 	}
 
+	user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
 	// Create fake user
 	query := `
 	INSERT INTO users (name, email, password_hash, activated)
 	VALUES ($1, $2, $3, $4)
-	RETURNING id`
+	RETURNING id, created_at, version`
 
 	args := []interface{}{
-		"Alice Smith",
-		"alice@example.com",
-		`\x24326124313224765a682f57676e6246446c4f696757654d62616849756874642f3363526b75576558655469782e374f71524c372e78746570635479`,
-		true,
+		user.Name,
+		user.Email,
+		user.Password.Hash,
+		user.Activated,
 	}
 
-	// Insert the fake user into user table.
-	var user domain.User
-
 	ctx := context.TODO()
-	err = suite.db.QueryRowContext(ctx, query, args...).Scan(&user.ID)
+	err = suite.db.QueryRowContext(ctx, query, args...).Scan(&user.ID, &user.CreatedAt, &user.Version)
 	if err != nil {
 		suite.T().Fatal(err)
 	}
 
 	// store fake user in suite
-	suite.fakeuser = &user
+	suite.fakeuser = user
 }
 
 // SetupTest do migration down for each test to ensure the results of
