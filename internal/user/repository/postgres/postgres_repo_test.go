@@ -70,7 +70,6 @@ func TestRepoTestSuite(t *testing.T) {
 }
 
 func (suite *RepoTestSuite) TestInsert() {
-	// Success
 	suite.Run("Success", func() {
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
@@ -91,12 +90,6 @@ func (suite *RepoTestSuite) TestInsert() {
 		suite.Equal(user.Email, gotUser.Email, "email should be equal")
 		suite.Equal(user.Password.Hash, gotUser.Password.Hash, "password_hash should be equal")
 	})
-	// Timeout
-	// prepare repo
-	// declare a deadline exceeded context.
-	// err := repo.Insert(ctx, user)
-	// assert error is context.DeadlineExceeded.
-	// Check if the user is inserted.
 	suite.Run("Fail on timeout", func() {
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
