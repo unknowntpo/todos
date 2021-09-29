@@ -15,3 +15,10 @@ steps:
     commands:
       - make build/api
       - chmod +x ./bin/api
+  - name: coverage
+    image: plugins/codecov
+    settings:
+      token: "e05e9a00-8a97-442f-a610-0b8a2b3b4761"
+      files:
+        - "*.xml"
+
