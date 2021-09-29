@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/unknowntpo/todos/internal/domain"
+
 	_ "github.com/lib/pq"
 )
 
@@ -42,4 +44,19 @@ func PrepareSQLQuery(t *testing.T, db *sql.DB, filepath string) func(t *testing.
 			t.Fatal(err)
 		}
 	}
+}
+
+// NewFakeUser creates a new fake user for testing perpose.
+func NewFakeUser(t *testing.T, name, email, password string, activated bool) *domain.User {
+	user := &domain.User{
+		Name:      name,
+		Email:     email,
+		Activated: activated,
+	}
+
+	err := user.Password.Set(password)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return user
 }
