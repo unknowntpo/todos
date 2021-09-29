@@ -31,9 +31,9 @@ func (m *MockTaskRepo) Insert(ctx context.Context, userID int64, task *domain.Ta
 	return args.Error(0)
 }
 
-func (m *MockTaskRepo) Update(ctx context.Context, userID int64, taskID int64, task *domain.Task) (*domain.Task, error) {
-	args := m.Called(ctx, userID, taskID, task)
-	return args.Get(0).(*domain.Task), args.Error(1)
+func (m *MockTaskRepo) Update(ctx context.Context, task *domain.Task) error {
+	args := m.Called(ctx, task)
+	return args.Error(0)
 }
 
 func (m *MockTaskRepo) Delete(ctx context.Context, userID int64, taskID int64) error {
