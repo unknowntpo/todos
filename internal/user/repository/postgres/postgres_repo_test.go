@@ -150,8 +150,59 @@ func (suite *RepoTestSuite) TestGetByEmail() {
 }
 
 func (suite *RepoTestSuite) TestUpdate() {
-	// TODO: Implement tests.
-	suite.T().Fail()
+	suite.Run("Success", func() {
+		repo := NewUserRepo(suite.db)
+		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
+
+		// Insert new user to db
+		ctx := context.TODO()
+		if err := repo.Insert(ctx, user); err != nil {
+			suite.T().Fatalf("failed to insert user into database: %v", err)
+		}
+
+		// Update user email and check if user email is updated.
+		oldVersion := user.Version
+		newName := "Alice Smith Jr."
+		user.Name = newName
+		err := repo.Update(ctx, user)
+		suite.NoError(err)
+
+		// check if user name is updated
+		var updatedUser domain.User
+		query := `SELECT id, name, version FROM users
+		WHERE id = $1`
+		err = suite.db.QueryRowContext(ctx, query, user.ID).Scan(&updatedUser.ID, &updatedUser.Name, &updatedUser.Version)
+		suite.NoError(err)
+
+		suite.Equal(updatedUser.ID, user.ID, "ID should be equal")
+		suite.Equal(updatedUser.Name, newName, "user name should be equal")
+		suite.Equal(oldVersion+1, user.Version)
+	})
+	suite.Run("Fail on timeout", func() {
+		repo := NewUserRepo(suite.db)
+		user := testutil.NewFakeUser(suite.T(), "Kevin Smith", "kevin@example.com", "pa55word", true)
+
+		// Insert new user to db
+		ctx := context.TODO()
+		if err := repo.Insert(ctx, user); err != nil {
+			suite.T().Fatalf("failed to insert user into database: %v", err)
+		}
+
+		// Update user email and check if error is deadline exceeded.
+		newName := "Kevin Smith Jr."
+		user.Name = newName
+		ctx, cancel := context.WithTimeout(context.Background(), -7*time.Minute)
+		defer cancel()
+
+		err := repo.Update(ctx, user)
+		suite.ErrorIs(err, context.DeadlineExceeded)
+	})
+	suite.Run("Fail on record not found", func() {
+		suite.T().Fail()
+	})
+	suite.Run("Fail on duplicated email", func() {
+		suite.T().Fail()
+	})
 }
 
 func (suite *RepoTestSuite) TestGetForToken() {
