@@ -111,7 +111,19 @@ func (suite *RepoTestSuite) TestInsert() {
 		suite.TearDownTest()
 		suite.SetupTest()
 
-		suite.T().Fail()
+		// create two user with same email
+		repo := NewUserRepo(suite.db)
+		userBen := testutil.NewFakeUser(suite.T(), "Ben Johnson", "ben@example.com", "pa55word", true)
+		userAlan := testutil.NewFakeUser(suite.T(), "Alan Johnson", "ben@example.com", "pa55word", true)
+
+		// insert user Ben
+		ctx := context.TODO()
+		if err := repo.Insert(ctx, userBen); err != nil {
+			suite.T().Fatalf("failed to insert user %q into database", userBen.Name)
+		}
+
+		err := repo.Insert(ctx, userAlan)
+		suite.ErrorIs(err, domain.ErrDuplicateEmail)
 	})
 
 }
