@@ -359,6 +359,16 @@ func (suite *RepoTestSuite) TestGetForToken() {
 		suite.TearDownTest()
 		suite.SetupTest()
 
-		suite.T().Fail()
+		repo := NewUserRepo(suite.db)
+		user := testutil.NewFakeUser(suite.T(), "John Smith", "john@example.com", "pa55word", true)
+
+		token, err := domain.GenerateToken(user.ID, 30*time.Minute, domain.ScopeActivation)
+		if err != nil {
+			suite.T().Fatalf("failed to generate token: %v", err)
+		}
+
+		ctx := context.TODO()
+		_, err = repo.GetForToken(ctx, token.Scope, token.Plaintext)
+		suite.ErrorIs(err, domain.ErrRecordNotFound)
 	})
 }
