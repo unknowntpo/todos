@@ -71,6 +71,9 @@ func TestRepoTestSuite(t *testing.T) {
 
 func (suite *RepoTestSuite) TestInsert() {
 	suite.Run("Success", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
 
@@ -91,6 +94,9 @@ func (suite *RepoTestSuite) TestInsert() {
 		suite.Equal(user.Password.Hash, gotUser.Password.Hash, "password_hash should be equal")
 	})
 	suite.Run("Fail on timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Ben Johnson", "ben@example.com", "pa55word", true)
 
@@ -101,10 +107,32 @@ func (suite *RepoTestSuite) TestInsert() {
 		err := repo.Insert(ctx, user)
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
+	suite.Run("Fail on duplicate email", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		// create two user with same email
+		repo := NewUserRepo(suite.db)
+		userBen := testutil.NewFakeUser(suite.T(), "Ben Johnson", "ben@example.com", "pa55word", true)
+		userAlan := testutil.NewFakeUser(suite.T(), "Alan Johnson", "ben@example.com", "pa55word", true)
+
+		// insert user Ben
+		ctx := context.TODO()
+		if err := repo.Insert(ctx, userBen); err != nil {
+			suite.T().Fatalf("failed to insert user %q into database", userBen.Name)
+		}
+
+		err := repo.Insert(ctx, userAlan)
+		suite.ErrorIs(err, domain.ErrDuplicateEmail)
+	})
+
 }
 
 func (suite *RepoTestSuite) TestGetByEmail() {
 	suite.Run("Success", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
 
@@ -125,12 +153,10 @@ func (suite *RepoTestSuite) TestGetByEmail() {
 		suite.Equal(user.Password.Hash, gotUser.Password.Hash, "password_hash should be equal")
 	})
 	suite.Run("Fail on timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
-		// Because subtests in suite.Run() doesn't trigger SetupTest() and TearDownTest(),
-		// so we have to use a new user instead.
-		// Or we will get 'duplicate email' error.
-		// See this issue for more information:
-		// https://github.com/stretchr/testify/issues/1031
 		user := testutil.NewFakeUser(suite.T(), "Ben Johnson", "ben@example.com", "pa55word", true)
 
 		// insert user into testdb
@@ -147,10 +173,25 @@ func (suite *RepoTestSuite) TestGetByEmail() {
 		_, err := repo.GetByEmail(ctx, user.Email)
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
+	suite.Run("Fail on record not found", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		repo := NewUserRepo(suite.db)
+		user := testutil.NewFakeUser(suite.T(), "Ben Johnson", "ben@example.com", "pa55word", true)
+
+		// insert user into testdb
+		ctx := context.TODO()
+		_, err := repo.GetByEmail(ctx, user.Email)
+		suite.ErrorIs(err, domain.ErrRecordNotFound)
+	})
 }
 
 func (suite *RepoTestSuite) TestUpdate() {
 	suite.Run("Success", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
 
@@ -179,6 +220,9 @@ func (suite *RepoTestSuite) TestUpdate() {
 		suite.Equal(oldVersion+1, user.Version)
 	})
 	suite.Run("Fail on timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Kevin Smith", "kevin@example.com", "pa55word", true)
 
@@ -197,16 +241,56 @@ func (suite *RepoTestSuite) TestUpdate() {
 		err := repo.Update(ctx, user)
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
-	suite.Run("Fail on record not found", func() {
-		suite.T().Fail()
+	suite.Run("Fail on edit conflict", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		repo := NewUserRepo(suite.db)
+		user := testutil.NewFakeUser(suite.T(), "Brian Smith", "brian@example.com", "pa55word", true)
+
+		// Insert new user to db
+		ctx := context.TODO()
+		if err := repo.Insert(ctx, user); err != nil {
+			suite.T().Fatalf("failed to insert user into database: %v", err)
+		}
+
+		// update user with wrong userID
+		user.ID = 333
+
+		err := repo.Update(ctx, user)
+		suite.ErrorIs(err, domain.ErrEditConflict)
 	})
-	suite.Run("Fail on duplicated email", func() {
-		suite.T().Fail()
+	suite.Run("Fail on duplicate email", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		repo := NewUserRepo(suite.db)
+		userAlan := testutil.NewFakeUser(suite.T(), "Alan Smith", "alan@example.com", "pa55word", true)
+
+		userBrian := testutil.NewFakeUser(suite.T(), "Brian Smith", "brian@example.com", "pa55word", true)
+
+		// Insert new user to db
+		ctx := context.TODO()
+		if err := repo.Insert(ctx, userAlan); err != nil {
+			suite.T().Fatalf("failed to insert user into database: %v", err)
+		}
+		if err := repo.Insert(ctx, userBrian); err != nil {
+			suite.T().Fatalf("failed to insert user into database: %v", err)
+		}
+
+		// update user with existed email
+		userAlan.Email = "brian@example.com"
+
+		err := repo.Update(ctx, userAlan)
+		suite.ErrorIs(err, domain.ErrDuplicateEmail)
 	})
 }
 
 func (suite *RepoTestSuite) TestGetForToken() {
 	suite.Run("Success", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
 
@@ -249,6 +333,9 @@ func (suite *RepoTestSuite) TestGetForToken() {
 	})
 
 	suite.Run("Fail on timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "John Smith", "john@example.com", "pa55word", true)
 
@@ -285,5 +372,21 @@ func (suite *RepoTestSuite) TestGetForToken() {
 
 		_, err = repo.GetForToken(ctx, token.Scope, token.Plaintext)
 		suite.ErrorIs(err, context.DeadlineExceeded)
+	})
+	suite.Run("Fail on record not found", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		repo := NewUserRepo(suite.db)
+		user := testutil.NewFakeUser(suite.T(), "John Smith", "john@example.com", "pa55word", true)
+
+		token, err := domain.GenerateToken(user.ID, 30*time.Minute, domain.ScopeActivation)
+		if err != nil {
+			suite.T().Fatalf("failed to generate token: %v", err)
+		}
+
+		ctx := context.TODO()
+		_, err = repo.GetForToken(ctx, token.Scope, token.Plaintext)
+		suite.ErrorIs(err, domain.ErrRecordNotFound)
 	})
 }
