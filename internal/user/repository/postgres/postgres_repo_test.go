@@ -101,6 +101,10 @@ func (suite *RepoTestSuite) TestInsert() {
 		err := repo.Insert(ctx, user)
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
+	suite.Run("Fail on duplicate email", func() {
+		suite.T().Fail()
+	})
+
 }
 
 func (suite *RepoTestSuite) TestGetByEmail() {
@@ -146,6 +150,9 @@ func (suite *RepoTestSuite) TestGetByEmail() {
 
 		_, err := repo.GetByEmail(ctx, user.Email)
 		suite.ErrorIs(err, context.DeadlineExceeded)
+	})
+	suite.Run("Fail on record not found", func() {
+		suite.T().Fail()
 	})
 }
 
@@ -197,11 +204,37 @@ func (suite *RepoTestSuite) TestUpdate() {
 		err := repo.Update(ctx, user)
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
-	suite.Run("Fail on record not found", func() {
-		suite.T().Fail()
+	suite.Run("Fail on edit conflict", func() {
+		repo := NewUserRepo(suite.db)
+		user := testutil.NewFakeUser(suite.T(), "Brian Smith", "brian@example.com", "pa55word", true)
+
+		// Insert new user to db
+		ctx := context.TODO()
+		if err := repo.Insert(ctx, user); err != nil {
+			suite.T().Fatalf("failed to insert user into database: %v", err)
+		}
+
+		// update user with wrong userID
+		user.ID = 333
+
+		err := repo.Update(ctx, user)
+		suite.ErrorIs(err, domain.ErrEditConflict)
 	})
-	suite.Run("Fail on duplicated email", func() {
-		suite.T().Fail()
+	suite.Run("Fail on duplicate email", func() {
+		repo := NewUserRepo(suite.db)
+		user := testutil.NewFakeUser(suite.T(), "Alan Smith", "alan@example.com", "pa55word", true)
+
+		// Insert new user to db
+		ctx := context.TODO()
+		if err := repo.Insert(ctx, user); err != nil {
+			suite.T().Fatalf("failed to insert user into database: %v", err)
+		}
+
+		// update user with wrong userID
+		user.Email = "brian@example.com"
+
+		err := repo.Update(ctx, user)
+		suite.ErrorIs(err, domain.ErrDuplicateEmail)
 	})
 }
 
@@ -285,5 +318,8 @@ func (suite *RepoTestSuite) TestGetForToken() {
 
 		_, err = repo.GetForToken(ctx, token.Scope, token.Plaintext)
 		suite.ErrorIs(err, context.DeadlineExceeded)
+	})
+	suite.Run("Fail on record not found", func() {
+		suite.T().Fail()
 	})
 }
