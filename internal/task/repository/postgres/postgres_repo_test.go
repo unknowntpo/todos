@@ -15,14 +15,14 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 )
 
-type RepoTestSuite struct {
+type TaskRepoTestSuite struct {
 	suite.Suite
 	container testcontainers.Container
 	db        *sql.DB
 	mig       *migrate.Migrate
 }
 
-func (suite *RepoTestSuite) SetupSuite() {
+func (suite *TaskRepoTestSuite) SetupSuite() {
 	ctx := context.Background()
 
 	container, db, err := testutil.CreatePostgresTestContainer(ctx, "testdb")
@@ -41,14 +41,14 @@ func (suite *RepoTestSuite) SetupSuite() {
 
 // TearDownSuite tears down the test suite by closing db connection,
 // terminates container.
-func (suite *RepoTestSuite) TearDownSuite() {
+func (suite *TaskRepoTestSuite) TearDownSuite() {
 	defer suite.db.Close()
 	ctx := context.Background()
 	defer suite.container.Terminate(ctx)
 }
 
 // SetupTest do migration up for each test.
-func (suite *RepoTestSuite) SetupTest() {
+func (suite *TaskRepoTestSuite) SetupTest() {
 	err := suite.mig.Up()
 	if err != nil {
 		suite.T().Fatal(err)
@@ -57,7 +57,7 @@ func (suite *RepoTestSuite) SetupTest() {
 
 // SetupTest do migration down for each test to ensure the results of
 // this test won't affect to the result of next test.
-func (suite *RepoTestSuite) TearDownTest() {
+func (suite *TaskRepoTestSuite) TearDownTest() {
 	err := suite.mig.Down()
 	if err != nil {
 		suite.T().Fatal(err)
@@ -66,26 +66,26 @@ func (suite *RepoTestSuite) TearDownTest() {
 
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
-func TestRepoTestSuite(t *testing.T) {
-	suite.Run(t, new(RepoTestSuite))
+func TestTaskRepoTestSuite(t *testing.T) {
+	suite.Run(t, new(TaskRepoTestSuite))
 }
 
-func (suite *RepoTestSuite) TestGetAll() {
+func (suite *TaskRepoTestSuite) TestGetAll() {
 	suite.T().Fail()
 }
 
-func (suite *RepoTestSuite) TestGetByID() {
+func (suite *TaskRepoTestSuite) TestGetByID() {
 	suite.T().Fail()
 }
 
-func (suite *RepoTestSuite) TestInsert() {
+func (suite *TaskRepoTestSuite) TestInsert() {
 	suite.T().Fail()
 }
 
-func (suite *RepoTestSuite) TestUpdate() {
+func (suite *TaskRepoTestSuite) TestUpdate() {
 	suite.T().Fail()
 }
 
-func (suite *RepoTestSuite) TestDelete() {
+func (suite *TaskRepoTestSuite) TestDelete() {
 	suite.T().Fail()
 }

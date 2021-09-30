@@ -14,7 +14,7 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 )
 
-type RepoTestSuite struct {
+type TokenRepoTestSuite struct {
 	suite.Suite
 	container testcontainers.Container
 	db        *sql.DB
@@ -22,7 +22,7 @@ type RepoTestSuite struct {
 	fakeuser  *domain.User
 }
 
-func (suite *RepoTestSuite) SetupSuite() {
+func (suite *TokenRepoTestSuite) SetupSuite() {
 	ctx := context.Background()
 
 	container, db, err := testutil.CreatePostgresTestContainer(ctx, "testdb")
@@ -41,14 +41,14 @@ func (suite *RepoTestSuite) SetupSuite() {
 
 // TearDownSuite tears down the test suite by closing db connection,
 // terminates container.
-func (suite *RepoTestSuite) TearDownSuite() {
+func (suite *TokenRepoTestSuite) TearDownSuite() {
 	defer suite.db.Close()
 	ctx := context.Background()
 	defer suite.container.Terminate(ctx)
 }
 
 // SetupTest do migration up for each test.
-func (suite *RepoTestSuite) SetupTest() {
+func (suite *TokenRepoTestSuite) SetupTest() {
 	err := suite.mig.Up()
 	if err != nil {
 		suite.T().Fatal(err)
@@ -80,7 +80,7 @@ func (suite *RepoTestSuite) SetupTest() {
 
 // SetupTest do migration down for each test to ensure the results of
 // this test won't affect to the result of next test.
-func (suite *RepoTestSuite) TearDownTest() {
+func (suite *TokenRepoTestSuite) TearDownTest() {
 	err := suite.mig.Down()
 	if err != nil {
 		suite.T().Fatal(err)
@@ -89,11 +89,11 @@ func (suite *RepoTestSuite) TearDownTest() {
 
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
-func TestRepoTestSuite(t *testing.T) {
-	suite.Run(t, new(RepoTestSuite))
+func TestTokenRepoTestSuite(t *testing.T) {
+	suite.Run(t, new(TokenRepoTestSuite))
 }
 
-func (suite *RepoTestSuite) TestInsert() {
+func (suite *TokenRepoTestSuite) TestInsert() {
 	suite.Run("Success", func() {
 		wantToken, err := domain.GenerateToken(suite.fakeuser.ID, 30*time.Minute, domain.ScopeActivation)
 		if err != nil {
@@ -133,7 +133,7 @@ func (suite *RepoTestSuite) TestInsert() {
 	})
 }
 
-func (suite *RepoTestSuite) TestDeleteAllForUser() {
+func (suite *TokenRepoTestSuite) TestDeleteAllForUser() {
 	suite.Run("Success", func() {
 		// create activation token
 		actToken, err := domain.GenerateToken(suite.fakeuser.ID, 30*time.Minute, domain.ScopeActivation)
