@@ -71,6 +71,9 @@ func TestRepoTestSuite(t *testing.T) {
 
 func (suite *RepoTestSuite) TestInsert() {
 	suite.Run("Success", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
 
@@ -91,6 +94,9 @@ func (suite *RepoTestSuite) TestInsert() {
 		suite.Equal(user.Password.Hash, gotUser.Password.Hash, "password_hash should be equal")
 	})
 	suite.Run("Fail on timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Ben Johnson", "ben@example.com", "pa55word", true)
 
@@ -102,6 +108,9 @@ func (suite *RepoTestSuite) TestInsert() {
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 	suite.Run("Fail on duplicate email", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		suite.T().Fail()
 	})
 
@@ -109,6 +118,9 @@ func (suite *RepoTestSuite) TestInsert() {
 
 func (suite *RepoTestSuite) TestGetByEmail() {
 	suite.Run("Success", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
 
@@ -129,12 +141,10 @@ func (suite *RepoTestSuite) TestGetByEmail() {
 		suite.Equal(user.Password.Hash, gotUser.Password.Hash, "password_hash should be equal")
 	})
 	suite.Run("Fail on timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
-		// Because subtests in suite.Run() doesn't trigger SetupTest() and TearDownTest(),
-		// so we have to use a new user instead.
-		// Or we will get 'duplicate email' error.
-		// See this issue for more information:
-		// https://github.com/stretchr/testify/issues/1031
 		user := testutil.NewFakeUser(suite.T(), "Ben Johnson", "ben@example.com", "pa55word", true)
 
 		// insert user into testdb
@@ -152,12 +162,18 @@ func (suite *RepoTestSuite) TestGetByEmail() {
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 	suite.Run("Fail on record not found", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		suite.T().Fail()
 	})
 }
 
 func (suite *RepoTestSuite) TestUpdate() {
 	suite.Run("Success", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
 
@@ -186,6 +202,9 @@ func (suite *RepoTestSuite) TestUpdate() {
 		suite.Equal(oldVersion+1, user.Version)
 	})
 	suite.Run("Fail on timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Kevin Smith", "kevin@example.com", "pa55word", true)
 
@@ -205,6 +224,9 @@ func (suite *RepoTestSuite) TestUpdate() {
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 	suite.Run("Fail on edit conflict", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Brian Smith", "brian@example.com", "pa55word", true)
 
@@ -221,25 +243,36 @@ func (suite *RepoTestSuite) TestUpdate() {
 		suite.ErrorIs(err, domain.ErrEditConflict)
 	})
 	suite.Run("Fail on duplicate email", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
-		user := testutil.NewFakeUser(suite.T(), "Alan Smith", "alan@example.com", "pa55word", true)
+		userAlan := testutil.NewFakeUser(suite.T(), "Alan Smith", "alan@example.com", "pa55word", true)
+
+		userBrian := testutil.NewFakeUser(suite.T(), "Brian Smith", "brian@example.com", "pa55word", true)
 
 		// Insert new user to db
 		ctx := context.TODO()
-		if err := repo.Insert(ctx, user); err != nil {
+		if err := repo.Insert(ctx, userAlan); err != nil {
+			suite.T().Fatalf("failed to insert user into database: %v", err)
+		}
+		if err := repo.Insert(ctx, userBrian); err != nil {
 			suite.T().Fatalf("failed to insert user into database: %v", err)
 		}
 
-		// update user with wrong userID
-		user.Email = "brian@example.com"
+		// update user with existed email
+		userAlan.Email = "brian@example.com"
 
-		err := repo.Update(ctx, user)
+		err := repo.Update(ctx, userAlan)
 		suite.ErrorIs(err, domain.ErrDuplicateEmail)
 	})
 }
 
 func (suite *RepoTestSuite) TestGetForToken() {
 	suite.Run("Success", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", true)
 
@@ -282,6 +315,9 @@ func (suite *RepoTestSuite) TestGetForToken() {
 	})
 
 	suite.Run("Fail on timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		repo := NewUserRepo(suite.db)
 		user := testutil.NewFakeUser(suite.T(), "John Smith", "john@example.com", "pa55word", true)
 
@@ -320,6 +356,9 @@ func (suite *RepoTestSuite) TestGetForToken() {
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 	suite.Run("Fail on record not found", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
 		suite.T().Fail()
 	})
 }
