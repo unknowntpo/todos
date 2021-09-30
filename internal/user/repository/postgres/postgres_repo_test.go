@@ -165,7 +165,13 @@ func (suite *RepoTestSuite) TestGetByEmail() {
 		suite.TearDownTest()
 		suite.SetupTest()
 
-		suite.T().Fail()
+		repo := NewUserRepo(suite.db)
+		user := testutil.NewFakeUser(suite.T(), "Ben Johnson", "ben@example.com", "pa55word", true)
+
+		// insert user into testdb
+		ctx := context.TODO()
+		_, err := repo.GetByEmail(ctx, user.Email)
+		suite.ErrorIs(err, domain.ErrRecordNotFound)
 	})
 }
 
