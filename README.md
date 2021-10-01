@@ -1,2 +1,2 @@
-# TODOS: A todo-list written in Go, with Clean Architecture.
+# TODOs: A todo-list written in Go, with Clean Architecture.
 [![Build Status](https://cloud.drone.io/api/badges/unknowntpo/todos/status.svg)](https://cloud.drone.io/unknowntpo/todos) [![Go.Dev](https://godoc.org/github.com/unknowntpo/todos?status.svg=)](https://pkg.go.dev/github.com/unknowntpo/todos?utm_source=godoc) [![Go Report Card](https://goreportcard.com/badge/github.com/unknowntpo/todos)](https://goreportcard.com/report/github.com/unknowntpo/todos) [![codecov](https://codecov.io/gh/unknowntpo/todos/branch/master/graph/badge.svg?token=UV6IIUUCW2)](https://codecov.io/gh/unknowntpo/todos)
