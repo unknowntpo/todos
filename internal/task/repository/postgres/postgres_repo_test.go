@@ -71,21 +71,118 @@ func TestTaskRepoTestSuite(t *testing.T) {
 }
 
 func (suite *TaskRepoTestSuite) TestGetAll() {
-	suite.T().Fail()
+	suite.Run("Success", func() {
+		suite.Run("search with title", func() {
+			suite.TearDownTest()
+			suite.SetupTest()
+
+			suite.T().Fail()
+		})
+
+		suite.Run("search with filter", func() {
+			suite.TearDownTest()
+			suite.SetupTest()
+
+			suite.T().Fail()
+		})
+	})
+	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
+	suite.Run("Fail on database error-timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
+	suite.Run("Fail on record not found", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
 }
 
 func (suite *TaskRepoTestSuite) TestGetByID() {
-	suite.T().Fail()
+	suite.Run("Success", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
+
+	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
+	suite.Run("Fail on database error-timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
+	suite.Run("Fail on record not found", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
 }
 
 func (suite *TaskRepoTestSuite) TestInsert() {
-	suite.T().Fail()
+	suite.Run("Success", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
+
+	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
+	suite.Run("Fail on database error-timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
 }
 
 func (suite *TaskRepoTestSuite) TestUpdate() {
-	suite.T().Fail()
+	suite.Run("Success", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
+
+	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
+	suite.Run("Fail on database error-timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
+	suite.Run("Fail on database error: edit conflict", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
 }
 
 func (suite *TaskRepoTestSuite) TestDelete() {
-	suite.T().Fail()
+	suite.Run("Success", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
+
+	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
+	suite.Run("Fail on database error-timeout", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
+	suite.Run("Fail on record not found", func() {
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.T().Fail()
+	})
 }
