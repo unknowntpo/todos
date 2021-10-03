@@ -85,6 +85,9 @@ func (suite *TokenRepoTestSuite) TearDownTest() {
 	if err != nil {
 		suite.T().Fatal(err)
 	}
+
+	// set it to nil to prevent it from affecting next test.
+	suite.fakeuser = nil
 }
 
 // In order for 'go test' to run this suite, we need to create
