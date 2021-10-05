@@ -106,7 +106,7 @@ func (suite *TaskRepoTestSuite) TestGetAll() {
 
 			repo := NewTaskRepo(suite.db)
 
-			wantTasks := []*domain.Task{
+			fakeTasks := []*domain.Task{
 				{
 					Title:   "Do housework with my friend",
 					Content: "It's boring!",
@@ -122,7 +122,7 @@ func (suite *TaskRepoTestSuite) TestGetAll() {
 			// insert it into db
 			ctx := context.TODO()
 
-			for _, task := range wantTasks {
+			for _, task := range fakeTasks {
 				if err := repo.Insert(ctx, suite.fakeuser.ID, task); err != nil {
 					suite.T().Fatalf("failed to insert dummy task %v to database: %v", task, err)
 				}
@@ -151,10 +151,12 @@ func (suite *TaskRepoTestSuite) TestGetAll() {
 				LastPage:     1,
 				TotalRecords: 1,
 			}
+
+			wantTask := fakeTasks[0]
 			suite.Equal(wantMeta, gotMeta, "metadata should be equal")
-			suite.Equal(wantTasks[0].Title, gotTasks[0].Title)
-			suite.Equal(wantTasks[0].Content, gotTasks[0].Content)
-			suite.Equal(wantTasks[0].Done, gotTasks[0].Done)
+			suite.Equal(wantTask.Title, gotTasks[0].Title)
+			suite.Equal(wantTask.Content, gotTasks[0].Content)
+			suite.Equal(wantTask.Done, gotTasks[0].Done)
 		})
 
 		suite.Run("search with filter", func() {
