@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"testing"
-	//	"time"
+	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/testutil"
@@ -264,7 +264,27 @@ func (suite *TaskRepoTestSuite) TestInsert() {
 		suite.TearDownTest()
 		suite.SetupTest()
 
-		suite.T().Fail()
+		// init repo
+		repo := NewTaskRepo(suite.db)
+		// prepare a task
+		wantTask := &domain.Task{
+			Title:   "test insert",
+			Content: "Yeah",
+			Done:    false,
+		}
+		// insert it into db
+		ctx := context.TODO()
+		if err := repo.Insert(ctx, suite.fakeuser.ID, wantTask); err != nil {
+			suite.T().Fatalf("failed to insert task %v to database: %v", wantTask, err)
+		}
+
+		// call GetByID with title
+		gotTask, err := repo.GetByID(ctx, suite.fakeuser.ID, wantTask.ID)
+		suite.NoError(err)
+
+		suite.Equal(wantTask.Title, gotTask.Title)
+		suite.Equal(wantTask.Content, gotTask.Content)
+		suite.Equal(wantTask.Done, gotTask.Done)
 	})
 
 	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
@@ -272,7 +292,26 @@ func (suite *TaskRepoTestSuite) TestInsert() {
 		suite.TearDownTest()
 		suite.SetupTest()
 
-		suite.T().Fail()
+		// init repo
+		repo := NewTaskRepo(suite.db)
+		// prepare a task
+		wantTask := &domain.Task{
+			Title:   "test insert",
+			Content: "Yeah",
+			Done:    false,
+		}
+		// insert it into db
+		ctx := context.TODO()
+		if err := repo.Insert(ctx, suite.fakeuser.ID, wantTask); err != nil {
+			suite.T().Fatalf("failed to insert task %v to database: %v", wantTask, err)
+		}
+
+		// Prepare a deadline-exceeded context.
+		ctx, cancel := context.WithTimeout(context.Background(), -7*time.Minute)
+		defer cancel()
+
+		_, err := repo.GetByID(ctx, suite.fakeuser.ID, wantTask.ID)
+		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 }
 
