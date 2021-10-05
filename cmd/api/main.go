@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/config"
-	"github.com/unknowntpo/todos/internal/helpers/mailer"
+	"github.com/unknowntpo/todos/internal/mailer"
 	"github.com/unknowntpo/todos/pkg/naivepool"
 
 	"github.com/unknowntpo/todos/internal/logger"
