@@ -106,7 +106,7 @@ func (suite *TaskRepoTestSuite) TestGetAll() {
 
 			repo := NewTaskRepo(suite.db)
 
-			wantTasks := []*domain.Task{
+			fakeTasks := []*domain.Task{
 				{
 					Title:   "Do housework with my friend",
 					Content: "It's boring!",
@@ -122,7 +122,7 @@ func (suite *TaskRepoTestSuite) TestGetAll() {
 			// insert it into db
 			ctx := context.TODO()
 
-			for _, task := range wantTasks {
+			for _, task := range fakeTasks {
 				if err := repo.Insert(ctx, suite.fakeuser.ID, task); err != nil {
 					suite.T().Fatalf("failed to insert dummy task %v to database: %v", task, err)
 				}
@@ -151,17 +151,74 @@ func (suite *TaskRepoTestSuite) TestGetAll() {
 				LastPage:     1,
 				TotalRecords: 1,
 			}
+
+			wantTask := fakeTasks[0]
 			suite.Equal(wantMeta, gotMeta, "metadata should be equal")
-			suite.Equal(wantTasks[0].Title, gotTasks[0].Title)
-			suite.Equal(wantTasks[0].Content, gotTasks[0].Content)
-			suite.Equal(wantTasks[0].Done, gotTasks[0].Done)
+			suite.Equal(wantTask.Title, gotTasks[0].Title)
+			suite.Equal(wantTask.Content, gotTasks[0].Content)
+			suite.Equal(wantTask.Done, gotTasks[0].Done)
 		})
 
-		suite.Run("search with filter", func() {
+		suite.Run("search with filter:sort by '-id'", func() {
 			suite.TearDownTest()
 			suite.SetupTest()
 
-			suite.T().Fail()
+			// test with page = 2, pagesize = 1
+			// sort = -id
+
+			repo := NewTaskRepo(suite.db)
+
+			fakeTasks := []*domain.Task{
+				{
+					Title:   "Do housework with my friend",
+					Content: "It's boring!",
+					Done:    false,
+				},
+				{
+					Title:   "Learn first principle",
+					Content: "It's cool!",
+					Done:    true,
+				},
+			}
+			// insert dummy task
+			// insert it into db
+			ctx := context.TODO()
+
+			for _, task := range fakeTasks {
+				if err := repo.Insert(ctx, suite.fakeuser.ID, task); err != nil {
+					suite.T().Fatalf("failed to insert dummy task %v to database: %v", task, err)
+				}
+			}
+
+			// follow the precedure in taskAPI to create a request
+			var input struct {
+				Title string
+				domain.Filters
+			}
+
+			input.Page = 2
+			input.PageSize = 1
+			input.Sort = "-id"
+			input.SortSafelist = []string{"id", "-id", "title", "-title"}
+
+			gotTasks, gotMeta, err := repo.GetAll(ctx, suite.fakeuser.ID, input.Title, input.Filters)
+			suite.NoError(err)
+
+			// We expect gotTasks contains only one task "Do housework with my friend".
+			wantMeta := domain.Metadata{
+				CurrentPage:  2,
+				PageSize:     1,
+				FirstPage:    1,
+				LastPage:     2,
+				TotalRecords: 2,
+			}
+
+			wantTask := fakeTasks[0]
+
+			suite.Equal(wantMeta, gotMeta, "metadata should be equal")
+			suite.Equal(wantTask.Title, gotTasks[0].Title)
+			suite.Equal(wantTask.Content, gotTasks[0].Content)
+			suite.Equal(wantTask.Done, gotTasks[0].Done)
 		})
 	})
 	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
