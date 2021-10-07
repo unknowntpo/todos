@@ -1,4 +1,4 @@
-package domain
+package errors
 
 import (
 	"database/sql"

@@ -1,4 +1,4 @@
-package domain
+package errors
 
 import (
 	"fmt"
@@ -72,6 +72,7 @@ const (
 	Other Kind = iota // Unclassified error. This value is not printed in the error message.
 	// Maybe moved to httperror.go file ?
 	ErrRecordNotFound // Record not found when we request some resource in database.
+	ErrInternal       // Internal server error.
 )
 
 func (k Kind) String() string {
@@ -80,6 +81,8 @@ func (k Kind) String() string {
 		return "other error"
 	case ErrRecordNotFound:
 		return "record not found"
+	case ErrInternal:
+		return "internal server error"
 	}
 	return "unknown error kind"
 }
