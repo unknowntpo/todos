@@ -27,6 +27,11 @@ func SendErrorResponse(w http.ResponseWriter, logger logger.Logger, err error) {
 			logger.PrintError(e, nil)
 			status = http.StatusInternalServerError
 			msg = "the server encountered a problem and could not process your request"
+		case ErrRecordNotFound:
+			status = http.StatusNotFound
+			msg = "the requested resource could not be found"
+		default:
+			panic("ServerErrorResponse: unknown type of error")
 		}
 
 		err := helpers.WriteJSON(w, status, &ErrorResponseWrapper{
