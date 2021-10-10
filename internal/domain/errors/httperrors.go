@@ -25,7 +25,7 @@ func SendErrorResponse(w http.ResponseWriter, logger logger.Logger, err error) {
 		case ErrInternal:
 			// log the error
 			logger.PrintError(e, nil)
-			status = 500
+			status = http.StatusInternalServerError
 			msg = "the server encountered a problem and could not process your request"
 		}
 
@@ -37,7 +37,7 @@ func SendErrorResponse(w http.ResponseWriter, logger logger.Logger, err error) {
 		if err != nil {
 			// TODO: We need to wrap our error with message just like fmt.Errorf()
 			logger.PrintError(err, nil)
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 	} else {
 		// FIXME: Not error struct we defined, what should we do ?
