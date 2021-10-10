@@ -2,6 +2,7 @@ package errors
 
 import (
 	"bytes"
+	"database/sql"
 	"net/http/httptest"
 	"testing"
 
@@ -11,7 +12,7 @@ import (
 )
 
 func TestSendErrorResponse(t *testing.T) {
-	t.Run("ErrInternal", func(t *testing.T) {
+	t.Run("Internal Server Error Response", func(t *testing.T) {
 		// Set up bytes.Buffer to write response
 		rr := httptest.NewRecorder()
 		// Set up bytes.Buffer for logger to write log message to.
@@ -34,4 +35,29 @@ func TestSendErrorResponse(t *testing.T) {
 `
 		assert.Equal(t, wantRespBody, rr.Body.String())
 	})
+
+	t.Run("Not found Response", func(t *testing.T) {
+		// Set up bytes.Buffer to write response
+		rr := httptest.NewRecorder()
+		// Set up bytes.Buffer for logger to write log message to.
+		logBuf := new(bytes.Buffer)
+		// init logger
+		logger := zerolog.New(logBuf)
+		// make a error with kind = ErrInternal
+		err := E(ErrRecordNotFound, sql.ErrNoRows)
+		// Call SendErrorResponse(httpbuf, logger, err)
+		SendErrorResponse(rr, logger, err)
+
+		assert.Equal(t, "", logBuf.String(), "logger output should be empty string")
+
+		wantRespBody :=
+			`{
+	"error": {
+		"Message": "the requested resource could not be found"
+	}
+}
+`
+		assert.Equal(t, wantRespBody, rr.Body.String())
+	})
+
 }
