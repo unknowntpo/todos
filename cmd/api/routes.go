@@ -54,7 +54,19 @@ func (app *application) newRoutes() http.Handler {
 		httpSwagger.URL("http://localhost:4000/swagger/doc.json"), //The url pointing to API definition
 	))
 
-	return genMid.Metrics(genMid.RecoverPanic(genMid.EnableCORS(genMid.RateLimit(genMid.Authenticate(router)))))
+	//return genMid.Metrics(genMid.RecoverPanic(genMid.EnableCORS(genMid.RateLimit(genMid.Authenticate(router)))))
 	//return app.metrics(app.recoverPanic(app.enableCORS(app.rateLimit(app.authenticate(router)))))
+	return chain(router, genMid.Metrics,
+		genMid.RecoverPanic,
+		genMid.EnableCORS,
+		genMid.RateLimit,
+		genMid.Authenticate)
+}
 
+func chain(route http.Handler, handlers ...func(http.Handler) http.Handler) http.Handler {
+	c := route
+	for i := len(handlers) - 1; i > 0; i-- {
+		c = handlers[i](c)
+	}
+	return c
 }
