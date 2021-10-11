@@ -3,6 +3,7 @@ package errors
 import (
 	"bytes"
 	"database/sql"
+	"fmt"
 	"net/http/httptest"
 	"testing"
 
@@ -10,6 +11,17 @@ import (
 
 	"github.com/stretchr/testify/assert"
 )
+
+func errJSONOutput(t *testing.T, msg string) string {
+	t.Helper()
+	s := `{
+	"error": {
+		"Message": %q
+	}
+}
+`
+	return fmt.Sprintf(s, msg)
+}
 
 func TestSendErrorResponse(t *testing.T) {
 	t.Run("Internal Server Error Response", func(t *testing.T) {
@@ -26,13 +38,7 @@ func TestSendErrorResponse(t *testing.T) {
 		// Because we don't care about timestamp, so we just check if the output of logger contains error message we want.
 		assert.Contains(t, logBuf.String(), `internal server error: deliberated internal server error`, "logger should contain this message")
 
-		wantRespBody :=
-			`{
-	"error": {
-		"Message": "the server encountered a problem and could not process your request"
-	}
-}
-`
+		wantRespBody := errJSONOutput(t, "the server encountered a problem and could not process your request")
 		assert.Equal(t, wantRespBody, rr.Body.String())
 	})
 
@@ -50,13 +56,7 @@ func TestSendErrorResponse(t *testing.T) {
 
 		assert.Equal(t, "", logBuf.String(), "logger output should be empty string")
 
-		wantRespBody :=
-			`{
-	"error": {
-		"Message": "the requested resource could not be found"
-	}
-}
-`
+		wantRespBody := errJSONOutput(t, "the requested resource could not be found")
 		assert.Equal(t, wantRespBody, rr.Body.String())
 	})
 
