@@ -64,6 +64,17 @@ func (e *Error) Error() string {
 	return out
 }
 
+// Format provide Format method to satisfy fmt.Formatter interface,
+// it is used by function like fmt.Printf with verb like: '%+v' to
+// display stack trace of a pkg/error Error type.
+func (e *Error) Format(f fmt.State, verb rune) {
+	if formatter, ok := e.Err.(fmt.Formatter); ok {
+		formatter.Format(f, verb)
+	} else {
+		return
+	}
+}
+
 // Kinds of errors.
 //
 // The values of the error kinds are common between both
