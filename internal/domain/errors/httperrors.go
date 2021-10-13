@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/unknowntpo/todos/internal/helpers"
@@ -16,7 +17,7 @@ type ErrorResponse struct {
 	// TODO: What field should we include ?
 }
 
-func SendErrorResponse(w http.ResponseWriter, logger logger.Logger, err error) {
+func SendErrorResponse(w http.ResponseWriter, r *http.Request, logger logger.Logger, err error) {
 	var msg string
 	var status int
 
@@ -30,6 +31,9 @@ func SendErrorResponse(w http.ResponseWriter, logger logger.Logger, err error) {
 		case ErrRecordNotFound:
 			status = http.StatusNotFound
 			msg = "the requested resource could not be found"
+		case ErrMethodNotAllowed:
+			status = http.StatusMethodNotAllowed
+			msg = fmt.Sprintf("the %s method is not supported for this resource", r.Method)
 		default:
 			panic("ServerErrorResponse: unknown type of error")
 		}
