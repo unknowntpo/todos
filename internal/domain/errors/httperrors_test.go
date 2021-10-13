@@ -75,4 +75,21 @@ func TestSendErrorResponse(t *testing.T) {
 		wantRespBody := errJSONOutput(t, fmt.Sprintf("the %s method is not supported for this resource", r.Method))
 		assert.Equal(t, wantRespBody, rr.Body.String())
 	})
+
+	t.Run("Bad Request Response", func(t *testing.T) {
+		r, err := http.NewRequest(http.MethodGet, "/", nil)
+		assert.NoError(t, err)
+
+		rr := httptest.NewRecorder()
+		logBuf := new(bytes.Buffer)
+		logger := zerolog.New(logBuf)
+		err = E(ErrBadRequest, Op("ReadJSON"))
+
+		SendErrorResponse(rr, r, logger, err)
+
+		assert.Equal(t, "", logBuf.String(), "logger output should be empty string")
+
+		wantRespBody := errJSONOutput(t, err.Error())
+		assert.Equal(t, wantRespBody, rr.Body.String())
+	})
 }

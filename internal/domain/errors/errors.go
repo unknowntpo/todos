@@ -85,6 +85,7 @@ const (
 	ErrRecordNotFound   // Record not found when we request some resource in database.
 	ErrInternal         // Internal server error.
 	ErrMethodNotAllowed // Method not allowed error.
+	ErrBadRequest       // Bad request error.
 )
 
 func (k Kind) String() string {
@@ -97,6 +98,8 @@ func (k Kind) String() string {
 		return "internal server error"
 	case ErrMethodNotAllowed:
 		return "method not allowed"
+	case ErrBadRequest:
+		return "bad request"
 	}
 	return "unknown error kind"
 }
