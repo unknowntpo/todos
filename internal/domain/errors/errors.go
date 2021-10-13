@@ -95,6 +95,8 @@ func (k Kind) String() string {
 		return "record not found"
 	case ErrInternal:
 		return "internal server error"
+	case ErrMethodNotAllowed:
+		return "method not allowed"
 	}
 	return "unknown error kind"
 }
