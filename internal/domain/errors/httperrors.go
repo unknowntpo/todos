@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/unknowntpo/todos/internal/helpers"
@@ -16,7 +17,7 @@ type ErrorResponse struct {
 	// TODO: What field should we include ?
 }
 
-func SendErrorResponse(w http.ResponseWriter, logger logger.Logger, err error) {
+func SendErrorResponse(w http.ResponseWriter, r *http.Request, logger logger.Logger, err error) {
 	var msg string
 	var status int
 

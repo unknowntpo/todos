@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -25,16 +26,16 @@ func errJSONOutput(t *testing.T, msg string) string {
 
 func TestSendErrorResponse(t *testing.T) {
 	t.Run("Internal Server Error Response", func(t *testing.T) {
-		// Set up bytes.Buffer to write response
+		r, err := http.NewRequest(http.MethodGet, "/", nil)
+		assert.NoError(t, err)
+
 		rr := httptest.NewRecorder()
-		// Set up bytes.Buffer for logger to write log message to.
 		logBuf := new(bytes.Buffer)
-		// init logger
 		logger := zerolog.New(logBuf)
-		// make a error with kind = ErrInternal
-		err := E(ErrInternal, "deliberated internal server error")
-		// Call SendErrorResponse(httpbuf, logger, err)
-		SendErrorResponse(rr, logger, err)
+
+		err = E(ErrInternal, "deliberated internal server error")
+
+		SendErrorResponse(rr, r, logger, err)
 		// Because we don't care about timestamp, so we just check if the output of logger contains error message we want.
 		assert.Contains(t, logBuf.String(), `internal server error: deliberated internal server error`, "logger should contain this message")
 
@@ -43,16 +44,14 @@ func TestSendErrorResponse(t *testing.T) {
 	})
 
 	t.Run("Not found Response", func(t *testing.T) {
-		// Set up bytes.Buffer to write response
+		r, err := http.NewRequest(http.MethodGet, "/", nil)
+		assert.NoError(t, err)
+
 		rr := httptest.NewRecorder()
-		// Set up bytes.Buffer for logger to write log message to.
 		logBuf := new(bytes.Buffer)
-		// init logger
 		logger := zerolog.New(logBuf)
-		// make a error with kind = ErrInternal
-		err := E(ErrRecordNotFound, sql.ErrNoRows)
-		// Call SendErrorResponse(httpbuf, logger, err)
-		SendErrorResponse(rr, logger, err)
+		err = E(ErrRecordNotFound, sql.ErrNoRows)
+		SendErrorResponse(rr, r, logger, err)
 
 		assert.Equal(t, "", logBuf.String(), "logger output should be empty string")
 
