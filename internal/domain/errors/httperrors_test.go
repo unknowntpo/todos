@@ -59,4 +59,20 @@ func TestSendErrorResponse(t *testing.T) {
 		assert.Equal(t, wantRespBody, rr.Body.String())
 	})
 
+	t.Run("Method Not allowed Response", func(t *testing.T) {
+		r, err := http.NewRequest(http.MethodPut, "/", nil)
+		assert.NoError(t, err)
+
+		rr := httptest.NewRecorder()
+		logBuf := new(bytes.Buffer)
+		logger := zerolog.New(logBuf)
+		err = E(ErrMethodNotAllowed)
+
+		SendErrorResponse(rr, r, logger, err)
+
+		assert.Equal(t, "", logBuf.String(), "logger output should be empty string")
+
+		wantRespBody := errJSONOutput(t, fmt.Sprintf("the %s method is not supported for this resource", r.Method))
+		assert.Equal(t, wantRespBody, rr.Body.String())
+	})
 }

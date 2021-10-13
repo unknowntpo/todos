@@ -82,8 +82,9 @@ func (e *Error) Format(f fmt.State, verb rune) {
 const (
 	Other Kind = iota // Unclassified error. This value is not printed in the error message.
 	// Maybe moved to httperror.go file ?
-	ErrRecordNotFound // Record not found when we request some resource in database.
-	ErrInternal       // Internal server error.
+	ErrRecordNotFound   // Record not found when we request some resource in database.
+	ErrInternal         // Internal server error.
+	ErrMethodNotAllowed // Method not allowed error.
 )
 
 func (k Kind) String() string {

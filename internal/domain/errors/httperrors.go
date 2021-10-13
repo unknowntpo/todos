@@ -31,6 +31,9 @@ func SendErrorResponse(w http.ResponseWriter, r *http.Request, logger logger.Log
 		case ErrRecordNotFound:
 			status = http.StatusNotFound
 			msg = "the requested resource could not be found"
+		case ErrMethodNotAllowed:
+			status = http.StatusMethodNotAllowed
+			msg = fmt.Sprintf("the %s method is not supported for this resource", r.Method)
 		default:
 			panic("ServerErrorResponse: unknown type of error")
 		}
