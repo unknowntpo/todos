@@ -75,6 +75,8 @@ func (e *Error) Format(f fmt.State, verb rune) {
 	}
 }
 
+func (e *Error) Unwrap() error { return e.Err }
+
 // Kinds of errors.
 //
 // The values of the error kinds are common between both

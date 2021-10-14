@@ -75,6 +75,22 @@ runtime.goexit
 	})
 }
 
+func TestUnwrap(t *testing.T) {
+	t.Run("errors.Is", func(t *testing.T) {
+		// build nested error
+		cause := sql.ErrNoRows
+		err := E(Op("repo.Get"), cause)
+
+		// use errors.Is to check the cause is what we want.
+		if !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("expect error is %v, but it's not.", cause)
+		}
+	})
+	t.Run("errors.As", func(t *testing.T) {
+		// TODO: Test errors.As
+	})
+}
+
 func TestError(t *testing.T) {
 	t.Run("test duplicated error username and Kind", func(t *testing.T) {
 
