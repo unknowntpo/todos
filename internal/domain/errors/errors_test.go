@@ -12,8 +12,8 @@ import (
 func inner() error {
 	const op Op = "inner operation"
 	// same as doing errors.New("something goes wrong") and wrap it with E()
-	return errors.New("something goes wrong")
-	//return E(op, "something goes wrong")
+	//return errors.New("something goes wrong")
+	return E(op, "something goes wrong")
 }
 
 func middle() error {
@@ -56,23 +56,12 @@ func TestE(t *testing.T) {
 
 		assert.Equal(t, "some error message", err.Error())
 	})
-	t.Run("test stack trace", func(t *testing.T) {
+	t.Run("nested error with verb is %s", func(t *testing.T) {
 		err := outer()
-		want := `something goes wrong
-github.com/unknowntpo/todos/internal/domain/errors.inner
-	/Users/unknowntpo/repo/unknowntpo/todos/feat-error/internal/domain/errors/errors_test.go:15
-github.com/unknowntpo/todos/internal/domain/errors.middle
-	/Users/unknowntpo/repo/unknowntpo/todos/feat-error/internal/domain/errors/errors_test.go:21
-github.com/unknowntpo/todos/internal/domain/errors.outer
-	/Users/unknowntpo/repo/unknowntpo/todos/feat-error/internal/domain/errors/errors_test.go:31
-github.com/unknowntpo/todos/internal/domain/errors.TestE.func3
-	/Users/unknowntpo/repo/unknowntpo/todos/feat-error/internal/domain/errors/errors_test.go:60
-testing.tRunner
-	/usr/local/Cellar/go/1.16.4/libexec/src/testing/testing.go:1193
-runtime.goexit
-	/usr/local/Cellar/go/1.16.4/libexec/src/runtime/asm_amd64.s:1371`
-		assert.Equal(t, want, fmt.Sprintf("%+v", err))
+		want := "alice@example.com: outer operation: middle operation: inner operation: something goes wrong"
+		assert.Equal(t, want, fmt.Sprintf("%s", err))
 	})
+	// TODO: Should we test stacktrace message ?
 }
 
 func TestUnwrap(t *testing.T) {

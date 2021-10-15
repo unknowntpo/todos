@@ -2,6 +2,7 @@ package errors
 
 import (
 	"fmt"
+	"io"
 	"runtime"
 
 	"github.com/pkg/errors"
@@ -67,11 +68,36 @@ func (e *Error) Error() string {
 // Format provide Format method to satisfy fmt.Formatter interface,
 // it is used by function like fmt.Printf with verb like: '%+v' to
 // display stack trace of a pkg/error Error type.
-func (e *Error) Format(f fmt.State, verb rune) {
-	if formatter, ok := e.Err.(fmt.Formatter); ok {
-		formatter.Format(f, verb)
-	} else {
-		return
+func (e *Error) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 'v':
+		if formatter, ok := e.Err.(fmt.Formatter); ok && s.Flag('+') {
+			// Print current level of error message.
+			sep := ": "
+
+			out := ""
+			if e.User != "" {
+				out += string(e.User)
+				out += sep
+			}
+			if e.Op != "" {
+				out += string(e.Op)
+				out += sep
+			}
+
+			if e.Kind != 0 {
+				out += e.Kind.String()
+				out += sep
+			}
+			io.WriteString(s, out)
+			formatter.Format(s, verb)
+			return
+		}
+		fallthrough
+	case 's':
+		io.WriteString(s, e.Error())
+	case 'q':
+		fmt.Fprintf(s, "%q", e.Error())
 	}
 }
 
