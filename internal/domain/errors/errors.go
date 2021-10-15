@@ -112,6 +112,7 @@ const (
 	// Maybe moved to httperror.go file ?
 	ErrRecordNotFound   // Record not found when we request some resource in database.
 	ErrInternal         // Internal server error.
+	ErrDatabase         // Error happened while querying database, this should be treated as subset of internal error and logged it carefully.
 	ErrMethodNotAllowed // Method not allowed error.
 	ErrBadRequest       // Bad request error.
 )
@@ -124,6 +125,8 @@ func (k Kind) String() string {
 		return "record not found"
 	case ErrInternal:
 		return "internal server error"
+	case ErrDatabase:
+		return "database error"
 	case ErrMethodNotAllowed:
 		return "method not allowed"
 	case ErrBadRequest:
