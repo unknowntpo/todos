@@ -182,16 +182,33 @@ func (suite *TokenRepoTestSuite) TestDeleteAllForUser() {
 	})
 
 	suite.Run("Fail on timeout", func() {
-		// Create a deadline-exceeded context
-		ctx, cancel := context.WithTimeout(context.Background(), -7*time.Minute)
-		defer cancel()
-		token, err := domain.GenerateToken(suite.fakeuser.ID, 30*time.Minute, domain.ScopeActivation)
+		// create activation token
+		actToken, err := domain.GenerateToken(suite.fakeuser.ID, 30*time.Minute, domain.ScopeActivation)
 		if err != nil {
-			suite.T().Fatal("fail to generate token")
+			suite.T().Fatal("fail to generate activation token")
 		}
 
+		// create authentication token
+		authToken, err := domain.GenerateToken(suite.fakeuser.ID, 30*time.Minute, domain.ScopeAuthentication)
+		if err != nil {
+			suite.T().Fatal("fail to generate authentication token")
+		}
+
+		// create new repo
 		repo := NewTokenRepo(suite.db)
-		err = repo.Insert(ctx, token)
+
+		// Insert both activation token and authentication token to repo
+		ctx := context.TODO()
+		err = repo.Insert(ctx, actToken)
+		suite.NoError(err)
+		err = repo.Insert(ctx, authToken)
+		suite.NoError(err)
+
+		// invoke DeleteAllForUser for activation
+		ctx, cancel := context.WithTimeout(context.Background(), -7*time.Minute)
+		defer cancel()
+
+		err = repo.DeleteAllForUser(ctx, domain.ScopeActivation, suite.fakeuser.ID)
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 }
