@@ -6,12 +6,11 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
+	"github.com/unknowntpo/todos/internal/domain/errors"
 	_repoMock "github.com/unknowntpo/todos/internal/domain/mock"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-
-	"github.com/pkg/errors"
 )
 
 func TestInsert(t *testing.T) {
@@ -34,19 +33,21 @@ func TestInsert(t *testing.T) {
 	// Make sure usecase.Insert() will return error propagated from token repo layer.
 	// with some error message 'token usecase.insert' annotated.
 	t.Run("Fail with some errors", func(t *testing.T) {
+		const op errors.Op = "tokenUsecase.Insert"
+
 		repo := new(_repoMock.MockTokenRepo)
 		token, err := domain.GenerateToken(1, 30*time.Minute, domain.ScopeActivation)
 		assert.NoError(t, err)
 
 		ctx := context.TODO()
 		// set expectations on mock repo
-		dummyErr := errors.New("error in mock token repo")
+		dummyErr := errors.E("error in mock token repo")
 		repo.On("Insert", mock.Anything, mock.Anything).Return(dummyErr)
 
 		tokenUsecase := NewTokenUsecase(repo, 3*time.Second)
 		gotErr := tokenUsecase.Insert(ctx, token)
 
-		wantErr := errors.WithMessage(dummyErr, "token usecase.insert")
+		wantErr := errors.E(op, dummyErr)
 		assert.Equal(t, wantErr, gotErr)
 
 		repo.AssertExpectations(t)
@@ -73,11 +74,13 @@ func TestDeleteAllForUser(t *testing.T) {
 	})
 
 	t.Run("Fail with some errors", func(t *testing.T) {
+		const op errors.Op = "tokenUsecase.DeleteAllForUser"
+
 		repo := new(_repoMock.MockTokenRepo)
 
 		ctx := context.TODO()
 		dummyUserID := int64(1)
-		dummyErr := errors.New("error in mock token repo")
+		dummyErr := errors.E("error in mock token repo")
 		repo.On("DeleteAllForUser", mock.Anything, domain.ScopeActivation, mock.MatchedBy(func(userID int64) bool {
 			return userID == dummyUserID
 		})).Return(dummyErr)
@@ -85,7 +88,7 @@ func TestDeleteAllForUser(t *testing.T) {
 		tokenUsecase := NewTokenUsecase(repo, 3*time.Second)
 		gotErr := tokenUsecase.DeleteAllForUser(ctx, domain.ScopeActivation, dummyUserID)
 
-		wantErr := errors.WithMessagef(dummyErr, "token usecase.deleteallforuser.userID = %d", dummyUserID)
+		wantErr := errors.E(op, dummyErr)
 		assert.Equal(t, wantErr, gotErr)
 
 		repo.AssertExpectations(t)
