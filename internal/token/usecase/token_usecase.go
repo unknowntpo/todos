@@ -6,8 +6,7 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
-
-	"github.com/pkg/errors"
+	"github.com/unknowntpo/todos/internal/domain/errors"
 )
 
 type tokenUsecase struct {
@@ -23,25 +22,26 @@ func NewTokenUsecase(tr domain.TokenRepository, timeout time.Duration) domain.To
 }
 
 func (tu *tokenUsecase) Insert(ctx context.Context, token *domain.Token) error {
+	const op errors.Op = "tokenUsecase.Insert"
 	ctx, cancel := context.WithTimeout(ctx, tu.contextTimeout)
 	defer cancel()
 	err := tu.tr.Insert(ctx, token)
 	if err != nil {
-		// TODO: Improve error message chain.
-		return errors.WithMessage(err, "tokenUsecase.insert")
+		return errors.E(op, err)
 	}
 
 	return nil
 }
 
 func (tu *tokenUsecase) DeleteAllForUser(ctx context.Context, scope string, userID int64) error {
+	const op errors.Op = "tokenUsecase.DeleteAllForUser"
+
 	ctx, cancel := context.WithTimeout(ctx, tu.contextTimeout)
 	defer cancel()
 
 	err := tu.tr.DeleteAllForUser(ctx, scope, userID)
 	if err != nil {
-		// TODO: Improve error message chain.
-		return errors.WithMessagef(err, "tokenUsecase.deleteallforuser.userID = %d", userID)
+		return errors.E(op, err)
 	}
 
 	return nil
