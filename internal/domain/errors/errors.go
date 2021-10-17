@@ -135,6 +135,11 @@ func (k Kind) String() string {
 	return "unknown error kind"
 }
 
+// New is the wrapper which calls pkg/errors.New().
+func New(text string) error {
+	return errors.New(text)
+}
+
 // E builds an error value from its arguments.
 // There must be at least one argument or E panics.
 // The type of each argument determines its meaning.
@@ -175,8 +180,6 @@ func E(args ...interface{}) error {
 			e.Op = arg
 		case UserName:
 			e.User = arg
-		case string:
-			e.Err = errors.New(arg)
 		case Kind:
 			e.Kind = arg
 		case *Error:

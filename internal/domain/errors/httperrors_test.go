@@ -33,7 +33,7 @@ func TestSendErrorResponse(t *testing.T) {
 		logBuf := new(bytes.Buffer)
 		logger := zerolog.New(logBuf)
 
-		err = E(ErrInternal, "deliberated internal server error")
+		err = E(ErrInternal, New("deliberated internal server error"))
 
 		SendErrorResponse(rr, r, logger, err)
 		// Because we don't care about timestamp, so we just check if the output of logger contains error message we want.
