@@ -13,7 +13,7 @@ func inner() error {
 	const op Op = "inner operation"
 	// same as doing errors.New("something goes wrong") and wrap it with E()
 	//return errors.New("something goes wrong")
-	return E(op, "something goes wrong")
+	return E(op, New("something goes wrong"))
 }
 
 func middle() error {
@@ -52,7 +52,7 @@ func TestE(t *testing.T) {
 		assert.Equal(t, "alice@example.com: taskRepo.GetByID: record not found: sql: no rows in result set", err.Error())
 	})
 	t.Run("build a error with error message only", func(t *testing.T) {
-		err := E("some error message")
+		err := E(New("some error message"))
 
 		assert.Equal(t, "some error message", err.Error())
 	})

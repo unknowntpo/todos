@@ -15,8 +15,10 @@ var (
 
 // Define a new Validator type which contains a map of validation errors.
 type Validator struct {
-	Errors map[string]string
+	Errors ValidationErrors
 }
+
+type ValidationErrors map[string]string
 
 // New is a helper which creates a new Validator instance with an empty errors map.
 func New() *Validator {

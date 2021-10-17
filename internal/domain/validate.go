@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"github.com/unknowntpo/todos/internal/helpers/validator"
+	"github.com/unknowntpo/todos/pkg/validator"
 )
 
 // ValidateTask check if task match the constrains.
