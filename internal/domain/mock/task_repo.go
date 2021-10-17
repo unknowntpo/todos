@@ -12,10 +12,6 @@ type MockTaskRepo struct {
 	mock.Mock
 }
 
-func NewTaskRepo() domain.TaskRepository {
-	return &MockTaskRepo{}
-}
-
 func (m *MockTaskRepo) GetAll(ctx context.Context, userID int64, title string, filters domain.Filters) ([]*domain.Task, domain.Metadata, error) {
 	args := m.Called(ctx, userID, title, filters)
 	return args.Get(0).([]*domain.Task), args.Get(1).(domain.Metadata), args.Error(2)

@@ -41,7 +41,7 @@ func TestInsert(t *testing.T) {
 
 		ctx := context.TODO()
 		// set expectations on mock repo
-		dummyErr := errors.E("error in mock token repo")
+		dummyErr := errors.E(errors.New("error in mock token repo"))
 		repo.On("Insert", mock.Anything, mock.Anything).Return(dummyErr)
 
 		tokenUsecase := NewTokenUsecase(repo, 3*time.Second)
@@ -80,7 +80,7 @@ func TestDeleteAllForUser(t *testing.T) {
 
 		ctx := context.TODO()
 		dummyUserID := int64(1)
-		dummyErr := errors.E("error in mock token repo")
+		dummyErr := errors.E(errors.New("error in mock token repo"))
 		repo.On("DeleteAllForUser", mock.Anything, domain.ScopeActivation, mock.MatchedBy(func(userID int64) bool {
 			return userID == dummyUserID
 		})).Return(dummyErr)
