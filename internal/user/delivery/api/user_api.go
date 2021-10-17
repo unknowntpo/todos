@@ -6,9 +6,9 @@ import (
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
-	"github.com/unknowntpo/todos/internal/helpers/validator"
 	"github.com/unknowntpo/todos/internal/mailer"
 	"github.com/unknowntpo/todos/pkg/naivepool"
+	"github.com/unknowntpo/todos/pkg/validator"
 
 	"github.com/unknowntpo/todos/internal/logger"
 

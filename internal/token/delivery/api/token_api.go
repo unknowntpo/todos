@@ -6,8 +6,8 @@ import (
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
-	"github.com/unknowntpo/todos/internal/helpers/validator"
 	"github.com/unknowntpo/todos/internal/logger"
+	"github.com/unknowntpo/todos/pkg/validator"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
