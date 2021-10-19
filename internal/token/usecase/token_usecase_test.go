@@ -16,7 +16,7 @@ import (
 func TestInsert(t *testing.T) {
 	// When success, it should return no error.
 	t.Run("Success", func(t *testing.T) {
-		repo := new(_repoMock.MockTokenRepo)
+		repo := new(_repoMock.TokenRepository)
 		token, err := domain.GenerateToken(1, 30*time.Minute, domain.ScopeActivation)
 		assert.NoError(t, err)
 
@@ -35,7 +35,7 @@ func TestInsert(t *testing.T) {
 	t.Run("Fail with some errors", func(t *testing.T) {
 		const op errors.Op = "tokenUsecase.Insert"
 
-		repo := new(_repoMock.MockTokenRepo)
+		repo := new(_repoMock.TokenRepository)
 		token, err := domain.GenerateToken(1, 30*time.Minute, domain.ScopeActivation)
 		assert.NoError(t, err)
 
@@ -58,7 +58,9 @@ func TestDeleteAllForUser(t *testing.T) {
 	// When success, it should return no error.
 	t.Run("Success", func(t *testing.T) {
 		// init token usecase with mock token repo
-		repo := new(_repoMock.MockTokenRepo)
+
+		repo := new(_repoMock.TokenRepository)
+
 		// Set expectations
 		repo.On("DeleteAllForUser", mock.Anything, domain.ScopeActivation, mock.MatchedBy(func(userID int64) bool {
 			return userID == 1
@@ -76,7 +78,7 @@ func TestDeleteAllForUser(t *testing.T) {
 	t.Run("Fail with some errors", func(t *testing.T) {
 		const op errors.Op = "tokenUsecase.DeleteAllForUser"
 
-		repo := new(_repoMock.MockTokenRepo)
+		repo := new(_repoMock.TokenRepository)
 
 		ctx := context.TODO()
 		dummyUserID := int64(1)
