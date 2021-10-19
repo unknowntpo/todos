@@ -115,7 +115,7 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 	err = helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{
 		"metadata": metadata,
 		"tasks":    tasks,
-	}, nil)
+	})
 	if err != nil {
 		t.logger.PrintError(err, nil)
 		helpers.ServerErrorResponse(w, r, err)
@@ -156,7 +156,7 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"task": task}, nil)
+	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"task": task})
 }
 
 // Insert inserts a new task.
@@ -205,16 +205,11 @@ func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// When sending a HTTP response, we want to include a Location header to let the
-	// client know which URL they can find the newly-created resource at. We make an
-	// empty http.Header map and then use the Set() method to add a new Location header,
-	// interpolating the system-generated ID for our new task in the URL.
-	headers := make(http.Header)
-	headers.Set("Location", fmt.Sprintf("/v1/tasks/%d", task.ID))
+	w.Header().Set("Location", fmt.Sprintf("/v1/tasks/%d", task.ID))
 
 	// Write a JSON response with a 201 Created status code, the task data in the
 	// response body, and the Location header.
-	err = helpers.WriteJSON(w, http.StatusCreated, helpers.Envelope{"task": task}, headers)
+	err = helpers.WriteJSON(w, http.StatusCreated, helpers.Envelope{"task": task})
 	if err != nil {
 		t.logger.PrintError(err, nil)
 		helpers.ServerErrorResponse(w, r, err)
@@ -292,7 +287,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// write updated JSON to
-	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"task": task}, nil)
+	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"task": task})
 }
 
 // Delete delets an exist task.
@@ -331,7 +326,7 @@ func (t *taskAPI) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"message": "task successfully deleted"}, nil)
+	err = helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"message": "task successfully deleted"})
 	if err != nil {
 		t.logger.PrintError(err, nil)
 		helpers.ServerErrorResponse(w, r, err)

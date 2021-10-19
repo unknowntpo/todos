@@ -12,7 +12,7 @@ type ErrorResponse struct {
 func errorResponse(w http.ResponseWriter, r *http.Request, status int, message interface{}) {
 	err := WriteJSON(w, status, &ErrorResponse{
 		errMsg: message,
-	}, nil)
+	})
 	if err != nil {
 		w.WriteHeader(500)
 	}

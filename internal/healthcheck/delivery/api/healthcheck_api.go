@@ -37,7 +37,7 @@ func (h *healthcheckAPI) Healthcheck(w http.ResponseWriter, r *http.Request) {
 		Status:      "available",
 		Version:     h.version,
 		Environment: h.env,
-	}, nil)
+	})
 	if err != nil {
 		helpers.ServerErrorResponse(w, r, err)
 	}

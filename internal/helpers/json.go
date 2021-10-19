@@ -95,7 +95,7 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	return nil
 }
 
-func WriteJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
+func WriteJSON(w http.ResponseWriter, status int, data interface{}) error {
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		return err
@@ -103,10 +103,6 @@ func WriteJSON(w http.ResponseWriter, status int, data interface{}, headers http
 
 	// Append a newline to make it easier to view in terminal applications.
 	js = append(js, '\n')
-
-	for key, value := range headers {
-		w.Header()[key] = value
-	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
