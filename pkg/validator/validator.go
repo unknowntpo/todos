@@ -20,6 +20,17 @@ type Validator struct {
 
 type ValidationErrors map[string]string
 
+func (v ValidationErrors) Error() string {
+	var out string
+
+	sep := ": "
+	// iterate over maps, concatinate the error value to a string.
+	for k, e := range v {
+		out += k + sep + e
+	}
+	return out
+}
+
 // New is a helper which creates a new Validator instance with an empty errors map.
 func New() *Validator {
 	return &Validator{Errors: make(map[string]string)}
