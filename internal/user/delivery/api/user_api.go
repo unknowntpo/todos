@@ -138,7 +138,7 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		}
 	})
 
-	err = helpers.WriteJSON(w, http.StatusAccepted, &UserRegistrationResponse{User: user}, nil)
+	err = helpers.WriteJSON(w, http.StatusAccepted, &UserRegistrationResponse{User: user})
 	if err != nil {
 		err = errors.WithMessage(err, "failed to send json response. token.api")
 		u.logger.PrintError(err, nil)
@@ -207,7 +207,7 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send the updated user details to the client in a JSON response.
-	err = helpers.WriteJSON(w, http.StatusOK, &UserActivationResponse{User: user}, nil)
+	err = helpers.WriteJSON(w, http.StatusOK, &UserActivationResponse{User: user})
 	if err != nil {
 		helpers.ServerErrorResponse(w, r, err)
 	}

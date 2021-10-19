@@ -106,7 +106,7 @@ func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Requ
 		http.StatusCreated,
 		&AuthenticationResponse{
 			Token: token,
-		}, nil)
+		})
 	if err != nil {
 		helpers.ServerErrorResponse(w, r, err)
 	}
