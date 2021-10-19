@@ -17,7 +17,7 @@ import (
 func TestInsert(t *testing.T) {
 	// When success, it should return no error.
 	t.Run("Success", func(t *testing.T) {
-		repo := new(_repoMock.MockUserRepo)
+		repo := new(_repoMock.UserUsecase)
 
 		fakeUser := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
 
@@ -35,7 +35,7 @@ func TestInsert(t *testing.T) {
 	})
 
 	t.Run("Fail with some errors", func(t *testing.T) {
-		repo := new(_repoMock.MockUserRepo)
+		repo := new(_repoMock.UserUsecase)
 
 		fakeUser := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
 
