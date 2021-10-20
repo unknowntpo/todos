@@ -11,6 +11,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Make sure our documentation is not outdated.
+make docs/gen
+if [ $? -ne 0 ]; then
+    echo "failed to do make docs/gen, fix it before doing some commit." >&2
+    exit 1
+fi
+
 # TODO: Add make audit to do full test.
 
 exit $RETURN
