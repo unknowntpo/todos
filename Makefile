@@ -1,4 +1,10 @@
 include .envrc
+
+GIT_HOOKS := .git/hooks/applied
+
+# check installation of githooks and display help message when typing make
+all: help $(GIT_HOOKS)
+
 # ==================================================================================== #
 # HELPERS
 # ==================================================================================== #
@@ -8,6 +14,10 @@ include .envrc
 help:
 	@echo 'Usage:'
 	@sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' |  sed -e 's/^/ /'
+
+$(GIT_HOOKS):
+	@scripts/install-git-hooks
+	@echo
 
 # ==================================================================================== #
 # TEST

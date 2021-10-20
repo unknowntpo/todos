@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+echo "Doing some pre-commit check..."
+echo
+
+RETURN=0
+
+make vendor
+if [ $? -ne 0 ]; then
+    echo "failed to do make vendor, fix it before doing some commit." >&2
+    exit 1
+fi
+
+# TODO: Add make audit to do full test.
+
+exit $RETURN
