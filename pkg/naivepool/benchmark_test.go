@@ -9,10 +9,13 @@ import (
 
 func BenchmarkExecute1000Tasks(b *testing.B) {
 	maxJobs := 1000
-	maxWorkers := 50
 
 	b.Run("naivepool", func(b *testing.B) {
-		pool := New(maxJobs, maxWorkers)
+		maxWorkers := 50
+		workerChanSize := 20
+
+		pool := New(maxJobs, maxWorkers, workerChanSize)
+
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
