@@ -23,6 +23,7 @@ type Limiter struct {
 	Enabled bool
 }
 
+// Smtp is the configuraion used to set up the dialer in github.com/go-mail/mail/v2.
 type Smtp struct {
 	Host     string
 	Port     int

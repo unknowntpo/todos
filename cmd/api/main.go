@@ -29,7 +29,7 @@ type application struct {
 	config   *config.Config
 	database *sql.DB
 	pool     *naivepool.Pool
-	mailer   mailer.Mailer
+	mailer   *mailer.Mailer
 	logger   logger.Logger
 }
 
@@ -77,7 +77,7 @@ func main() {
 		config:   cfg,
 		database: db,
 		pool:     pool,
-		mailer:   mailer.New(cfg.Smtp.Host, cfg.Smtp.Port, cfg.Smtp.Username, cfg.Smtp.Password, cfg.Smtp.Sender),
+		mailer:   mailer.New(&cfg.Smtp),
 		logger:   logger,
 	}
 
