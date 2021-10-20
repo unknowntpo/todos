@@ -3,6 +3,9 @@ package errors
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/unknowntpo/todos/internal/helpers"
+	"github.com/unknowntpo/todos/internal/logger"
 )
 
 type ErrorResponseWrapper struct {
@@ -20,7 +23,7 @@ type ErrResponseKind uint8
 // Kinds of reponse errors.
 const (
 	OtherErrorResponse ErrResponseKind = iota // Unclassified error. This value is not printed in the error message.
-	ServerErrorResponse
+	InternalServerErrorResponse
 	NotFoundResponse
 	MethodNotAllowedResponse
 	BadRequestResponse
@@ -36,8 +39,8 @@ func (k ErrResponseKind) String() string {
 	switch k {
 	case OtherErrorResponse:
 		return "other error response"
-	case ServerErrorResponse:
-		return "server error response"
+	case InternalServerErrorResponse:
+		return "internal server error response"
 	case NotFoundResponse:
 		return "not found error response"
 	case MethodNotAllowedResponse:
@@ -60,12 +63,12 @@ func (k ErrResponseKind) String() string {
 	return "unknown error response kind"
 }
 
-func NewErrorResponse(w http.ResponseWriter, r *http.Request, kind ErrResponseKind, err error) *ErrorResponseWrapper {
+func SendErrorResponse(w http.ResponseWriter, r *http.Request, kind ErrResponseKind, err error, logger logger.Logger) {
 	var msg interface{}
 	var status int
 
 	switch kind {
-	case ServerErrorResponse:
+	case InternalServerErrorResponse:
 		status = http.StatusInternalServerError
 		msg = "the server encountered a problem and could not process your request"
 	case NotFoundResponse:
@@ -100,11 +103,17 @@ func NewErrorResponse(w http.ResponseWriter, r *http.Request, kind ErrResponseKi
 		panic("unknown error response kind")
 	}
 
-	return &ErrorResponseWrapper{
+	errResp := &ErrorResponseWrapper{
 		&ErrorResponse{
 			Status:  status,
 			Message: msg,
 		}}
+
+	err = helpers.WriteJSON(w, errResp.Resp.Status, errResp)
+	if err != nil {
+		logger.PrintError(fmt.Errorf("failed to write JSON: %v", err), nil)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
 
 /*
