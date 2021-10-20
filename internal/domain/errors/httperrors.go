@@ -71,6 +71,7 @@ func SendErrorResponse(w http.ResponseWriter, r *http.Request, kind ErrResponseK
 	case InternalServerErrorResponse:
 		status = http.StatusInternalServerError
 		msg = "the server encountered a problem and could not process your request"
+		logger.PrintError(err, nil)
 	case NotFoundResponse:
 		status = http.StatusNotFound
 		msg = "the requested resource could not be found"
