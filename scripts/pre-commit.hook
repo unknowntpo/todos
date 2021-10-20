@@ -12,6 +12,12 @@ if [ $? -ne 0 ]; then
 fi
 
 # Make sure our documentation is not outdated.
+SWAG_CLI=$(which swag)
+if [ $? -ne 0 ]; then
+    echo "[!] swag not installed. Unable to generate swagger documentation." >&2
+    exit 1
+fi
+
 make docs/gen
 if [ $? -ne 0 ]; then
     echo "failed to do make docs/gen, fix it before doing some commit." >&2
