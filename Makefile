@@ -123,9 +123,8 @@ db/connect:
 .PHONY: docs/gen
 docs/gen:
 	@echo "Generating swagger API documentation..."
-	@swag init --dir ./cmd/api \
-	    --parseDependency \
-	    --parseInternal \
+	@swag init --dir ./cmd/api,./internal \
+	    --parseDepth 5 \
 	    -o ./docs
 
 
