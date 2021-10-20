@@ -20,7 +20,7 @@ type userAPI struct {
 	uu     domain.UserUsecase
 	tu     domain.TokenUsecase
 	pool   *naivepool.Pool
-	mailer mailer.Mailer
+	mailer *mailer.Mailer
 	logger logger.Logger
 }
 
@@ -42,7 +42,7 @@ func NewUserAPI(router *httprouter.Router,
 	uu domain.UserUsecase,
 	tu domain.TokenUsecase,
 	pool *naivepool.Pool,
-	mailer mailer.Mailer,
+	mailer *mailer.Mailer,
 	logger logger.Logger) {
 
 	api := &userAPI{uu: uu, tu: tu, pool: pool, mailer: mailer, logger: logger}
