@@ -52,7 +52,11 @@ func main() {
 	defer db.Close()
 
 	// Set up workerpool with max jobs and max workers.
-	pool := naivepool.New(5, 5)
+	// TODO: Do this in config.yml
+	maxJobs := 100
+	maxWorkers := 10
+	workerChanSize := 10
+	pool := naivepool.New(maxJobs, maxWorkers, workerChanSize)
 
 	// Publish a new "version" variable in the expvar handler containing our application
 	// version number.
