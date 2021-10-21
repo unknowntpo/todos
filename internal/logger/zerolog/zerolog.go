@@ -15,10 +15,11 @@ type zerologWrapper struct {
 }
 
 func New(out io.Writer) logger.Logger {
+	syncOut := zerolog.SyncWriter(out)
 	//	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 
-	log := zerolog.New(out).With().Stack().Timestamp().Logger()
+	log := zerolog.New(syncOut).With().Stack().Timestamp().Logger()
 
 	return &zerologWrapper{logger: &log}
 }
