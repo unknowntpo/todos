@@ -35,6 +35,13 @@ func outer() error {
 	return nil
 }
 
+func TestOpFormat(t *testing.T) {
+	const op Op = "counter.Get - %d"
+	var counter int = 3
+	out := op.Format(counter)
+	assert.Equal(t, "counter.Get - 3", op.Format(counter), "formatted output should be equal")
+}
+
 // test building an error
 // table-driven test
 func TestE(t *testing.T) {

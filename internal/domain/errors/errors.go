@@ -28,6 +28,17 @@ type Error struct {
 // such as "tokenRepo.Insert", or "userUsecase.GetByEmail".
 type Op string
 
+// Format formats according to a format specifier and return formatted string.
+// Example:
+//      const op Op = "counter.Get - %d"
+//	var counter int = 3
+//      out := op.Format(counter)
+//      fmt.Println(out)
+//	// Output: counter.Get - 3
+func (o Op) Format(a ...interface{}) string {
+	return fmt.Sprintf(string(o), a...)
+}
+
 // UserName is a string representing a user
 type UserName string
 
