@@ -19,7 +19,7 @@ if [ $? -ne 0 ]; then
 fi
 
 make docs/gen
-#git diff --exit-code
+git diff ./docs --exit-code
 if [ $? -ne 0 ]; then
     echo "[!] Please do make docs/gen before committing your change." >&2
     exit 1
