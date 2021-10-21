@@ -1,5 +1,6 @@
 package errors
 
+/*
 import (
 	"bytes"
 	"database/sql"
@@ -24,6 +25,7 @@ func errJSONOutput(t *testing.T, msg string) string {
 	return fmt.Sprintf(s, msg)
 }
 
+/*
 func TestSendErrorResponse(t *testing.T) {
 	t.Run("Internal Server Error Response", func(t *testing.T) {
 		r, err := http.NewRequest(http.MethodGet, "/", nil)
@@ -93,3 +95,6 @@ func TestSendErrorResponse(t *testing.T) {
 		assert.Equal(t, wantRespBody, rr.Body.String())
 	})
 }
+
+
+*/
