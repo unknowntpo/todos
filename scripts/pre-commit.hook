@@ -19,8 +19,9 @@ if [ $? -ne 0 ]; then
 fi
 
 make docs/gen
+git diff --exit-code
 if [ $? -ne 0 ]; then
-    echo "failed to do make docs/gen, fix it before doing some commit." >&2
+    echo "[!] Please do make docs/gen before committing your change." >&2
     exit 1
 fi
 
