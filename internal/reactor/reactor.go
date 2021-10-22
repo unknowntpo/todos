@@ -3,6 +3,7 @@ package reactor
 import (
 	"net/http"
 
+	"github.com/unknowntpo/todos/internal/domain/errors"
 	"github.com/unknowntpo/todos/internal/logger"
 )
 
@@ -48,11 +49,21 @@ func (rc *Reactor) HandlerWrapper(h HandlerFunc) http.Handler {
 		err := h(c)
 		if err != nil {
 			rc.logger.PrintError(err, nil)
-			// TODO: Use some variable to store this message.
-			message := "the server encountered a problem and could not process your request"
-			c.WriteJSON(http.StatusInternalServerError, map[string]interface{}{
-				"error": message,
-			})
+			/*
+				// TODO: Use some variable to store this message.
+				message := "the server encountered a problem and could not process your request"
+				c.WriteJSON(http.StatusInternalServerError, map[string]interface{}{
+					"error": message,
+				})
+			*/
+			if e := c.WriteJSON(
+				http.StatusInternalServerError,
+				errors.NewErrorResponse(w, r, errors.InternalServerErrorResponse, err),
+			); e != nil {
+				rc.logger.PrintError(e, nil)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 		}
 	})
 }
