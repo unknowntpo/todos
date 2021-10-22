@@ -213,3 +213,21 @@ func E(args ...interface{}) error {
 
 	return e
 }
+
+// StackTrace() allow us to print the stacktrace message by calling
+// e.Err 's StackTrace() method, if e.Err is nil or e.Err is not a stacktracer,
+// we just return nil.
+func (e *Error) StackTrace() errors.StackTrace {
+	type stackTracer interface {
+		StackTrace() errors.StackTrace
+	}
+	// No underlying error in e.
+	if e.Err == nil {
+		return nil
+	}
+	sterr, ok := e.Err.(stackTracer)
+	if !ok {
+		return nil
+	}
+	return sterr.StackTrace()
+}
