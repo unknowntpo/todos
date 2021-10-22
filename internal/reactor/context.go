@@ -3,7 +3,14 @@ package reactor
 import (
 	"encoding/json"
 	"net/http"
+	"sync"
 )
+
+var ctxPool = sync.Pool{
+	New: func() interface{} {
+		return new(Context)
+	},
+}
 
 type Context struct {
 	w http.ResponseWriter
