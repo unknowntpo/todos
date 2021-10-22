@@ -71,7 +71,7 @@ func (tr *taskRepo) GetAll(ctx context.Context, userID int64, title string, filt
 		}
 	}
 
-	metadata := domain.CalculateMetadata(totalRecords, filters.Page, filters.PageSize)
+	metadata := domain.CalculateMetadata(totalRecords, filters.CurrentPage, filters.PageSize)
 
 	return tasks, metadata, nil
 }

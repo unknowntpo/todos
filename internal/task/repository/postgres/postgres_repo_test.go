@@ -135,7 +135,7 @@ func (suite *TaskRepoTestSuite) TestGetAll() {
 			}
 
 			input.Title = "housework"
-			input.Page = 1
+			input.CurrentPage = 1
 			input.PageSize = 10
 			input.Sort = "id"
 			input.SortSafelist = []string{"id", "-id", "title", "-title"}
@@ -196,7 +196,7 @@ func (suite *TaskRepoTestSuite) TestGetAll() {
 				domain.Filters
 			}
 
-			input.Page = 2
+			input.CurrentPage = 2
 			input.PageSize = 1
 			input.Sort = "-id"
 			input.SortSafelist = []string{"id", "-id", "title", "-title"}
