@@ -93,7 +93,7 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 	qs := r.URL.Query()
 
 	input.Title = helpers.ReadString(qs, "title", "")
-	input.Page = helpers.ReadInt(qs, "page", 1, v)
+	input.CurrentPage = helpers.ReadInt(qs, "page", 1, v)
 	input.PageSize = helpers.ReadInt(qs, "page_size", 20, v)
 
 	input.Sort = helpers.ReadString(qs, "sort", "id")
