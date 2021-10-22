@@ -16,7 +16,7 @@ import (
 
 func TestGetByEmail(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		repo := new(_repoMock.UserUsecase)
+		repo := new(_repoMock.UserRepository)
 
 		// new fake user
 		user := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
@@ -40,7 +40,7 @@ func TestGetByEmail(t *testing.T) {
 	})
 
 	t.Run("Fail with some errors", func(t *testing.T) {
-		repo := new(_repoMock.UserUsecase)
+		repo := new(_repoMock.UserRepository)
 
 		// new fake user
 		user := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
@@ -69,7 +69,7 @@ func TestGetByEmail(t *testing.T) {
 func TestInsert(t *testing.T) {
 	// When success, it should return no error.
 	t.Run("Success", func(t *testing.T) {
-		repo := new(_repoMock.UserUsecase)
+		repo := new(_repoMock.UserRepository)
 
 		fakeUser := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
 
@@ -87,7 +87,7 @@ func TestInsert(t *testing.T) {
 	})
 
 	t.Run("Fail with some errors", func(t *testing.T) {
-		repo := new(_repoMock.UserUsecase)
+		repo := new(_repoMock.UserRepository)
 
 		fakeUser := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
 
@@ -114,7 +114,7 @@ func TestInsert(t *testing.T) {
 
 func TestGetForToken(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		repo := new(_repoMock.UserUsecase)
+		repo := new(_repoMock.UserRepository)
 
 		// new fake user
 		user := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
@@ -143,7 +143,7 @@ func TestGetForToken(t *testing.T) {
 	})
 
 	t.Run("Fail with some errors", func(t *testing.T) {
-		repo := new(_repoMock.UserUsecase)
+		repo := new(_repoMock.UserRepository)
 
 		// new fake user
 		user := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
@@ -176,7 +176,7 @@ func TestGetForToken(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		repo := new(_repoMock.UserUsecase)
+		repo := new(_repoMock.UserRepository)
 
 		fakeUser := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
 
@@ -204,7 +204,7 @@ func TestUpdate(t *testing.T) {
 	})
 
 	t.Run("Fail with some errors", func(t *testing.T) {
-		repo := new(_repoMock.UserUsecase)
+		repo := new(_repoMock.UserRepository)
 
 		fakeUser := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
 
