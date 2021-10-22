@@ -23,19 +23,9 @@ func TestWriteJSON(t *testing.T) {
 			"Hello",
 			123,
 		}
-		t.Log(data)
-
-		/*
-			data := map[string]string{
-				"text":  "134",
-				"hello": "Moto",
-			}
-		*/
-
 		c := &Context{w: rr, r: r}
 		err = c.WriteJSON(http.StatusOK, data)
 		assert.NoError(t, err)
-		t.Log(rr.Result())
 		want := `{
 	"S": "Hello",
 	"I": 123
