@@ -44,8 +44,12 @@ func (h *healthcheckAPI) Healthcheck(c *reactor.Context) error {
 */
 func (rc *Reactor) HandlerWrapper(h HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// TODO: Use sync.Pool to avoid repeatly allocation.
-		c := &Context{w: w, r: r}
+		// Use ctxPool to reduce allocation and gc.
+		c := ctxPool.Get().(*Context)
+		defer ctxPool.Put(c)
+		c.w = w
+		c.r = r
+
 		err := h(c)
 		if err != nil {
 			rc.logger.PrintError(err, nil)
