@@ -6,8 +6,9 @@ echo
 RETURN=0
 
 make vendor
+git diff --exit-code ./vendor 
 if [ $? -ne 0 ]; then
-    echo "failed to do make vendor, fix it before doing some commit." >&2
+    echo "there are some update in ./vendor, run make vendor before doing some commit." >&2
     exit 1
 fi
 
