@@ -19,6 +19,10 @@ type Reactor struct {
 	logger logger.Logger
 }
 
+func NewReactor(logger logger.Logger) *Reactor {
+	return &Reactor{logger: logger}
+}
+
 // HandlerFunc allow us to use a function with signature HandlerFunc as our actual handler,
 // which can simplify error handling.
 // Now, we can do error handling inside the http.Handler that HandlerWrapper returns, and put
