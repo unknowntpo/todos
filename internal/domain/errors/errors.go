@@ -231,3 +231,13 @@ func (e *Error) StackTrace() errors.StackTrace {
 	}
 	return sterr.StackTrace()
 }
+
+// Is is just a wrapper of pkg/errors.Is.
+func Is(err, target error) bool {
+	return errors.Is(err, target)
+}
+
+// As is just a wrapper of pkg/errors.As.
+func As(err error, target interface{}) bool {
+	return errors.As(err, target)
+}
