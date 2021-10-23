@@ -22,6 +22,7 @@ import (
 	_generalMiddleware "github.com/unknowntpo/todos/internal/middleware"
 
 	_ "github.com/unknowntpo/todos/docs"
+	"github.com/unknowntpo/todos/internal/reactor"
 
 	"github.com/julienschmidt/httprouter"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -29,7 +30,6 @@ import (
 
 func (app *application) newRoutes() http.Handler {
 	router := httprouter.New()
-	_healthcheckAPI.NewHealthcheckAPI(router, version, app.config.Env)
 
 	taskRepo := _taskRepoPostgres.NewTaskRepo(app.database)
 	userRepo := _userRepoPostgres.NewUserRepo(app.database)
@@ -44,6 +44,10 @@ func (app *application) newRoutes() http.Handler {
 	genMid := _generalMiddleware.New(app.config, userUsecase, app.logger)
 
 	// delivery
+	rc := reactor.NewReactor(app.logger)
+
+	_healthcheckAPI.NewHealthcheckAPI(router, version, app.config.Env, rc)
+
 	_taskAPI.NewTaskAPI(router, taskUsecase, app.logger, genMid)
 	_userAPI.NewUserAPI(router, userUsecase, tokenUsecase, app.pool, app.mailer, app.logger)
 	_tokenAPI.NewTokenAPI(router, tokenUsecase, userUsecase, app.logger)
