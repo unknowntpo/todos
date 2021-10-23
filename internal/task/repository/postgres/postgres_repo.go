@@ -53,7 +53,7 @@ func (tr *taskRepo) GetAll(ctx context.Context, userID int64, title string, filt
 			&task.Version,
 		)
 		if err != nil {
-			return nil, domain.Metadata{}, err
+			return nil, domain.CalculateMetadata(0, 0, 0), err
 		}
 
 		// Add the Task struct to the slice.
@@ -65,9 +65,9 @@ func (tr *taskRepo) GetAll(ctx context.Context, userID int64, title string, filt
 	if err = rows.Err(); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, domain.Metadata{}, errors.Errorf("taskRepo.GetAll: %v", domain.ErrRecordNotFound)
+			return nil, domain.CalculateMetadata(0, 0, 0), errors.Errorf("taskRepo.GetAll: %v", domain.ErrRecordNotFound)
 		default:
-			return nil, domain.Metadata{}, errors.WithMessage(err, "taskRepo.GetAll:")
+			return nil, domain.CalculateMetadata(0, 0, 0), errors.WithMessage(err, "taskRepo.GetAll:")
 		}
 	}
 

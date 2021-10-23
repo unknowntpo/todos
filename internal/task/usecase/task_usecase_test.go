@@ -99,8 +99,8 @@ func TestGetAll(t *testing.T) {
 		wantErr := errors.E(errors.Op("mockTaskRepo.GetAll"), dummyErr)
 
 		var wantTasks []*domain.Task = nil
-		// FIXME: Metadata should not be empty ?
-		var wantMeta = domain.Metadata{}
+		wantMeta := domain.CalculateMetadata(0, 0, 0)
+
 		repo.On("GetAll", mock.Anything, fakeUserID, input.Title, input.Filters).
 			Return(wantTasks, wantMeta, wantErr)
 
