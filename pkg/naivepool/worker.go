@@ -1,6 +1,7 @@
 package naivepool
 
 import (
+	"context"
 	"sync"
 )
 
@@ -21,11 +22,15 @@ func NewWorker(chanSize int) worker {
 }
 
 // worker is the worker that execute the job received from p.workerChan.
-func (w *worker) work(wg *sync.WaitGroup) {
+func (w *worker) work(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
-	for f := range w.c {
-		f()
+	for {
+		select {
+		case f := <-w.c:
+			f()
+		case <-ctx.Done():
+			return
+		}
 	}
-	// channel is closed, worker needs to retire!
 	return
 }

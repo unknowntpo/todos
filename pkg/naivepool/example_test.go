@@ -32,6 +32,13 @@ func ExampleAdder() {
 		pool.Schedule(fn)
 	}
 	wg.Wait()
+
+	// Call cancel to stop the pool explicitly.
+	cancel()
+
+	// Wait for all workers to retire.
+	pool.wg.Wait()
+
 	fmt.Println(counter)
 	// Output: 1000
 }

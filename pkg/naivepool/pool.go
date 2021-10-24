@@ -38,7 +38,7 @@ func (p *Pool) Start(ctx context.Context) {
 		w := NewWorker(p.workerChanSize)
 		// set up channel between pool and worker
 		p.workers <- w.c
-		go w.work(&p.wg)
+		go w.work(ctx, &p.wg)
 	}
 
 	go func() {
@@ -54,13 +54,11 @@ func (p *Pool) Start(ctx context.Context) {
 				// put him back to p.workers
 				p.workers <- wc
 			case <-ctx.Done():
-				// close p.workers to inform all workers that it's time to retire.
 				close(p.workers)
 				return
 			default:
 			}
 		}
-
 	}()
 	return
 }
