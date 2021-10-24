@@ -3,7 +3,6 @@ package reactor
 import (
 	"net/http"
 
-	"github.com/unknowntpo/todos/internal/domain/errors"
 	"github.com/unknowntpo/todos/internal/logger"
 )
 
@@ -47,14 +46,23 @@ func (rc *Reactor) HandlerWrapper(h HandlerFunc) http.Handler {
 		// Use ctxPool to reduce allocation and gc.
 		c := ctxPool.Get().(*Context)
 		defer ctxPool.Put(c)
-		c.W = w
-		c.R = r
+		c.w = w
+		c.r = r
 
 		err := h(c)
 		// Only Internal Server Error will come to here.
 		// TODO: Use kindIs to check , if failed, panic
 		if err != nil {
-			c.ServerErrorResponse(err)
+			rc.logger.PrintError(err, nil)
+			if e := c.ServerErrorResponse(); e != nil {
+				// Something goes wrong during sending server error response.
+				// So we write the message directly.
+				rc.logger.PrintError(e, nil)
+				c.w.WriteHeader(http.StatusInternalServerError)
+				msg := `{"error":"the server encountered a problem and could not process your request"}`
+				c.w.Write([]byte(msg))
+				return
+			}
 			return
 		}
 	})

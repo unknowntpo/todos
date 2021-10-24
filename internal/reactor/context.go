@@ -21,6 +21,15 @@ type Context struct {
 	r *http.Request
 }
 
+// GetResponseWriter allows us to retrieve c.w if needed.
+// ctx := c.GetResponseWriter().Context()
+func (c *Context) GetResponseWriter() http.ResponseWriter { return c.w }
+
+// GetRequest allows us to retrieve c.r if needed.
+// e.g.
+// ctx := c.GetRequest().Context()
+func (c *Context) GetRequest() *http.Request { return c.r }
+
 func (c *Context) WriteJSON(status int, data interface{}) error {
 	const op errors.Op = "Context.WriteJSON"
 	js, err := json.MarshalIndent(data, "", "\t")
@@ -44,7 +53,7 @@ func (c *Context) ReadJSON(dst interface{}) error {
 	maxBytes := 1_048_576
 	c.r.Body = http.MaxBytesReader(c.w, c.r.Body, int64(maxBytes))
 
-	dec := json.NewDecoder(c.R.Body)
+	dec := json.NewDecoder(c.r.Body)
 	dec.DisallowUnknownFields()
 	err := dec.Decode(dst)
 	if err != nil {
