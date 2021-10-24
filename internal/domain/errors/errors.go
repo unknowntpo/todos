@@ -15,8 +15,8 @@ type Error struct {
 	// Op is the operation being performed, usually the name of the method
 	// being invoked (userUsecase.Get, tokenRepo.Insert, ...etc.).
 	Op Op
-	// User is the username of the user attempting the operation.
-	User UserName
+	// UserEmail is the email of the user attempting the operation.
+	UserEmail UserEmail
 	// Kind is the class of error, such as Record not found,
 	// or "Other" if its class is unknown or irrelevant.
 	Kind Kind
@@ -45,10 +45,10 @@ func (o Op) String() string {
 	return string(o)
 }
 
-// UserName is a string representing a user
-type UserName string
+// UserEmail is a string representing a user
+type UserEmail string
 
-func (u UserName) String() string {
+func (u UserEmail) String() string {
 	return string(u)
 }
 
@@ -60,8 +60,8 @@ func (e *Error) Error() string {
 	sep := ": "
 
 	out := ""
-	if e.User != "" {
-		out += e.User.String()
+	if e.UserEmail != "" {
+		out += e.UserEmail.String()
 		out += sep
 	}
 	if e.Op != "" {
@@ -83,11 +83,6 @@ func (e *Error) Error() string {
 		out += e.Err.Error()
 	}
 
-	// FIXME: where does error message from E() goes ?
-	// out := e.UserName.String() + sep + e.Op.String() + ... ?
-	// recursively call unwrap to unwrap Err.
-	// print error message
-
 	return out
 }
 
@@ -102,8 +97,8 @@ func (e *Error) Format(s fmt.State, verb rune) {
 			sep := ": "
 
 			out := ""
-			if e.User != "" {
-				out += e.User.String()
+			if e.UserEmail != "" {
+				out += e.UserEmail.String()
 				out += sep
 			}
 			if e.Op != "" {
@@ -177,8 +172,8 @@ func New(text string) error {
 //	Op
 //		The operation of the function who make a call to other function that returns an error.
 // 		E.g. taskUsecase.GetAll.
-//	UserName
-//		The user name of the user attempting the operation.
+//	UserEmail
+//		The email of the user attempting the operation.
 //	string
 //		Treated as an error message.
 //	errors.Kind
@@ -205,8 +200,8 @@ func E(args ...interface{}) error {
 		switch arg := arg.(type) {
 		case Op:
 			e.Op = arg
-		case UserName:
-			e.User = arg
+		case UserEmail:
+			e.UserEmail = arg
 		case Kind:
 			e.Kind = arg
 		case Msg:

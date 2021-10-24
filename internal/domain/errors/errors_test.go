@@ -27,10 +27,10 @@ func middle() error {
 
 func outer() error {
 	const op Op = "outer operation"
-	const user UserName = "alice@example.com"
+	const email UserEmail = "alice@example.com"
 	err := middle()
 	if err != nil {
-		return E(user, op, err)
+		return E(email, op, err)
 	}
 	return nil
 }
@@ -49,13 +49,13 @@ func TestE(t *testing.T) {
 		// define operation
 		const op Op = "taskRepo.GetByID"
 
-		// define fakeuserid
-		userName := UserName("alice@example.com")
+		// define fake user email
+		userEmail := UserEmail("alice@example.com")
 		// define error kind to ErrNotFound
 		// assume that we performed an sql query to task database and got sql.ErrNoRows error.
 		errFromDB := sql.ErrNoRows
 
-		err := E(op, ErrRecordNotFound, userName, errFromDB)
+		err := E(op, ErrRecordNotFound, userEmail, errFromDB)
 		assert.Equal(t, "alice@example.com: taskRepo.GetByID: record not found: sql: no rows in result set", err.Error())
 	})
 	t.Run("build a error with error message only", func(t *testing.T) {
