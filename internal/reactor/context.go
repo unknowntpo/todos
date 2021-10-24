@@ -17,8 +17,8 @@ var ctxPool = sync.Pool{
 }
 
 type Context struct {
-	W http.ResponseWriter
-	R *http.Request
+	w http.ResponseWriter
+	r *http.Request
 }
 
 func (c *Context) WriteJSON(status int, data interface{}) error {
@@ -31,9 +31,9 @@ func (c *Context) WriteJSON(status int, data interface{}) error {
 	// Append a newline to make it easier to view in terminal applications.
 	js = append(js, '\n')
 
-	c.W.Header().Set("Content-Type", "application/json")
-	c.W.WriteHeader(status)
-	c.W.Write(js)
+	c.w.Header().Set("Content-Type", "application/json")
+	c.w.WriteHeader(status)
+	c.w.Write(js)
 
 	return nil
 }
@@ -42,7 +42,7 @@ func (c *Context) ReadJSON(dst interface{}) error {
 	const op errors.Op = "Context.ReadJSON"
 
 	maxBytes := 1_048_576
-	c.R.Body = http.MaxBytesReader(c.W, c.R.Body, int64(maxBytes))
+	c.r.Body = http.MaxBytesReader(c.w, c.r.Body, int64(maxBytes))
 
 	dec := json.NewDecoder(c.R.Body)
 	dec.DisallowUnknownFields()
