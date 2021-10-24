@@ -27,19 +27,19 @@ func middle() error {
 
 func outer() error {
 	const op Op = "outer operation"
-	const user UserName = "alice@example.com"
+	const email UserEmail = "alice@example.com"
 	err := middle()
 	if err != nil {
-		return E(user, op, err)
+		return E(email, op, err)
 	}
 	return nil
 }
 
-func TestOpFormat(t *testing.T) {
-	const op Op = "counter.Get - %d"
+func TestMsgFormat(t *testing.T) {
+	const op Op = "counter.Get"
 	var counter int = 3
-	out := op.Format(counter)
-	assert.Equal(t, "counter.Get - 3", out, "formatted output should be equal")
+	msg := Msg("current counter value: %d").Format(counter)
+	assert.Equal(t, "current counter value: 3", msg.String(), "formatted output should be equal")
 }
 
 // test building an error
@@ -49,13 +49,13 @@ func TestE(t *testing.T) {
 		// define operation
 		const op Op = "taskRepo.GetByID"
 
-		// define fakeuserid
-		userName := UserName("alice@example.com")
+		// define fake user email
+		userEmail := UserEmail("alice@example.com")
 		// define error kind to ErrNotFound
 		// assume that we performed an sql query to task database and got sql.ErrNoRows error.
 		errFromDB := sql.ErrNoRows
 
-		err := E(op, ErrRecordNotFound, userName, errFromDB)
+		err := E(op, ErrRecordNotFound, userEmail, errFromDB)
 		assert.Equal(t, "alice@example.com: taskRepo.GetByID: record not found: sql: no rows in result set", err.Error())
 	})
 	t.Run("build a error with error message only", func(t *testing.T) {
@@ -63,6 +63,14 @@ func TestE(t *testing.T) {
 
 		assert.Equal(t, "some error message", err.Error())
 	})
+	t.Run("build a error with op and Error.Msg", func(t *testing.T) {
+		const op Op = "Counter.Get"
+		counter := 3
+		err := E(op, Msg("current counter value: %d").Format(counter), New("some error message"))
+
+		assert.Equal(t, "Counter.Get: current counter value: 3: some error message", err.Error())
+	})
+
 	t.Run("nested error with verb is %s", func(t *testing.T) {
 		err := outer()
 		want := "alice@example.com: outer operation: middle operation: inner operation: something goes wrong"
