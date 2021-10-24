@@ -20,27 +20,37 @@ type Error struct {
 	// Kind is the class of error, such as Record not found,
 	// or "Other" if its class is unknown or irrelevant.
 	Kind Kind
+	// Msg is some additional information you want to add.
+	Msg Msg
 	// The underlying error that triggered this one, if any.
 	Err error
+}
+
+type Msg string
+
+func (m Msg) String() string {
+	return string(m)
+}
+
+// Format formats according to a format specifier and return formatted string.
+func (m Msg) Format(a ...interface{}) Msg {
+	return Msg(fmt.Sprintf(string(m), a...))
 }
 
 // Op describes an operation, usually as the package and method,
 // such as "tokenRepo.Insert", or "userUsecase.GetByEmail".
 type Op string
 
-// Format formats according to a format specifier and return formatted string.
-// Example:
-//      const op Op = "counter.Get - %d"
-//	var counter int = 3
-//      out := op.Format(counter)
-//      fmt.Println(out)
-//	// Output: counter.Get - 3
-func (o Op) Format(a ...interface{}) string {
-	return fmt.Sprintf(string(o), a...)
+func (o Op) String() string {
+	return string(o)
 }
 
 // UserName is a string representing a user
 type UserName string
+
+func (u UserName) String() string {
+	return string(u)
+}
 
 // Kind defines the kind of error this is.
 type Kind uint8
@@ -51,16 +61,21 @@ func (e *Error) Error() string {
 
 	out := ""
 	if e.User != "" {
-		out += string(e.User)
+		out += e.User.String()
 		out += sep
 	}
 	if e.Op != "" {
-		out += string(e.Op)
+		out += e.Op.String()
 		out += sep
 	}
 
 	if e.Kind != 0 {
 		out += e.Kind.String()
+		out += sep
+	}
+
+	if e.Msg != "" {
+		out += e.Msg.String()
 		out += sep
 	}
 
@@ -88,11 +103,11 @@ func (e *Error) Format(s fmt.State, verb rune) {
 
 			out := ""
 			if e.User != "" {
-				out += string(e.User)
+				out += e.User.String()
 				out += sep
 			}
 			if e.Op != "" {
-				out += string(e.Op)
+				out += e.Op.String()
 				out += sep
 			}
 
@@ -100,6 +115,12 @@ func (e *Error) Format(s fmt.State, verb rune) {
 				out += e.Kind.String()
 				out += sep
 			}
+
+			if e.Msg != "" {
+				out += e.Msg.String()
+				out += sep
+			}
+
 			io.WriteString(s, out)
 			formatter.Format(s, verb)
 			return
@@ -121,11 +142,10 @@ func (e *Error) Unwrap() error { return e.Err }
 const (
 	Other Kind = iota // Unclassified error. This value is not printed in the error message.
 	// Maybe moved to httperror.go file ?
-	ErrRecordNotFound   // Record not found when we request some resource in database.
-	ErrInternal         // Internal server error.
-	ErrDatabase         // Error happened while querying database, this should be treated as subset of internal error and logged it carefully.
-	ErrMethodNotAllowed // Method not allowed error.
-	ErrBadRequest       // Bad request error.
+	ErrRecordNotFound // Record not found when we request some resource in database.
+	ErrDuplicateEmail // Duplicate Email error.
+	ErrInternal       // Internal server error.
+	ErrDatabase       // Error happened while querying database, this should be treated as subset of internal error and logged it carefully.
 )
 
 func (k Kind) String() string {
@@ -138,10 +158,6 @@ func (k Kind) String() string {
 		return "internal server error"
 	case ErrDatabase:
 		return "database error"
-	case ErrMethodNotAllowed:
-		return "method not allowed"
-	case ErrBadRequest:
-		return "bad request"
 	}
 	return "unknown error kind"
 }
@@ -193,6 +209,8 @@ func E(args ...interface{}) error {
 			e.User = arg
 		case Kind:
 			e.Kind = arg
+		case Msg:
+			e.Msg = arg
 		case *Error:
 			e.Err = arg
 		case error:

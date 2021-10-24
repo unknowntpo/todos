@@ -35,11 +35,11 @@ func outer() error {
 	return nil
 }
 
-func TestOpFormat(t *testing.T) {
-	const op Op = "counter.Get - %d"
+func TestMsgFormat(t *testing.T) {
+	const op Op = "counter.Get"
 	var counter int = 3
-	out := op.Format(counter)
-	assert.Equal(t, "counter.Get - 3", out, "formatted output should be equal")
+	msg := Msg("current counter value: %d").Format(counter)
+	assert.Equal(t, "current counter value: 3", msg.String(), "formatted output should be equal")
 }
 
 // test building an error
@@ -63,6 +63,14 @@ func TestE(t *testing.T) {
 
 		assert.Equal(t, "some error message", err.Error())
 	})
+	t.Run("build a error with op and Error.Msg", func(t *testing.T) {
+		const op Op = "Counter.Get"
+		counter := 3
+		err := E(op, Msg("current counter value: %d").Format(counter), New("some error message"))
+
+		assert.Equal(t, "Counter.Get: current counter value: 3: some error message", err.Error())
+	})
+
 	t.Run("nested error with verb is %s", func(t *testing.T) {
 		err := outer()
 		want := "alice@example.com: outer operation: middle operation: inner operation: something goes wrong"
