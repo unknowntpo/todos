@@ -47,8 +47,8 @@ func (rc *Reactor) HandlerWrapper(h HandlerFunc) http.Handler {
 		// Use ctxPool to reduce allocation and gc.
 		c := ctxPool.Get().(*Context)
 		defer ctxPool.Put(c)
-		c.w = w
-		c.r = r
+		c.W = w
+		c.R = r
 
 		err := h(c)
 		if err != nil {
