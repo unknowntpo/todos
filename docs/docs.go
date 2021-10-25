@@ -673,7 +673,12 @@ var doc = `{
             "type": "object"
         },
         "reactor.ErrorResponse": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "object"
+                }
+            }
         }
     }
 }`

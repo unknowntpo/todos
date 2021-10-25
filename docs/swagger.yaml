@@ -129,6 +129,9 @@ definitions:
   helpers.ErrorResponse:
     type: object
   reactor.ErrorResponse:
+    properties:
+      error:
+        type: object
     type: object
 host: localhost:4000
 info:

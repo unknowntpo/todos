@@ -9,13 +9,13 @@ import (
 )
 
 type ErrorResponse struct {
-	errMsg interface{} `json: "error"`
+	ErrMsg interface{} `json:"error"`
 }
 
 func (c *Context) errorResponse(status int, message interface{}) error {
 	const op errors.Op = "errResponse"
 	err := c.WriteJSON(status, &ErrorResponse{
-		errMsg: message,
+		ErrMsg: message,
 	})
 	if err != nil {
 		return errors.E(op, err)
