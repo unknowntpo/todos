@@ -71,7 +71,7 @@ func TestOffset(t *testing.T) {
 	var f Filters
 
 	f.PageSize = 3
-	f.Page = 2
+	f.CurrentPage = 2
 
 	got := f.Limit()
 	want := 3

@@ -25,7 +25,7 @@ func middle() error {
 
 func outer() error {
 	const op errors.Op = "outer operation"
-	const user errors.UserName = "alice@example.com"
+	const user errors.UserEmail = "alice@example.com"
 	err := middle()
 	if err != nil {
 		return errors.E(user, op, err)
