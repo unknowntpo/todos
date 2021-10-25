@@ -90,7 +90,7 @@ func (u *userAPI) RegisterUser(c *reactor.Context) error {
 	// Validate the user struct and return the error messages to the client if any of
 	// the checks fail.
 	if domain.ValidateUser(v, user); !v.Valid() {
-		return c.FailedValidationResponse(v.Errors)
+		return c.FailedValidationResponse(v.Err())
 	}
 
 	ctx := c.GetRequest().Context()
@@ -101,7 +101,7 @@ func (u *userAPI) RegisterUser(c *reactor.Context) error {
 		switch {
 		case errors.KindIs(err, errors.ErrDuplicateEmail):
 			v.AddError("email", "a user with this email address already exists")
-			return c.FailedValidationResponse(v.Errors)
+			return c.FailedValidationResponse(v.Err())
 		default:
 			return errors.E(op, errors.ErrInternal, err)
 		}
@@ -163,7 +163,7 @@ func (u *userAPI) ActivateUser(c *reactor.Context) error {
 	v := validator.New()
 
 	if domain.ValidateTokenPlaintext(v, tokenPlaintext); !v.Valid() {
-		return c.FailedValidationResponse(v.Errors)
+		return c.FailedValidationResponse(v.Err())
 	}
 
 	ctx := c.GetRequest().Context()
@@ -173,7 +173,7 @@ func (u *userAPI) ActivateUser(c *reactor.Context) error {
 		switch {
 		case errors.KindIs(err, errors.ErrRecordNotFound):
 			v.AddError("token", "invalid or expired activation token")
-			return c.FailedValidationResponse(v.Errors)
+			return c.FailedValidationResponse(v.Err())
 		default:
 			return errors.E(op, errors.ErrInternal, err)
 		}

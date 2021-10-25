@@ -15,9 +15,15 @@ var (
 
 // Define a new Validator type which contains a map of validation errors.
 type Validator struct {
-	Errors ValidationErrors
+	errs ValidationErrors
 }
 
+// Err returns validation errors.
+func (v *Validator) Err() error {
+	return v.errs
+}
+
+// ValidationErrors satisfies error interface.
 type ValidationErrors map[string]string
 
 func (v ValidationErrors) Error() string {
@@ -33,19 +39,19 @@ func (v ValidationErrors) Error() string {
 
 // New is a helper which creates a new Validator instance with an empty errors map.
 func New() *Validator {
-	return &Validator{Errors: make(map[string]string)}
+	return &Validator{errs: make(map[string]string)}
 }
 
 // Valid returns true if the errors map doesn't contain any entries.
 func (v *Validator) Valid() bool {
-	return len(v.Errors) == 0
+	return len(v.errs) == 0
 }
 
 // AddError adds an error message to the map (so long as no entry already exists for
 // the given key).
 func (v *Validator) AddError(key, message string) {
-	if _, exists := v.Errors[key]; !exists {
-		v.Errors[key] = message
+	if _, exists := v.errs[key]; !exists {
+		v.errs[key] = message
 	}
 }
 

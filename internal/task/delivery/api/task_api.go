@@ -100,7 +100,7 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 	input.Filters.SortSafelist = []string{"id", "title", "-id", "-title"}
 
 	if domain.ValidateFilters(v, input.Filters); !v.Valid() {
-		helpers.FailedValidationResponse(w, r, v.Errors)
+		helpers.FailedValidationResponse(w, r, v.Err())
 		return
 	}
 
@@ -193,7 +193,7 @@ func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
 	v := validator.New()
 
 	if domain.ValidateTask(v, task); !v.Valid() {
-		helpers.FailedValidationResponse(w, r, v.Errors)
+		helpers.FailedValidationResponse(w, r, v.Err())
 		return
 	}
 
@@ -274,7 +274,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	v := validator.New()
 
 	if domain.ValidateTask(v, task); !v.Valid() {
-		helpers.FailedValidationResponse(w, r, v.Errors)
+		helpers.FailedValidationResponse(w, r, v.Err())
 		return
 	}
 

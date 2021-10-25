@@ -56,7 +56,7 @@ func (t *tokenAPI) CreateAuthenticationToken(c *reactor.Context) error {
 	domain.ValidatePasswordPlaintext(v, input.Password)
 
 	if !v.Valid() {
-		return c.FailedValidationResponse(v.Errors)
+		return c.FailedValidationResponse(v.Err())
 	}
 
 	ctx := c.GetRequest().Context()

@@ -21,3 +21,9 @@ func TestMatch(t *testing.T) {
 		assert.False(t, match)
 	})
 }
+
+func TestErr(t *testing.T) {
+	v := New()
+	v.AddError("key", "value")
+	assert.Equal(t, "key: value", v.Err().Error(), "result should be equal")
+}
