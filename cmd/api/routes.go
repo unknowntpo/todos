@@ -48,7 +48,7 @@ func (app *application) newRoutes() http.Handler {
 
 	_healthcheckAPI.NewHealthcheckAPI(router, version, app.config.Env, rc)
 
-	_taskAPI.NewTaskAPI(router, taskUsecase, app.logger, genMid)
+	_taskAPI.NewTaskAPI(router, taskUsecase, genMid, rc)
 	_userAPI.NewUserAPI(router, userUsecase, tokenUsecase, app.pool, app.mailer, rc)
 	_tokenAPI.NewTokenAPI(router, tokenUsecase, userUsecase, rc)
 
