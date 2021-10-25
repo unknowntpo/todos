@@ -139,6 +139,7 @@ const (
 	// Maybe moved to httperror.go file ?
 	ErrRecordNotFound // Record not found when we request some resource in database.
 	ErrDuplicateEmail // Duplicate Email error.
+	ErrEditConflict   // Edit conflict while manipulating database.
 	ErrInternal       // Internal server error.
 	ErrDatabase       // Error happened while querying database, this should be treated as subset of internal error and logged it carefully.
 )
@@ -149,6 +150,10 @@ func (k Kind) String() string {
 		return "other error"
 	case ErrRecordNotFound:
 		return "record not found"
+	case ErrDuplicateEmail:
+		return "duplicate email"
+	case ErrEditConflict:
+		return "edit conflict"
 	case ErrInternal:
 		return "internal server error"
 	case ErrDatabase:

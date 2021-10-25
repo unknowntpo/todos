@@ -16,11 +16,11 @@ type HandlerFunc func(c *Context) error
 httprouter.Handler(method, path, r.HandlerWrapper(api.Healthcheck))
 */
 type Reactor struct {
-	logger logger.Logger
+	Logger logger.Logger
 }
 
 func NewReactor(logger logger.Logger) *Reactor {
-	return &Reactor{logger: logger}
+	return &Reactor{Logger: logger}
 }
 
 // HandlerFunc allow us to use a function with signature HandlerFunc as our actual handler,
@@ -53,11 +53,11 @@ func (rc *Reactor) HandlerWrapper(h HandlerFunc) http.Handler {
 		// Only Internal Server Error will come to here.
 		// TODO: Use kindIs to check , if failed, panic
 		if err != nil {
-			rc.logger.PrintError(err, nil)
+			rc.Logger.PrintError(err, nil)
 			if e := c.ServerErrorResponse(); e != nil {
 				// Something goes wrong during sending server error response.
 				// So we write the message directly.
-				rc.logger.PrintError(e, nil)
+				rc.Logger.PrintError(e, nil)
 				c.w.WriteHeader(http.StatusInternalServerError)
 				msg := `{"error":"the server encountered a problem and could not process your request"}`
 				c.w.Write([]byte(msg))

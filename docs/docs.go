@@ -408,19 +408,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ErrorResponse"
+                            "$ref": "#/definitions/reactor.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ErrorResponse"
+                            "$ref": "#/definitions/reactor.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ErrorResponse"
+                            "$ref": "#/definitions/reactor.ErrorResponse"
                         }
                     }
                 }
@@ -456,19 +456,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ErrorResponse"
+                            "$ref": "#/definitions/reactor.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ErrorResponse"
+                            "$ref": "#/definitions/reactor.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ErrorResponse"
+                            "$ref": "#/definitions/reactor.ErrorResponse"
                         }
                     }
                 }
@@ -670,6 +670,9 @@ var doc = `{
             }
         },
         "helpers.ErrorResponse": {
+            "type": "object"
+        },
+        "reactor.ErrorResponse": {
             "type": "object"
         }
     }

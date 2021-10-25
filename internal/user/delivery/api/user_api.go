@@ -5,15 +5,14 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
-	"github.com/unknowntpo/todos/internal/helpers"
+	"github.com/unknowntpo/todos/internal/domain/errors"
 	"github.com/unknowntpo/todos/internal/mailer"
 	"github.com/unknowntpo/todos/pkg/naivepool"
 	"github.com/unknowntpo/todos/pkg/validator"
 
-	"github.com/unknowntpo/todos/internal/logger"
+	"github.com/unknowntpo/todos/internal/reactor"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/pkg/errors"
 )
 
 type userAPI struct {
@@ -21,7 +20,7 @@ type userAPI struct {
 	tu     domain.TokenUsecase
 	pool   *naivepool.Pool
 	mailer *mailer.Mailer
-	logger logger.Logger
+	rc     *reactor.Reactor
 }
 
 type UserRegistrationResponse struct {
@@ -42,13 +41,12 @@ func NewUserAPI(router *httprouter.Router,
 	uu domain.UserUsecase,
 	tu domain.TokenUsecase,
 	pool *naivepool.Pool,
-	mailer *mailer.Mailer,
-	logger logger.Logger) {
+	mailer *mailer.Mailer, rc *reactor.Reactor) {
 
-	api := &userAPI{uu: uu, tu: tu, pool: pool, mailer: mailer, logger: logger}
+	api := &userAPI{uu: uu, tu: tu, pool: pool, mailer: mailer, rc: rc}
 
-	router.HandlerFunc(http.MethodPost, "/v1/users/registration", api.RegisterUser)
-	router.HandlerFunc(http.MethodPut, "/v1/users/activation", api.ActivateUser)
+	router.Handler(http.MethodPost, "/v1/users/registration", rc.HandlerWrapper(api.RegisterUser))
+	router.Handler(http.MethodPut, "/v1/users/activation", rc.HandlerWrapper(api.ActivateUser))
 }
 
 // RegisterUser registers user based on given information.
@@ -58,19 +56,21 @@ func NewUserAPI(router *httprouter.Router,
 // @Produce  json
 // @Param reqBody body UserRegistrationRequest true "request body"
 // @Success 202 {object} UserRegistrationResponse
-// @Failure 400 {object} helpers.ErrorResponse
-// @Failure 404 {object} helpers.ErrorResponse
-// @Failure 500 {object} helpers.ErrorResponse
+// @Failure 400 {object} reactor.ErrorResponse
+// @Failure 404 {object} reactor.ErrorResponse
+// @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/users/registration [post]
-func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
+func (u *userAPI) RegisterUser(c *reactor.Context) error {
+	const op errors.Op = "userAPI.RegisterUser"
+
 	// Create an anonymous struct to hold the expected data from the request body.
 	var input UserRegistrationRequest
 
 	// Parse the request body into the anonymous struct.
-	err := helpers.ReadJSON(w, r, &input)
+	err := c.ReadJSON(&input)
 	if err != nil {
-		helpers.BadRequestResponse(w, r, err)
-		return
+		// we don't want to leak detail of implementation, so we don't use op.
+		return c.BadRequestResponse(err)
 	}
 
 	user := &domain.User{
@@ -81,8 +81,8 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	err = user.Password.Set(input.Password)
 	if err != nil {
-		helpers.ServerErrorResponse(w, r, err)
-		return
+		// Treated as errors.ErrInternal
+		return errors.E(op, errors.Msg("failed to set password"), errors.ErrInternal, err)
 	}
 
 	v := validator.New()
@@ -90,40 +90,33 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	// Validate the user struct and return the error messages to the client if any of
 	// the checks fail.
 	if domain.ValidateUser(v, user); !v.Valid() {
-		helpers.FailedValidationResponse(w, r, v.Errors)
-		return
+		return c.FailedValidationResponse(v.Errors)
 	}
 
-	ctx := r.Context()
+	ctx := c.GetRequest().Context()
 
 	// Insert the user data into the database.
 	err = u.uu.Insert(ctx, user)
 	if err != nil {
 		switch {
-		case errors.Is(err, domain.ErrDuplicateEmail):
+		case errors.KindIs(err, errors.ErrDuplicateEmail):
 			v.AddError("email", "a user with this email address already exists")
-			helpers.FailedValidationResponse(w, r, v.Errors)
+			return c.FailedValidationResponse(v.Errors)
 		default:
-			u.logger.PrintError(err, nil)
-			helpers.ServerErrorResponse(w, r, err)
+			return errors.E(op, errors.ErrInternal, err)
 		}
-		return
 	}
 
 	// After the user record has been created in the database, generate a new activation
 	// token for the user, and insert it to the database.
 	token, err := domain.GenerateToken(user.ID, 3*24*time.Hour, domain.ScopeActivation)
 	if err != nil {
-		helpers.ServerErrorResponse(w, r, err)
-		return
+		return errors.E(op, errors.ErrInternal, err)
 	}
 
 	err = u.tu.Insert(ctx, token)
 	if err != nil {
-		err = errors.WithMessage(err, "failed.token.api.insert")
-		u.logger.PrintError(err, nil)
-		helpers.ServerErrorResponse(w, r, err)
-		return
+		return errors.E(op, errors.ErrInternal, err)
 	}
 
 	u.pool.Schedule(func() {
@@ -134,17 +127,21 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 		err = u.mailer.Send(user.Email, "user_welcome.tmpl", data)
 		if err != nil {
-			u.logger.PrintError(err, nil)
+			u.rc.Logger.PrintError(
+				errors.E(
+					op,
+					errors.UserEmail(user.Email),
+					errors.ErrInternal,
+					errors.Msg("failed to send welcome email"),
+					err,
+				),
+				nil,
+			)
+			return
 		}
 	})
 
-	err = helpers.WriteJSON(w, http.StatusAccepted, &UserRegistrationResponse{User: user})
-	if err != nil {
-		err = errors.WithMessage(err, "failed to send json response. token.api")
-		u.logger.PrintError(err, nil)
-
-		helpers.ServerErrorResponse(w, r, err)
-	}
+	return c.WriteJSON(http.StatusAccepted, &UserRegistrationResponse{User: user})
 }
 
 // ActivateUser activates user based on given token.
@@ -153,33 +150,33 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param token query string true "activation token"
 // @Success 200 {object} UserActivationResponse
-// @Failure 400 {object} helpers.ErrorResponse
-// @Failure 404 {object} helpers.ErrorResponse
-// @Failure 500 {object} helpers.ErrorResponse
+// @Failure 400 {object} reactor.ErrorResponse
+// @Failure 404 {object} reactor.ErrorResponse
+// @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/users/activation [put]
-func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
+func (u *userAPI) ActivateUser(c *reactor.Context) error {
+	const op errors.Op = "userAPI.ActivateUser"
+
 	// Read token from request query string.
-	tokenPlaintext := helpers.ReadString(r.URL.Query(), "token", "")
+	tokenPlaintext := c.ReadString("token", "")
 
 	v := validator.New()
 
 	if domain.ValidateTokenPlaintext(v, tokenPlaintext); !v.Valid() {
-		helpers.FailedValidationResponse(w, r, v.Errors)
-		return
+		return c.FailedValidationResponse(v.Errors)
 	}
 
-	ctx := r.Context()
+	ctx := c.GetRequest().Context()
 
 	user, err := u.uu.GetForToken(ctx, domain.ScopeActivation, tokenPlaintext)
 	if err != nil {
 		switch {
-		case errors.Is(err, domain.ErrRecordNotFound):
+		case errors.KindIs(err, errors.ErrRecordNotFound):
 			v.AddError("token", "invalid or expired activation token")
-			helpers.FailedValidationResponse(w, r, v.Errors)
+			return c.FailedValidationResponse(v.Errors)
 		default:
-			helpers.ServerErrorResponse(w, r, err)
+			return errors.E(op, errors.ErrInternal, err)
 		}
-		return
 	}
 
 	// Update the user's activation status.
@@ -190,25 +187,25 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
 	err = u.uu.Update(ctx, user)
 	if err != nil {
 		switch {
-		case errors.Is(err, domain.ErrEditConflict):
-			helpers.EditConflictResponse(w, r)
+		case errors.KindIs(err, errors.ErrEditConflict):
+			return c.EditConflictResponse()
 		default:
-			helpers.ServerErrorResponse(w, r, err)
+			return errors.E(op, errors.ErrInternal, err)
 		}
-		return
 	}
 
 	// If everything went successfully, then we delete all activation tokens for the
 	// user.
 	err = u.tu.DeleteAllForUser(ctx, domain.ScopeActivation, user.ID)
 	if err != nil {
-		helpers.ServerErrorResponse(w, r, err)
-		return
+		return errors.E(op, errors.ErrInternal, err)
 	}
 
 	// Send the updated user details to the client in a JSON response.
-	err = helpers.WriteJSON(w, http.StatusOK, &UserActivationResponse{User: user})
+	err = c.WriteJSON(http.StatusOK, &UserActivationResponse{User: user})
 	if err != nil {
-		helpers.ServerErrorResponse(w, r, err)
+		return errors.E(op, errors.ErrInternal, err)
 	}
+
+	return nil
 }

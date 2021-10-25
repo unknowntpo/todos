@@ -128,6 +128,8 @@ definitions:
     type: object
   helpers.ErrorResponse:
     type: object
+  reactor.ErrorResponse:
+    type: object
 host: localhost:4000
 info:
   contact: {}
@@ -393,15 +395,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
       summary: Activate user based on given token.
   /v1/users/registration:
     post:
@@ -424,14 +426,14 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
       summary: Register user based on given information.
 swagger: "2.0"

@@ -1,19 +1,26 @@
 package api
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/unknowntpo/todos/internal/logger/zerolog"
+	"github.com/unknowntpo/todos/internal/reactor"
 
+	"github.com/julienschmidt/httprouter"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHealthcheckHandler(t *testing.T) {
-	// build route
+	buf := new(bytes.Buffer)
+	logger := zerolog.New(buf)
 	router := httprouter.New()
-	NewHealthcheckAPI(router, "v3.14", "development")
+
+	rc := reactor.NewReactor(logger)
+
+	NewHealthcheckAPI(router, "v3.14", "development", rc)
 
 	// build request: GET /v1/healthcheck
 	r, err := http.NewRequest(http.MethodGet, "/v1/healthcheck", nil)
@@ -34,4 +41,5 @@ func TestHealthcheckHandler(t *testing.T) {
 }
 `
 	assert.Equal(t, wantBody, w.Body.String(), "response body must be equal")
+	assert.Equal(t, "", buf.String(), "buf should contain nothing")
 }
