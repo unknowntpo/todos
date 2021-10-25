@@ -5,18 +5,17 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
-	"github.com/unknowntpo/todos/internal/helpers"
-	"github.com/unknowntpo/todos/internal/logger"
+	"github.com/unknowntpo/todos/internal/domain/errors"
+	"github.com/unknowntpo/todos/internal/reactor"
 	"github.com/unknowntpo/todos/pkg/validator"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/pkg/errors"
 )
 
 type tokenAPI struct {
-	TU     domain.TokenUsecase
-	UU     domain.UserUsecase
-	logger logger.Logger
+	TU domain.TokenUsecase
+	UU domain.UserUsecase
+	rc *reactor.Reactor
 }
 
 type AuthenticationRequestBody struct {
@@ -28,9 +27,9 @@ type AuthenticationResponse struct {
 	Token *domain.Token `json:"token"`
 }
 
-func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase, uu domain.UserUsecase, logger logger.Logger) {
-	api := &tokenAPI{TU: tu, UU: uu, logger: logger}
-	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", api.CreateAuthenticationToken)
+func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase, uu domain.UserUsecase, rc *reactor.Reactor) {
+	api := &tokenAPI{TU: tu, UU: uu, rc: rc}
+	router.Handler(http.MethodPost, "/v1/tokens/authentication", rc.HandlerWrapper(api.CreateAuthenticationToken))
 }
 
 // @Summary Create authentication token for user.
@@ -40,14 +39,14 @@ func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase, uu domain.Us
 // @Param authentication_request_body body AuthenticationRequestBody true "authentication request body"
 // @Success 200 {object} AuthenticationResponse
 // @Router /v1/tokens/authentication [post]
-func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Request) {
+func (t *tokenAPI) CreateAuthenticationToken(c *reactor.Context) error {
+	const op errors.Op = "tokenAPI.CreateAuthenticationToken"
 	// Parse the email and password from the request body.
 	var input AuthenticationRequestBody
 
-	err := helpers.ReadJSON(w, r, &input)
+	err := c.ReadJSON(&input)
 	if err != nil {
-		helpers.BadRequestResponse(w, r, err)
-		return
+		return c.BadRequestResponse(err)
 	}
 
 	// Validate the email and password provided by the client.
@@ -57,57 +56,44 @@ func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Requ
 	domain.ValidatePasswordPlaintext(v, input.Password)
 
 	if !v.Valid() {
-		helpers.FailedValidationResponse(w, r, v.Errors)
-		return
+		return c.FailedValidationResponse(v.Errors)
 	}
 
-	ctx := r.Context()
+	ctx := c.GetRequest().Context()
 
 	user, err := t.UU.GetByEmail(ctx, input.Email)
 	if err != nil {
 		switch {
-		case errors.Is(err, domain.ErrRecordNotFound):
-			helpers.InvalidCredentialsResponse(w, r)
+		case errors.KindIs(err, errors.ErrRecordNotFound):
+			return c.InvalidCredentialsResponse()
 		default:
-			helpers.ServerErrorResponse(w, r, err)
+			return errors.E(op, errors.Msg("failed to get user by email"), err)
 		}
-		return
 	}
 
 	// Check if the provided password matches the actual password for the user.
 	match, err := user.Password.Matches(input.Password)
 	if err != nil {
-		helpers.ServerErrorResponse(w, r, err)
-		return
+		return errors.E(op, err)
 	}
 
 	if !match {
-		helpers.InvalidCredentialsResponse(w, r)
-		return
+		return c.InvalidCredentialsResponse()
 	}
 
 	// Otherwise, if the password is correct, we generate a new token with a 24-hour
 	// expiry time and the scope 'authentication'.
 	token, err := domain.GenerateToken(user.ID, 24*time.Hour, domain.ScopeAuthentication)
 	if err != nil {
-		helpers.ServerErrorResponse(w, r, err)
-		return
+		return errors.E(op, err)
 	}
 
 	err = t.TU.Insert(ctx, token)
 	if err != nil {
-		helpers.ServerErrorResponse(w, r, err)
-		return
+		return errors.E(op, err)
 	}
 
 	// Encode the token to JSON and send it in the response along with a 201 Created
 	// status code.
-	err = helpers.WriteJSON(w,
-		http.StatusCreated,
-		&AuthenticationResponse{
-			Token: token,
-		})
-	if err != nil {
-		helpers.ServerErrorResponse(w, r, err)
-	}
+	return c.WriteJSON(http.StatusCreated, &AuthenticationResponse{Token: token})
 }
