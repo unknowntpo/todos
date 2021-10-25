@@ -113,3 +113,23 @@ func TestError(t *testing.T) {
 
 	})
 }
+
+func TestKindIs(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		// declare err which is *Error
+		err := E(ErrInternal)
+		// call KindIs()
+		isInternal := KindIs(err, ErrInternal)
+		assert.True(t, isInternal, "kind of error should be ErrInternal")
+	})
+	t.Run("Panic", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r != nil {
+				assert.Equal(t, "want err has the type *Error, got *errors.errorString", r)
+			}
+		}()
+
+		// call KindIs with error which does not have type *Error.
+		_ = KindIs(sql.ErrNoRows, ErrInternal)
+	})
+}
