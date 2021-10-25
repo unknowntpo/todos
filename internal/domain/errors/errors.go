@@ -254,3 +254,14 @@ func Is(err, target error) bool {
 func As(err error, target interface{}) bool {
 	return errors.As(err, target)
 }
+
+// KindIs returns whether err.Kind == kind.
+// err must has the type *Error or Error, if not,
+// we panic.
+func KindIs(err error, kind Kind) bool {
+	if e, ok := err.(*Error); !ok {
+		panic(fmt.Sprintf("want err has the type *Error, got %T", err))
+	} else {
+		return e.Kind == kind
+	}
+}
