@@ -4,10 +4,14 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/unknowntpo/todos/internal/domain/errors"
+	"github.com/unknowntpo/todos/pkg/validator"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 var ctxPool = sync.Pool{
@@ -129,4 +133,66 @@ func (c *Context) ReadJSON(dst interface{}) error {
 	}
 
 	return nil
+}
+
+func (c *Context) ReadIDParam() (int64, error) {
+	params := httprouter.ParamsFromContext(c.GetRequest().Context())
+
+	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
+	if err != nil || id < 1 {
+		return 0, errors.New("invalid id parameter")
+	}
+
+	return id, nil
+}
+
+// ReadString returns a string value from the query string, or the provided
+// default value if no matching key could be found.
+func (c *Context) ReadString(key string, defaultValue string) string {
+	qs := c.r.URL.Query()
+	s := qs.Get(key)
+
+	if s == "" {
+		return defaultValue
+	}
+
+	return s
+}
+
+// The ReadCSV reads a string value from the query string and then splits it
+// into a slice on the comma character. If no matching key count be found, it returns
+// the provided default value.
+func (c *Context) ReadCSV(key string, defaultValue []string) []string {
+	qs := c.r.URL.Query()
+
+	csv := qs.Get(key)
+
+	if csv == "" {
+		return defaultValue
+	}
+
+	return strings.Split(csv, ",")
+}
+
+// The ReadInt reads a string value from the query string and converts it to an
+// integer before returning. If no matching key count be found it returns the provided
+// default value. If the value couldn't be converted to an integer, then we record an
+// error message in the provided Validator instance.
+// TODO: Use interface to accept different validator.
+func (c *Context) ReadInt(key string, defaultValue int, v *validator.Validator) int {
+	qs := c.r.URL.Query()
+
+	s := qs.Get(key)
+
+	if s == "" {
+		return defaultValue
+	}
+
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		v.AddError(key, "must be an integer value")
+		return defaultValue
+	}
+
+	return i
 }
