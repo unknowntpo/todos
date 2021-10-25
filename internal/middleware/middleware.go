@@ -163,7 +163,7 @@ func (mid *Middleware) Authenticate(next http.Handler) http.Handler {
 }
 
 // RequireAuthenticatedUser checks that a user is not anonymous.
-func (mid *Middleware) RequireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
+func (mid *Middleware) RequireAuthenticatedUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := helpers.ContextGetUser(r)
 
@@ -177,7 +177,7 @@ func (mid *Middleware) RequireAuthenticatedUser(next http.HandlerFunc) http.Hand
 }
 
 // RequireActivatedUser checks if a user is both authenticated and activated.
-func (mid *Middleware) RequireActivatedUser(next http.HandlerFunc) http.HandlerFunc {
+func (mid *Middleware) RequireActivatedUser(next http.Handler) http.Handler {
 	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Retrieve the user information from the request context.
 		user := helpers.ContextGetUser(r)

@@ -126,8 +126,6 @@ definitions:
       name:
         type: string
     type: object
-  helpers.ErrorResponse:
-    type: object
   reactor.ErrorResponse:
     properties:
       error:
@@ -192,15 +190,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
       summary: Get all tasks for specific user.
     post:
       consumes:
@@ -233,15 +231,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
       summary: Create a new task for specific user.
   /v1/tasks/{taskID}:
     delete:
@@ -274,15 +272,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
       summary: Delete task for specific user.
     get:
       consumes:
@@ -309,15 +307,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
       summary: Get task by ID for specific user.
     patch:
       consumes:
@@ -350,15 +348,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/helpers.ErrorResponse'
+            $ref: '#/definitions/reactor.ErrorResponse'
       summary: Update task for specific user.
   /v1/tokens/authentication:
     post:
