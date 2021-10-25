@@ -7,7 +7,7 @@ import (
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/domain/errors"
-	_repoMock "github.com/unknowntpo/todos/internal/domain/mock"
+	_repoMock "github.com/unknowntpo/todos/internal/domain/mocks"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/unknowntpo/todos/config"
-	"github.com/unknowntpo/todos/internal/domain/mock"
+	"github.com/unknowntpo/todos/internal/domain/mocks"
 	"github.com/unknowntpo/todos/internal/logger/zerolog"
 
 	"github.com/stretchr/testify/suite"
@@ -26,7 +26,7 @@ func (suite *MiddlewareTestSuite) SetupSuite() {
 	logger := zerolog.New(suite.buf)
 
 	config := new(config.Config)
-	uu := mock.NewUserUsecase()
+	uu := new(mocks.UserUsecase)
 
 	suite.mid = New(config, uu, logger)
 }
