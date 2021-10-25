@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/unknowntpo/todos/internal/domain/errors"
-	"github.com/unknowntpo/todos/pkg/validator"
 )
 
 type ErrorResponse struct {
@@ -48,7 +47,7 @@ func (c *Context) BadRequestResponse(err error) error {
 	return c.errorResponse(http.StatusBadRequest, err.Error())
 }
 
-func (c *Context) FailedValidationResponse(err validator.ValidationErrors) error {
+func (c *Context) FailedValidationResponse(err error) error {
 	return c.errorResponse(http.StatusUnprocessableEntity, err)
 }
 
