@@ -33,8 +33,8 @@ func NewHealthcheckAPI(router *httprouter.Router, version, env string, rc *react
 // @Produce json
 // @Success 200 {object} HealthcheckResponse
 // @Router /v1/healthcheck [get]
-func (h *healthcheckAPI) Healthcheck(c *reactor.Context) error {
-	return c.WriteJSON(http.StatusOK, &HealthcheckResponse{
+func (h *healthcheckAPI) Healthcheck(w http.ResponseWriter, r *http.Request) error {
+	return reactor.WriteJSON(w, http.StatusOK, &HealthcheckResponse{
 		Status:      "available",
 		Version:     h.version,
 		Environment: h.env,

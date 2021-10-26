@@ -11,9 +11,9 @@ type ErrorResponse struct {
 	ErrMsg interface{} `json:"error"`
 }
 
-func (c *Context) errorResponse(status int, message interface{}) error {
+func errorResponse(w http.ResponseWriter, r *http.Request, status int, message interface{}) error {
 	const op errors.Op = "errResponse"
-	err := c.WriteJSON(status, &ErrorResponse{
+	err := WriteJSON(w, status, &ErrorResponse{
 		ErrMsg: message,
 	})
 	if err != nil {
@@ -23,67 +23,67 @@ func (c *Context) errorResponse(status int, message interface{}) error {
 	return nil
 }
 
-func (c *Context) ServerErrorResponse() error {
+func ServerErrorResponse(w http.ResponseWriter, r *http.Request) error {
 	const op errors.Op = "ServerErrorResponse"
 	message := "the server encountered a problem and could not process your request"
-	if e := c.errorResponse(http.StatusInternalServerError, message); e != nil {
+	if e := errorResponse(w, r, http.StatusInternalServerError, message); e != nil {
 		return errors.E(op, e)
 	}
 
 	return nil
 }
 
-func (c *Context) NotFoundResponse() error {
+func NotFoundResponse(w http.ResponseWriter, r *http.Request) error {
 	message := "the requested resource could not be found"
-	return c.errorResponse(http.StatusNotFound, message)
+	return errorResponse(w, r, http.StatusNotFound, message)
 }
 
-func (c *Context) MethodNotAllowedResponse() error {
-	message := fmt.Sprintf("the %s method is not supported for this resource", c.r.Method)
-	return c.errorResponse(http.StatusMethodNotAllowed, message)
+func MethodNotAllowedResponse(w http.ResponseWriter, r *http.Request) error {
+	message := fmt.Sprintf("the %s method is not supported for this resource", r.Method)
+	return errorResponse(w, r, http.StatusMethodNotAllowed, message)
 }
 
-func (c *Context) BadRequestResponse(err error) error {
-	return c.errorResponse(http.StatusBadRequest, err.Error())
+func BadRequestResponse(w http.ResponseWriter, r *http.Request, err error) error {
+	return errorResponse(w, r, http.StatusBadRequest, err.Error())
 }
 
-func (c *Context) FailedValidationResponse(err error) error {
-	return c.errorResponse(http.StatusUnprocessableEntity, err)
+func FailedValidationResponse(w http.ResponseWriter, r *http.Request, err error) error {
+	return errorResponse(w, r, http.StatusUnprocessableEntity, err)
 }
 
-func (c *Context) EditConflictResponse() error {
+func EditConflictResponse(w http.ResponseWriter, r *http.Request) error {
 	message := "unable to update the record due to an edit conflict, please try again"
-	return c.errorResponse(http.StatusConflict, message)
+	return errorResponse(w, r, http.StatusConflict, message)
 }
 
-func (c *Context) InvalidCredentialsResponse() error {
+func InvalidCredentialsResponse(w http.ResponseWriter, r *http.Request) error {
 	message := "invalid authentication credentials"
-	return c.errorResponse(http.StatusUnauthorized, message)
+	return errorResponse(w, r, http.StatusUnauthorized, message)
 }
 
-func (c *Context) InvalidAuthenticationTokenResponse() error {
-	c.w.Header().Set("WWW-Authenticate", "Bearer")
+func InvalidAuthenticationTokenResponse(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("WWW-Authenticate", "Bearer")
 
 	message := "invalid or missing authentication token"
-	return c.errorResponse(http.StatusUnauthorized, message)
+	return errorResponse(w, r, http.StatusUnauthorized, message)
 }
 
-func (c *Context) AuthenticationRequiredResponse() error {
+func AuthenticationRequiredResponse(w http.ResponseWriter, r *http.Request) error {
 	message := "you must be authenticated to access this resource"
-	return c.errorResponse(http.StatusUnauthorized, message)
+	return errorResponse(w, r, http.StatusUnauthorized, message)
 }
 
-func (c *Context) InactiveAccountResponse() error {
+func InactiveAccountResponse(w http.ResponseWriter, r *http.Request) error {
 	message := "your user account must be activated to access this resource"
-	return c.errorResponse(http.StatusForbidden, message)
+	return errorResponse(w, r, http.StatusForbidden, message)
 }
 
-func (c *Context) NotPermittedResponse() error {
+func NotPermittedResponse(w http.ResponseWriter, r *http.Request) error {
 	message := "your user account doesn't have the necessary permissions to access this resource"
-	return c.errorResponse(http.StatusForbidden, message)
+	return errorResponse(w, r, http.StatusForbidden, message)
 }
 
-func (c *Context) RateLimitExceededResponse() error {
+func RateLimitExceededResponse(w http.ResponseWriter, r *http.Request) error {
 	message := "rate limit exceeded"
-	return c.errorResponse(http.StatusTooManyRequests, message)
+	return errorResponse(w, r, http.StatusTooManyRequests, message)
 }

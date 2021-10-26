@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/unknowntpo/todos/internal/domain/errors"
 	"github.com/unknowntpo/todos/pkg/validator"
@@ -14,27 +14,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-var ctxPool = sync.Pool{
-	New: func() interface{} {
-		return new(Context)
-	},
-}
-
-type Context struct {
-	w http.ResponseWriter
-	r *http.Request
-}
-
-// GetResponseWriter allows us to retrieve c.w if needed.
-// ctx := c.GetResponseWriter().Context()
-func (c *Context) GetResponseWriter() http.ResponseWriter { return c.w }
-
-// GetRequest allows us to retrieve c.r if needed.
-// e.g.
-// ctx := c.GetRequest().Context()
-func (c *Context) GetRequest() *http.Request { return c.r }
-
-func (c *Context) WriteJSON(status int, data interface{}) error {
+func WriteJSON(w http.ResponseWriter, status int, data interface{}) error {
 	const op errors.Op = "Context.WriteJSON"
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
@@ -44,20 +24,20 @@ func (c *Context) WriteJSON(status int, data interface{}) error {
 	// Append a newline to make it easier to view in terminal applications.
 	js = append(js, '\n')
 
-	c.w.Header().Set("Content-Type", "application/json")
-	c.w.WriteHeader(status)
-	c.w.Write(js)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write(js)
 
 	return nil
 }
 
-func (c *Context) ReadJSON(dst interface{}) error {
+func ReadJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	const op errors.Op = "Context.ReadJSON"
 
 	maxBytes := 1_048_576
-	c.r.Body = http.MaxBytesReader(c.w, c.r.Body, int64(maxBytes))
+	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
-	dec := json.NewDecoder(c.r.Body)
+	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
 	err := dec.Decode(dst)
 	if err != nil {
@@ -135,8 +115,8 @@ func (c *Context) ReadJSON(dst interface{}) error {
 	return nil
 }
 
-func (c *Context) ReadIDParam() (int64, error) {
-	params := httprouter.ParamsFromContext(c.GetRequest().Context())
+func ReadIDParam(r *http.Request) (int64, error) {
+	params := httprouter.ParamsFromContext(r.Context())
 
 	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
 	if err != nil || id < 1 {
@@ -148,8 +128,7 @@ func (c *Context) ReadIDParam() (int64, error) {
 
 // ReadString returns a string value from the query string, or the provided
 // default value if no matching key could be found.
-func (c *Context) ReadString(key string, defaultValue string) string {
-	qs := c.r.URL.Query()
+func ReadString(qs url.Values, key string, defaultValue string) string {
 	s := qs.Get(key)
 
 	if s == "" {
@@ -162,9 +141,7 @@ func (c *Context) ReadString(key string, defaultValue string) string {
 // The ReadCSV reads a string value from the query string and then splits it
 // into a slice on the comma character. If no matching key count be found, it returns
 // the provided default value.
-func (c *Context) ReadCSV(key string, defaultValue []string) []string {
-	qs := c.r.URL.Query()
-
+func ReadCSV(qs url.Values, key string, defaultValue []string) []string {
 	csv := qs.Get(key)
 
 	if csv == "" {
@@ -179,9 +156,7 @@ func (c *Context) ReadCSV(key string, defaultValue []string) []string {
 // default value. If the value couldn't be converted to an integer, then we record an
 // error message in the provided Validator instance.
 // TODO: Use interface to accept different validator.
-func (c *Context) ReadInt(key string, defaultValue int, v *validator.Validator) int {
-	qs := c.r.URL.Query()
-
+func ReadInt(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
 	s := qs.Get(key)
 
 	if s == "" {

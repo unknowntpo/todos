@@ -9,6 +9,7 @@ import (
 	"github.com/unknowntpo/todos/config"
 	"github.com/unknowntpo/todos/internal/domain/mocks"
 	"github.com/unknowntpo/todos/internal/logger/zerolog"
+	"github.com/unknowntpo/todos/internal/reactor"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -25,10 +26,12 @@ func (suite *MiddlewareTestSuite) SetupSuite() {
 	suite.buf = new(bytes.Buffer)
 	logger := zerolog.New(suite.buf)
 
+	rc := reactor.NewReactor(logger)
+
 	config := new(config.Config)
 	uu := new(mocks.UserUsecase)
 
-	suite.mid = New(config, uu, logger)
+	suite.mid = New(config, uu, rc)
 }
 
 func (suite *MiddlewareTestSuite) TearDownSuite() {

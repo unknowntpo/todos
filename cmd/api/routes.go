@@ -40,11 +40,14 @@ func (app *application) newRoutes() http.Handler {
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, 3*time.Second)
 	tokenUsecase := _tokenUsecase.NewTokenUsecase(tokenRepo, 3*time.Second)
 
+	// reactor
+	rc := reactor.NewReactor(app.logger)
+
 	// middleware
-	genMid := _generalMiddleware.New(app.config, userUsecase, app.logger)
+
+	genMid := _generalMiddleware.New(app.config, userUsecase, rc)
 
 	// delivery
-	rc := reactor.NewReactor(app.logger)
 
 	_healthcheckAPI.NewHealthcheckAPI(router, version, app.config.Env, rc)
 

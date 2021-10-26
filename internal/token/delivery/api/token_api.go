@@ -39,14 +39,14 @@ func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase, uu domain.Us
 // @Param authentication_request_body body AuthenticationRequestBody true "authentication request body"
 // @Success 200 {object} AuthenticationResponse
 // @Router /v1/tokens/authentication [post]
-func (t *tokenAPI) CreateAuthenticationToken(c *reactor.Context) error {
+func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Request) error {
 	const op errors.Op = "tokenAPI.CreateAuthenticationToken"
 	// Parse the email and password from the request body.
 	var input AuthenticationRequestBody
 
-	err := c.ReadJSON(&input)
+	err := reactor.ReadJSON(w, r, &input)
 	if err != nil {
-		return c.BadRequestResponse(err)
+		return reactor.BadRequestResponse(w, r, err)
 	}
 
 	// Validate the email and password provided by the client.
@@ -56,16 +56,16 @@ func (t *tokenAPI) CreateAuthenticationToken(c *reactor.Context) error {
 	domain.ValidatePasswordPlaintext(v, input.Password)
 
 	if !v.Valid() {
-		return c.FailedValidationResponse(v.Err())
+		return reactor.FailedValidationResponse(w, r, v.Err())
 	}
 
-	ctx := c.GetRequest().Context()
+	ctx := r.Context()
 
 	user, err := t.UU.GetByEmail(ctx, input.Email)
 	if err != nil {
 		switch {
 		case errors.KindIs(err, errors.ErrRecordNotFound):
-			return c.InvalidCredentialsResponse()
+			return reactor.InvalidCredentialsResponse(w, r)
 		default:
 			return errors.E(op, errors.Msg("failed to get user by email"), err)
 		}
@@ -78,7 +78,7 @@ func (t *tokenAPI) CreateAuthenticationToken(c *reactor.Context) error {
 	}
 
 	if !match {
-		return c.InvalidCredentialsResponse()
+		return reactor.InvalidCredentialsResponse(w, r)
 	}
 
 	// Otherwise, if the password is correct, we generate a new token with a 24-hour
@@ -95,5 +95,5 @@ func (t *tokenAPI) CreateAuthenticationToken(c *reactor.Context) error {
 
 	// Encode the token to JSON and send it in the response along with a 201 Created
 	// status code.
-	return c.WriteJSON(http.StatusCreated, &AuthenticationResponse{Token: token})
+	return reactor.WriteJSON(w, http.StatusCreated, &AuthenticationResponse{Token: token})
 }
