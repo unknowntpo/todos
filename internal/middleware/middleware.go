@@ -12,7 +12,7 @@ import (
 	"github.com/unknowntpo/todos/config"
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/helpers"
-	"github.com/unknowntpo/todos/internal/logger"
+	"github.com/unknowntpo/todos/internal/reactor"
 	"github.com/unknowntpo/todos/pkg/validator"
 
 	"github.com/felixge/httpsnoop"
@@ -24,11 +24,11 @@ import (
 type Middleware struct {
 	config  *config.Config
 	usecase domain.UserUsecase
-	logger  logger.Logger
+	rc      *reactor.Reactor
 }
 
-func New(cfg *config.Config, uu domain.UserUsecase, logger logger.Logger) *Middleware {
-	return &Middleware{config: cfg, usecase: uu, logger: logger}
+func New(cfg *config.Config, uu domain.UserUsecase, rc *reactor.Reactor) *Middleware {
+	return &Middleware{config: cfg, usecase: uu, rc: rc}
 }
 
 func (mid *Middleware) RecoverPanic(next http.Handler) http.Handler {
@@ -36,10 +36,8 @@ func (mid *Middleware) RecoverPanic(next http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				w.Header().Set("Connection", "close")
-				// TODO: How to handle panic?
-				// Try to log stack trace ?
-				mid.logger.PrintError(errors.New(fmt.Sprintf("%s", err)), nil)
-				helpers.ServerErrorResponse(w, r, fmt.Errorf("%s", err))
+				mid.rc.Logger.PrintError(errors.New(fmt.Sprintf("%s", err)), nil)
+				reactor.ServerErrorResponse(w, r)
 			}
 		}()
 

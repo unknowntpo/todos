@@ -12,8 +12,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func helloHandler(c *Context) error {
-	return c.WriteJSON(http.StatusOK, "Hello from helloHandler")
+func helloHandler(w http.ResponseWriter, r *http.Request) error {
+	return WriteJSON(w, http.StatusOK, "Hello from helloHandler")
 }
 
 func Example_httprouter() {

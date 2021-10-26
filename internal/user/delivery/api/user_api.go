@@ -60,17 +60,17 @@ func NewUserAPI(router *httprouter.Router,
 // @Failure 404 {object} reactor.ErrorResponse
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/users/registration [post]
-func (u *userAPI) RegisterUser(c *reactor.Context) error {
+func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) error {
 	const op errors.Op = "userAPI.RegisterUser"
 
 	// Create an anonymous struct to hold the expected data from the request body.
 	var input UserRegistrationRequest
 
 	// Parse the request body into the anonymous struct.
-	err := c.ReadJSON(&input)
+	err := reactor.ReadJSON(w, r, &input)
 	if err != nil {
 		// we don't want to leak detail of implementation, so we don't use op.
-		return c.BadRequestResponse(err)
+		return reactor.BadRequestResponse(w, r, err)
 	}
 
 	user := &domain.User{
@@ -90,10 +90,10 @@ func (u *userAPI) RegisterUser(c *reactor.Context) error {
 	// Validate the user struct and return the error messages to the client if any of
 	// the checks fail.
 	if domain.ValidateUser(v, user); !v.Valid() {
-		return c.FailedValidationResponse(v.Err())
+		return reactor.FailedValidationResponse(w, r, v.Err())
 	}
 
-	ctx := c.GetRequest().Context()
+	ctx := r.Context()
 
 	// Insert the user data into the database.
 	err = u.uu.Insert(ctx, user)
@@ -101,7 +101,7 @@ func (u *userAPI) RegisterUser(c *reactor.Context) error {
 		switch {
 		case errors.KindIs(err, errors.ErrDuplicateEmail):
 			v.AddError("email", "a user with this email address already exists")
-			return c.FailedValidationResponse(v.Err())
+			return reactor.FailedValidationResponse(w, r, v.Err())
 		default:
 			return errors.E(op, errors.ErrInternal, err)
 		}
@@ -141,7 +141,7 @@ func (u *userAPI) RegisterUser(c *reactor.Context) error {
 		}
 	})
 
-	return c.WriteJSON(http.StatusAccepted, &UserRegistrationResponse{User: user})
+	return reactor.WriteJSON(w, http.StatusAccepted, &UserRegistrationResponse{User: user})
 }
 
 // ActivateUser activates user based on given token.
@@ -154,26 +154,27 @@ func (u *userAPI) RegisterUser(c *reactor.Context) error {
 // @Failure 404 {object} reactor.ErrorResponse
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/users/activation [put]
-func (u *userAPI) ActivateUser(c *reactor.Context) error {
+func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) error {
 	const op errors.Op = "userAPI.ActivateUser"
 
 	// Read token from request query string.
-	tokenPlaintext := c.ReadString("token", "")
+	qs := r.URL.Query()
+	tokenPlaintext := reactor.ReadString(qs, "token", "")
 
 	v := validator.New()
 
 	if domain.ValidateTokenPlaintext(v, tokenPlaintext); !v.Valid() {
-		return c.FailedValidationResponse(v.Err())
+		return reactor.FailedValidationResponse(w, r, v.Err())
 	}
 
-	ctx := c.GetRequest().Context()
+	ctx := r.Context()
 
 	user, err := u.uu.GetForToken(ctx, domain.ScopeActivation, tokenPlaintext)
 	if err != nil {
 		switch {
 		case errors.KindIs(err, errors.ErrRecordNotFound):
 			v.AddError("token", "invalid or expired activation token")
-			return c.FailedValidationResponse(v.Err())
+			return reactor.FailedValidationResponse(w, r, v.Err())
 		default:
 			return errors.E(op, errors.ErrInternal, err)
 		}
@@ -188,7 +189,7 @@ func (u *userAPI) ActivateUser(c *reactor.Context) error {
 	if err != nil {
 		switch {
 		case errors.KindIs(err, errors.ErrEditConflict):
-			return c.EditConflictResponse()
+			return reactor.EditConflictResponse(w, r)
 		default:
 			return errors.E(op, errors.ErrInternal, err)
 		}
@@ -202,7 +203,7 @@ func (u *userAPI) ActivateUser(c *reactor.Context) error {
 	}
 
 	// Send the updated user details to the client in a JSON response.
-	err = c.WriteJSON(http.StatusOK, &UserActivationResponse{User: user})
+	err = reactor.WriteJSON(w, http.StatusOK, &UserActivationResponse{User: user})
 	if err != nil {
 		return errors.E(op, errors.ErrInternal, err)
 	}

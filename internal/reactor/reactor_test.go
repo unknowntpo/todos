@@ -30,7 +30,7 @@ func TestHandlerWrapper(t *testing.T) {
 
 	router := httprouter.New()
 
-	h := func(c *Context) error {
+	h := func(w http.ResponseWriter, r *http.Request) error {
 		const op errors.Op = "dummyHandler.Get"
 		err := errors.New("something goes wrong")
 
