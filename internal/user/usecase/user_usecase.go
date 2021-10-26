@@ -5,8 +5,7 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
-
-	"github.com/pkg/errors"
+	"github.com/unknowntpo/todos/internal/domain/errors"
 )
 
 type userUsecase struct {
@@ -19,46 +18,54 @@ func NewUserUsecase(ur domain.UserRepository, timeout time.Duration) domain.User
 }
 
 func (uu *userUsecase) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+	const op errors.Op = "userUsecase.GetByEmail"
+
 	ctx, cancel := context.WithTimeout(ctx, uu.contextTimeout)
 	defer cancel()
 
 	user, err := uu.userRepo.GetByEmail(ctx, email)
 	if err != nil {
-		// TODO: Improve error chain message
-		return nil, errors.WithMessage(err, "userUsecase.GetByEmail")
+		return nil, errors.E(op, err)
 	}
+
 	return user, nil
 }
 func (uu *userUsecase) Insert(ctx context.Context, user *domain.User) error {
+	const op errors.Op = "userUsecase.Insert"
+
 	ctx, cancel := context.WithTimeout(ctx, uu.contextTimeout)
 	defer cancel()
 
 	err := uu.userRepo.Insert(ctx, user)
 	if err != nil {
-		// TODO: Improve error chain message
-		return errors.WithMessage(err, "userUsecase.Insert")
+		return errors.E(op, err)
 	}
+
 	return nil
 }
 func (uu *userUsecase) GetForToken(ctx context.Context, tokenScope, tokenPlaintext string) (*domain.User, error) {
+	const op errors.Op = "userUsecase.GetForToken"
+
 	ctx, cancel := context.WithTimeout(ctx, uu.contextTimeout)
 	defer cancel()
 
 	user, err := uu.userRepo.GetForToken(ctx, tokenScope, tokenPlaintext)
 	if err != nil {
-		// TODO: Improve error chain message
-		return nil, errors.WithMessage(err, "userUsecase.GetForToken")
+		return nil, errors.E(op, err)
 	}
+
 	return user, nil
 }
 func (uu *userUsecase) Update(ctx context.Context, user *domain.User) error {
+	const op errors.Op = "userUsecase.Update"
+
 	ctx, cancel := context.WithTimeout(ctx, uu.contextTimeout)
 	defer cancel()
 
 	err := uu.userRepo.Update(ctx, user)
 	if err != nil {
-		// TODO: Improve error chain message
-		return errors.WithMessage(err, "userUsecase.Update")
+		return errors.E(op, err)
 	}
+
 	return nil
 }
