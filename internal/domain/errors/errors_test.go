@@ -36,7 +36,6 @@ func outer() error {
 }
 
 func TestMsgFormat(t *testing.T) {
-	const op Op = "counter.Get"
 	var counter int = 3
 	msg := Msg("current counter value: %d").Format(counter)
 	assert.Equal(t, "current counter value: 3", msg.String(), "formatted output should be equal")

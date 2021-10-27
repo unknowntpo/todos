@@ -6,12 +6,12 @@ import (
 )
 
 type ErrorResponse struct {
-	errMsg interface{} `json: "error"`
+	ErrMsg interface{} `json:"error"`
 }
 
 func errorResponse(w http.ResponseWriter, r *http.Request, status int, message interface{}) {
 	err := WriteJSON(w, status, &ErrorResponse{
-		errMsg: message,
+		ErrMsg: message,
 	})
 	if err != nil {
 		w.WriteHeader(500)

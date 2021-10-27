@@ -20,7 +20,8 @@ import (
 )
 
 var (
-	version   string
+	version string
+	//lint:ignore U1000 buildTime is used during compilation at -ldflags.
 	buildTime string
 )
 

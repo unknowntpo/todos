@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 )
 
-func ExampleAdder() {
+func Example_adder() {
 	maxJobs := 1000
 	maxWorkers := 50
 	workerChanSize := 10

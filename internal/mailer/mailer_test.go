@@ -65,6 +65,8 @@ func TestPrepareLetterPaper(t *testing.T) {
 	m := New(cfg)
 
 	msg, err := m.PrepareLetterPaper(recipient, templateName, data)
+	assert.NoError(t, err)
+
 	buf := new(bytes.Buffer)
 	msg.WriteTo(buf)
 

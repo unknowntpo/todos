@@ -32,5 +32,4 @@ func (w *worker) work(ctx context.Context, wg *sync.WaitGroup) {
 			return
 		}
 	}
-	return
 }

@@ -56,11 +56,9 @@ func (p *Pool) Start(ctx context.Context) {
 			case <-ctx.Done():
 				close(p.workers)
 				return
-			default:
 			}
 		}
 	}()
-	return
 }
 
 // Wait waits for all workers finish its job and retire.

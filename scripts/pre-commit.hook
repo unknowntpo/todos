@@ -8,9 +8,16 @@ RETURN=0
 make vendor
 git diff --exit-code ./vendor 
 if [ $? -ne 0 ]; then
-    echo "there are some update in ./vendor, run make vendor before doing some commit." >&2
+    echo "[!] there are some update in ./vendor, run make vendor before doing some commit." >&2
     exit 1
 fi
+
+make audit
+if [ $? -ne 0 ]; then
+    echo "[!] there are some errors during make/audit, please fix it before commiting your code." >&2
+    exit 1
+fi
+
 
 # Make sure our documentation is not outdated.
 SWAG_CLI=$(which swag)

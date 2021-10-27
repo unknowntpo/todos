@@ -16,9 +16,9 @@ type healthcheckAPI struct {
 }
 
 type HealthcheckResponse struct {
-	Status      string `json: "status"`
-	Environment string `json: "environment"`
-	Version     string `json: "version"`
+	Status      string `json:"status"`
+	Environment string `json:"environment"`
+	Version     string `json:"version"`
 }
 
 // NewHealthcheckAPI registers all handlers in /v1/healcheck to the router.

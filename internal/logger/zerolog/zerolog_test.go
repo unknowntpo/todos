@@ -9,30 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func inner() error {
-	const op errors.Op = "inner operation"
-	return errors.E(op, errors.New("something goes wrong"))
-}
-
-func middle() error {
-	const op errors.Op = "middle operation"
-	err := inner()
-	if err != nil {
-		return errors.E(op, err)
-	}
-	return nil
-}
-
-func outer() error {
-	const op errors.Op = "outer operation"
-	const user errors.UserEmail = "alice@example.com"
-	err := middle()
-	if err != nil {
-		return errors.E(user, op, err)
-	}
-	return nil
-}
-
 func TestPrintInfo(t *testing.T) {
 	out := bytes.NewBufferString("")
 	log := New(out)
