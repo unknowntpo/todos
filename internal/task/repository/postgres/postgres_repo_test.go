@@ -223,12 +223,16 @@ func (suite *TaskRepoTestSuite) TestGetAll() {
 	})
 	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
 	suite.Run("Fail on database error-timeout", func() {
+
+		suite.T().Skip("TODO: finish the implementation")
 		suite.TearDownTest()
 		suite.SetupTest()
 
 		suite.T().Fail()
 	})
 	suite.Run("Fail on record not found", func() {
+
+		suite.T().Skip("TODO: finish the implementation")
 		suite.TearDownTest()
 		suite.SetupTest()
 
@@ -238,6 +242,8 @@ func (suite *TaskRepoTestSuite) TestGetAll() {
 
 func (suite *TaskRepoTestSuite) TestGetByID() {
 	suite.Run("Success", func() {
+
+		suite.T().Skip("TODO: finish the implementation")
 		suite.TearDownTest()
 		suite.SetupTest()
 
@@ -246,12 +252,16 @@ func (suite *TaskRepoTestSuite) TestGetByID() {
 
 	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
 	suite.Run("Fail on database error-timeout", func() {
+
+		suite.T().Skip("TODO: finish the implementation")
 		suite.TearDownTest()
 		suite.SetupTest()
 
 		suite.T().Fail()
 	})
 	suite.Run("Fail on record not found", func() {
+
+		suite.T().Skip("TODO: finish the implementation")
 		suite.TearDownTest()
 		suite.SetupTest()
 
@@ -317,46 +327,31 @@ func (suite *TaskRepoTestSuite) TestInsert() {
 
 func (suite *TaskRepoTestSuite) TestUpdate() {
 	suite.Run("Success", func() {
-		suite.TearDownTest()
-		suite.SetupTest()
-
-		suite.T().Fail()
+		suite.T().Skip("TODO: finish the implementation")
 	})
 
 	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
 	suite.Run("Fail on database error-timeout", func() {
-		suite.TearDownTest()
-		suite.SetupTest()
-
-		suite.T().Fail()
+		suite.T().Skip("TODO: finish the implementation")
 	})
 	suite.Run("Fail on database error: edit conflict", func() {
-		suite.TearDownTest()
-		suite.SetupTest()
-
-		suite.T().Fail()
+		suite.T().Skip("TODO: finish the implementation")
 	})
 }
 
 func (suite *TaskRepoTestSuite) TestDelete() {
 	suite.Run("Success", func() {
-		suite.TearDownTest()
-		suite.SetupTest()
 
-		suite.T().Fail()
+		suite.T().Skip("TODO: finish the implementation")
 	})
 
 	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
 	suite.Run("Fail on database error-timeout", func() {
-		suite.TearDownTest()
-		suite.SetupTest()
 
-		suite.T().Fail()
+		suite.T().Skip("TODO: finish the implementation")
+
 	})
 	suite.Run("Fail on record not found", func() {
-		suite.TearDownTest()
-		suite.SetupTest()
-
-		suite.T().Fail()
+		suite.T().Skip("TODO: finish the implementation")
 	})
 }
