@@ -45,8 +45,8 @@ func NewUserAPI(router *httprouter.Router,
 
 	api := &userAPI{uu: uu, tu: tu, pool: pool, mailer: mailer, rc: rc}
 
-	router.Handler(http.MethodPost, "/v1/users/registration", rc.HandlerWrapper(api.RegisterUser))
-	router.Handler(http.MethodPut, "/v1/users/activation", rc.HandlerWrapper(api.ActivateUser))
+	router.HandlerFunc(http.MethodPost, "/v1/users/registration", api.RegisterUser)
+	router.HandlerFunc(http.MethodPut, "/v1/users/activation", api.ActivateUser)
 }
 
 // RegisterUser registers user based on given information.
@@ -60,17 +60,15 @@ func NewUserAPI(router *httprouter.Router,
 // @Failure 404 {object} reactor.ErrorResponse
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/users/registration [post]
-func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) error {
-	const op errors.Op = "userAPI.RegisterUser"
-
+func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	// Create an anonymous struct to hold the expected data from the request body.
 	var input UserRegistrationRequest
 
 	// Parse the request body into the anonymous struct.
-	err := reactor.ReadJSON(w, r, &input)
+	err := u.rc.ReadJSON(w, r, &input)
 	if err != nil {
-		// we don't want to leak detail of implementation, so we don't use op.
-		return reactor.BadRequestResponse(w, r, err)
+		u.rc.BadRequestResponse(w, r, err)
+		return
 	}
 
 	user := &domain.User{
@@ -81,8 +79,8 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) error {
 
 	err = user.Password.Set(input.Password)
 	if err != nil {
-		// Treated as errors.ErrInternal
-		return errors.E(op, errors.Msg("failed to set password"), errors.ErrInternal, err)
+		u.rc.ServerErrorResponse(w, r, err)
+		return
 	}
 
 	v := validator.New()
@@ -90,7 +88,8 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) error {
 	// Validate the user struct and return the error messages to the client if any of
 	// the checks fail.
 	if domain.ValidateUser(v, user); !v.Valid() {
-		return reactor.FailedValidationResponse(w, r, v.Err())
+		u.rc.FailedValidationResponse(w, r, v.Err())
+		return
 	}
 
 	ctx := r.Context()
@@ -101,9 +100,11 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) error {
 		switch {
 		case errors.KindIs(err, errors.ErrDuplicateEmail):
 			v.AddError("email", "a user with this email address already exists")
-			return reactor.FailedValidationResponse(w, r, v.Err())
+			u.rc.FailedValidationResponse(w, r, v.Err())
+			return
 		default:
-			return errors.E(op, errors.ErrInternal, err)
+			u.rc.ServerErrorResponse(w, r, err)
+			return
 		}
 	}
 
@@ -111,15 +112,19 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) error {
 	// token for the user, and insert it to the database.
 	token, err := domain.GenerateToken(user.ID, 3*24*time.Hour, domain.ScopeActivation)
 	if err != nil {
-		return errors.E(op, errors.ErrInternal, err)
+		u.rc.ServerErrorResponse(w, r, err)
+		return
 	}
 
 	err = u.tu.Insert(ctx, token)
 	if err != nil {
-		return errors.E(op, errors.ErrInternal, err)
+		u.rc.ServerErrorResponse(w, r, err)
+		return
 	}
 
 	u.pool.Schedule(func() {
+		const op errors.Op = "userAPI.RegisterUser"
+
 		data := map[string]interface{}{
 			"activationToken": token.Plaintext,
 			"userID":          user.ID,
@@ -141,7 +146,10 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	return reactor.WriteJSON(w, http.StatusAccepted, &UserRegistrationResponse{User: user})
+	err = u.rc.WriteJSON(w, http.StatusAccepted, &UserRegistrationResponse{User: user})
+	if err != nil {
+		u.rc.ServerErrorResponse(w, r, err)
+	}
 }
 
 // ActivateUser activates user based on given token.
@@ -154,17 +162,16 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) error {
 // @Failure 404 {object} reactor.ErrorResponse
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/users/activation [put]
-func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) error {
-	const op errors.Op = "userAPI.ActivateUser"
-
+func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
 	// Read token from request query string.
 	qs := r.URL.Query()
-	tokenPlaintext := reactor.ReadString(qs, "token", "")
+	tokenPlaintext := u.rc.ReadString(qs, "token", "")
 
 	v := validator.New()
 
 	if domain.ValidateTokenPlaintext(v, tokenPlaintext); !v.Valid() {
-		return reactor.FailedValidationResponse(w, r, v.Err())
+		u.rc.FailedValidationResponse(w, r, v.Err())
+		return
 	}
 
 	ctx := r.Context()
@@ -174,9 +181,11 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) error {
 		switch {
 		case errors.KindIs(err, errors.ErrRecordNotFound):
 			v.AddError("token", "invalid or expired activation token")
-			return reactor.FailedValidationResponse(w, r, v.Err())
+			u.rc.FailedValidationResponse(w, r, v.Err())
+			return
 		default:
-			return errors.E(op, errors.ErrInternal, err)
+			u.rc.ServerErrorResponse(w, r, err)
+			return
 		}
 	}
 
@@ -189,9 +198,11 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		switch {
 		case errors.KindIs(err, errors.ErrEditConflict):
-			return reactor.EditConflictResponse(w, r)
+			u.rc.EditConflictResponse(w, r)
+			return
 		default:
-			return errors.E(op, errors.ErrInternal, err)
+			u.rc.ServerErrorResponse(w, r, err)
+			return
 		}
 	}
 
@@ -199,14 +210,13 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) error {
 	// user.
 	err = u.tu.DeleteAllForUser(ctx, domain.ScopeActivation, user.ID)
 	if err != nil {
-		return errors.E(op, errors.ErrInternal, err)
+		u.rc.ServerErrorResponse(w, r, err)
+		return
 	}
 
 	// Send the updated user details to the client in a JSON response.
-	err = reactor.WriteJSON(w, http.StatusOK, &UserActivationResponse{User: user})
+	err = u.rc.WriteJSON(w, http.StatusOK, &UserActivationResponse{User: user})
 	if err != nil {
-		return errors.E(op, errors.ErrInternal, err)
+		u.rc.ServerErrorResponse(w, r, err)
 	}
-
-	return nil
 }

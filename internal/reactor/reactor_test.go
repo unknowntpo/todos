@@ -30,19 +30,18 @@ func TestHandlerWrapper(t *testing.T) {
 
 	router := httprouter.New()
 
-	h := func(w http.ResponseWriter, r *http.Request) error {
-		const op errors.Op = "dummyHandler.Get"
+	h := func(w http.ResponseWriter, r *http.Request) {
 		err := errors.New("something goes wrong")
 
-		return errors.E(op, err)
+		rc.ServerErrorResponse(w, r, err)
 	}
 
 	// attach our handler with rc.HandlerWrapper
-	router.Handler(http.MethodGet, "/", rc.HandlerWrapper(h))
+	router.HandlerFunc(http.MethodGet, "/", h)
 
 	router.ServeHTTP(rr, r)
 
-	wantMsg := "dummyHandler.Get: something goes wrong"
+	wantMsg := "something goes wrong"
 
 	wantBodyMsg := "the server encountered a problem and could not process your request"
 	assert.Contains(t, rr.Body.String(), wantBodyMsg, "response should contain these message")

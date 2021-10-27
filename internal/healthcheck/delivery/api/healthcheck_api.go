@@ -24,7 +24,7 @@ type HealthcheckResponse struct {
 // NewHealthcheckAPI registers all handlers in /v1/healcheck to the router.
 func NewHealthcheckAPI(router *httprouter.Router, version, env string, rc *reactor.Reactor) {
 	api := &healthcheckAPI{version: version, env: env, rc: rc}
-	router.Handler(http.MethodGet, "/v1/healthcheck", rc.HandlerWrapper(api.Healthcheck))
+	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", api.Healthcheck)
 }
 
 // Healthcheck shows status of service.
@@ -33,8 +33,8 @@ func NewHealthcheckAPI(router *httprouter.Router, version, env string, rc *react
 // @Produce json
 // @Success 200 {object} HealthcheckResponse
 // @Router /v1/healthcheck [get]
-func (h *healthcheckAPI) Healthcheck(w http.ResponseWriter, r *http.Request) error {
-	return reactor.WriteJSON(w, http.StatusOK, &HealthcheckResponse{
+func (h *healthcheckAPI) Healthcheck(w http.ResponseWriter, r *http.Request) {
+	h.rc.WriteJSON(w, http.StatusOK, &HealthcheckResponse{
 		Status:      "available",
 		Version:     h.version,
 		Environment: h.env,

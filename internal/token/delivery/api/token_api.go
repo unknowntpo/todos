@@ -29,7 +29,7 @@ type AuthenticationResponse struct {
 
 func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase, uu domain.UserUsecase, rc *reactor.Reactor) {
 	api := &tokenAPI{TU: tu, UU: uu, rc: rc}
-	router.Handler(http.MethodPost, "/v1/tokens/authentication", rc.HandlerWrapper(api.CreateAuthenticationToken))
+	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", api.CreateAuthenticationToken)
 }
 
 // @Summary Create authentication token for user.
@@ -39,14 +39,14 @@ func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase, uu domain.Us
 // @Param authentication_request_body body AuthenticationRequestBody true "authentication request body"
 // @Success 200 {object} AuthenticationResponse
 // @Router /v1/tokens/authentication [post]
-func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Request) error {
-	const op errors.Op = "tokenAPI.CreateAuthenticationToken"
+func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Request) {
 	// Parse the email and password from the request body.
 	var input AuthenticationRequestBody
 
-	err := reactor.ReadJSON(w, r, &input)
+	err := t.rc.ReadJSON(w, r, &input)
 	if err != nil {
-		return reactor.BadRequestResponse(w, r, err)
+		t.rc.BadRequestResponse(w, r, err)
+		return
 	}
 
 	// Validate the email and password provided by the client.
@@ -56,7 +56,8 @@ func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Requ
 	domain.ValidatePasswordPlaintext(v, input.Password)
 
 	if !v.Valid() {
-		return reactor.FailedValidationResponse(w, r, v.Err())
+		t.rc.FailedValidationResponse(w, r, v.Err())
+		return
 	}
 
 	ctx := r.Context()
@@ -65,35 +66,45 @@ func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		switch {
 		case errors.KindIs(err, errors.ErrRecordNotFound):
-			return reactor.InvalidCredentialsResponse(w, r)
+			t.rc.InvalidCredentialsResponse(w, r)
+			return
 		default:
-			return errors.E(op, errors.Msg("failed to get user by email"), err)
+			t.rc.ServerErrorResponse(w, r, err)
+			return
 		}
 	}
 
 	// Check if the provided password matches the actual password for the user.
 	match, err := user.Password.Matches(input.Password)
 	if err != nil {
-		return errors.E(op, err)
+		t.rc.ServerErrorResponse(w, r, err)
+		return
 	}
 
 	if !match {
-		return reactor.InvalidCredentialsResponse(w, r)
+		t.rc.InvalidCredentialsResponse(w, r)
+		return
 	}
 
 	// Otherwise, if the password is correct, we generate a new token with a 24-hour
 	// expiry time and the scope 'authentication'.
 	token, err := domain.GenerateToken(user.ID, 24*time.Hour, domain.ScopeAuthentication)
 	if err != nil {
-		return errors.E(op, err)
+		t.rc.ServerErrorResponse(w, r, err)
+		return
 	}
 
 	err = t.TU.Insert(ctx, token)
 	if err != nil {
-		return errors.E(op, err)
+		t.rc.ServerErrorResponse(w, r, err)
+		return
 	}
 
 	// Encode the token to JSON and send it in the response along with a 201 Created
 	// status code.
-	return reactor.WriteJSON(w, http.StatusCreated, &AuthenticationResponse{Token: token})
+	err = t.rc.WriteJSON(w, http.StatusCreated, &AuthenticationResponse{Token: token})
+	if err != nil {
+		t.rc.ServerErrorResponse(w, r, err)
+		return
+	}
 }

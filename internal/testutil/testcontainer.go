@@ -28,7 +28,7 @@ func CreatePostgresTestContainer(ctx context.Context, dbname string) (testcontai
 			ExposedPorts: []string{port},
 			Cmd:          []string{"postgres", "-c", "fsync=off"},
 			Env:          env,
-			WaitingFor:   wait.ForSQL(nat.Port(port), "postgres", dbURL).Timeout(time.Second * 5),
+			WaitingFor:   wait.ForSQL(nat.Port(port), "postgres", dbURL).Timeout(time.Second * 20),
 		},
 		Started: true,
 	}
