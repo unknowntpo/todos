@@ -20,4 +20,4 @@ steps:
     settings:
       token: "e05e9a00-8a97-442f-a610-0b8a2b3b4761"
       files:
-        - "*.xml"
+        - "*.go"
