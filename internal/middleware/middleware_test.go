@@ -16,15 +16,15 @@ import (
 
 type MiddlewareTestSuite struct {
 	suite.Suite
-	mid *Middleware
-	buf *bytes.Buffer
+	mid    *Middleware
+	logBuf *bytes.Buffer
 }
 
 func (suite *MiddlewareTestSuite) SetupSuite() {
 	// init new instance for Middleware
 	// logger
-	suite.buf = new(bytes.Buffer)
-	logger := zerolog.New(suite.buf)
+	suite.logBuf = new(bytes.Buffer)
+	logger := zerolog.New(suite.logBuf)
 
 	rc := reactor.NewReactor(logger)
 
@@ -74,5 +74,6 @@ func (suite *MiddlewareTestSuite) TestRecoverPanic() {
 	suite.Equal("close", gotConnectionHeader, "wrong Connection header")
 	// Check if we got serverError response
 	// FIXME: Why ServerError not shown in response ?
-	suite.T().Log(rr.Body.String())
+	suite.Contains(rr.Body.String(), `"error": "the server encountered a problem and could not process your request"`, "response body should contain internal server error message")
+	suite.Contains(suite.logBuf.String(), "deliberated panic", "logger should contain panic message")
 }
