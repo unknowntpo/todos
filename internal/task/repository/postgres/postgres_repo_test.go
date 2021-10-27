@@ -23,6 +23,10 @@ type TaskRepoTestSuite struct {
 }
 
 func (suite *TaskRepoTestSuite) SetupSuite() {
+	if testing.Short() {
+		suite.T().Skip("skipping integration test")
+	}
+
 	ctx := context.Background()
 
 	container, db, err := testutil.CreatePostgresTestContainer(ctx, "testdb")

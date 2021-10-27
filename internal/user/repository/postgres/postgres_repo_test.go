@@ -22,6 +22,10 @@ type UserRepoTestSuite struct {
 }
 
 func (suite *UserRepoTestSuite) SetupSuite() {
+	if testing.Short() {
+		suite.T().Skip("skipping integration test")
+	}
+
 	ctx := context.Background()
 
 	container, db, err := testutil.CreatePostgresTestContainer(ctx, "testdb")
@@ -70,6 +74,10 @@ func TestUserRepoTestSuite(t *testing.T) {
 }
 
 func (suite *UserRepoTestSuite) TestInsert() {
+	if testing.Short() {
+		suite.T().Skip("skipping integration test")
+	}
+
 	suite.Run("Success", func() {
 		suite.TearDownTest()
 		suite.SetupTest()
@@ -129,6 +137,10 @@ func (suite *UserRepoTestSuite) TestInsert() {
 }
 
 func (suite *UserRepoTestSuite) TestGetByEmail() {
+	if testing.Short() {
+		suite.T().Skip("skipping integration test")
+	}
+
 	suite.Run("Success", func() {
 		suite.TearDownTest()
 		suite.SetupTest()
@@ -188,6 +200,10 @@ func (suite *UserRepoTestSuite) TestGetByEmail() {
 }
 
 func (suite *UserRepoTestSuite) TestUpdate() {
+	if testing.Short() {
+		suite.T().Skip("skipping integration test")
+	}
+
 	suite.Run("Success", func() {
 		suite.TearDownTest()
 		suite.SetupTest()
@@ -287,6 +303,10 @@ func (suite *UserRepoTestSuite) TestUpdate() {
 }
 
 func (suite *UserRepoTestSuite) TestGetForToken() {
+	if testing.Short() {
+		suite.T().Skip("skipping integration test")
+	}
+
 	suite.Run("Success", func() {
 		suite.TearDownTest()
 		suite.SetupTest()
