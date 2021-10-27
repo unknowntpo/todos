@@ -14,7 +14,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func WriteJSON(w http.ResponseWriter, status int, data interface{}) error {
+func (rc *Reactor) WriteJSON(w http.ResponseWriter, status int, data interface{}) error {
 	const op errors.Op = "Context.WriteJSON"
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
@@ -31,7 +31,7 @@ func WriteJSON(w http.ResponseWriter, status int, data interface{}) error {
 	return nil
 }
 
-func ReadJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+func (rc *Reactor) ReadJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	const op errors.Op = "Context.ReadJSON"
 
 	maxBytes := 1_048_576
@@ -115,7 +115,7 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	return nil
 }
 
-func ReadIDParam(r *http.Request) (int64, error) {
+func (rc *Reactor) ReadIDParam(r *http.Request) (int64, error) {
 	params := httprouter.ParamsFromContext(r.Context())
 
 	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
@@ -128,7 +128,7 @@ func ReadIDParam(r *http.Request) (int64, error) {
 
 // ReadString returns a string value from the query string, or the provided
 // default value if no matching key could be found.
-func ReadString(qs url.Values, key string, defaultValue string) string {
+func (rc *Reactor) ReadString(qs url.Values, key string, defaultValue string) string {
 	s := qs.Get(key)
 
 	if s == "" {
@@ -141,7 +141,7 @@ func ReadString(qs url.Values, key string, defaultValue string) string {
 // The ReadCSV reads a string value from the query string and then splits it
 // into a slice on the comma character. If no matching key count be found, it returns
 // the provided default value.
-func ReadCSV(qs url.Values, key string, defaultValue []string) []string {
+func (rc *Reactor) ReadCSV(qs url.Values, key string, defaultValue []string) []string {
 	csv := qs.Get(key)
 
 	if csv == "" {
@@ -156,7 +156,7 @@ func ReadCSV(qs url.Values, key string, defaultValue []string) []string {
 // default value. If the value couldn't be converted to an integer, then we record an
 // error message in the provided Validator instance.
 // TODO: Use interface to accept different validator.
-func ReadInt(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
+func (rc *Reactor) ReadInt(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
 	s := qs.Get(key)
 
 	if s == "" {

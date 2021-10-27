@@ -57,11 +57,11 @@ type taskAPI struct {
 
 func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, mid *middleware.Middleware, rc *reactor.Reactor) {
 	api := &taskAPI{tu: tu, mid: mid, rc: rc}
-	router.Handler(http.MethodGet, "/v1/tasks", mid.RequireAuthenticatedUser(rc.HandlerWrapper(api.GetAll)))
-	router.Handler(http.MethodGet, "/v1/tasks/:id", mid.RequireAuthenticatedUser(rc.HandlerWrapper(api.GetByID)))
-	router.Handler(http.MethodPost, "/v1/tasks", mid.RequireAuthenticatedUser(rc.HandlerWrapper(api.Insert)))
-	router.Handler(http.MethodPatch, "/v1/tasks/:id", mid.RequireAuthenticatedUser(rc.HandlerWrapper(api.Update)))
-	router.Handler(http.MethodDelete, "/v1/tasks/:id", mid.RequireAuthenticatedUser(rc.HandlerWrapper(api.Delete)))
+	router.Handler(http.MethodGet, "/v1/tasks", mid.RequireAuthenticatedUser(http.HandlerFunc(api.GetAll)))
+	router.Handler(http.MethodGet, "/v1/tasks/:id", mid.RequireAuthenticatedUser(http.HandlerFunc(api.GetByID)))
+	router.Handler(http.MethodPost, "/v1/tasks", mid.RequireAuthenticatedUser(http.HandlerFunc(api.Insert)))
+	router.Handler(http.MethodPatch, "/v1/tasks/:id", mid.RequireAuthenticatedUser(http.HandlerFunc(api.Update)))
+	router.Handler(http.MethodDelete, "/v1/tasks/:id", mid.RequireAuthenticatedUser(http.HandlerFunc(api.Delete)))
 }
 
 // GetAll gets all tasks.
@@ -81,9 +81,7 @@ func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, mid *middlewar
 // @Failure 404 {object} reactor.ErrorResponse
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/tasks [get]
-func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) error {
-	const op errors.Op = "taskAPI.GetAll"
-
+func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 	user := helpers.ContextGetUser(r)
 
 	var input struct {
@@ -94,33 +92,32 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) error {
 	v := validator.New()
 
 	qs := r.URL.Query()
-	input.Title = reactor.ReadString(qs, "title", "")
-	input.CurrentPage = reactor.ReadInt(qs, "page", 1, v)
-	input.PageSize = reactor.ReadInt(qs, "page_size", 20, v)
+	input.Title = t.rc.ReadString(qs, "title", "")
+	input.CurrentPage = t.rc.ReadInt(qs, "page", 1, v)
+	input.PageSize = t.rc.ReadInt(qs, "page_size", 20, v)
 
-	input.Sort = reactor.ReadString(qs, "sort", "id")
+	input.Sort = t.rc.ReadString(qs, "sort", "id")
 	input.Filters.SortSafelist = []string{"id", "title", "-id", "-title"}
 
 	if domain.ValidateFilters(v, input.Filters); !v.Valid() {
-		return reactor.FailedValidationResponse(w, r, v.Err())
+		t.rc.FailedValidationResponse(w, r, v.Err())
+		return
 	}
 
 	ctx := r.Context()
 	tasks, metadata, err := t.tu.GetAll(ctx, user.ID, input.Title, input.Filters)
 	if err != nil {
-		return errors.E(op, err)
+		t.rc.ServerErrorResponse(w, r, err)
+		return
 	}
 
-	err = reactor.WriteJSON(w, http.StatusOK, &GetAllTasksResponse{
+	err = t.rc.WriteJSON(w, http.StatusOK, &GetAllTasksResponse{
 		Metadata: &metadata,
 		Tasks:    tasks,
 	})
 	if err != nil {
-		// TODO: tweak the message shown in error chain.
-		return errors.E(op, err)
+		t.rc.ServerErrorResponse(w, r, err)
 	}
-
-	return nil
 }
 
 // GetByID gets a task by its ID.
@@ -135,13 +132,13 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) error {
 // @Failure 404 {object} reactor.ErrorResponse
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/tasks/{taskID} [get]
-func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) error {
-	const op errors.Op = "GetByID"
+func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 	user := helpers.ContextGetUser(r)
 
-	id, err := reactor.ReadIDParam(r)
+	id, err := t.rc.ReadIDParam(r)
 	if err != nil {
-		return reactor.NotFoundResponse(w, r)
+		t.rc.NotFoundResponse(w, r)
+		return
 	}
 
 	ctx := r.Context()
@@ -149,13 +146,18 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		switch {
 		case errors.KindIs(err, errors.ErrRecordNotFound):
-			return reactor.NotFoundResponse(w, r)
+			t.rc.NotFoundResponse(w, r)
+			return
 		default:
-			return errors.E(op, err)
+			t.rc.ServerErrorResponse(w, r, err)
+			return
 		}
 	}
 
-	return reactor.WriteJSON(w, http.StatusOK, GetTaskByIDResponse{task})
+	err = t.rc.WriteJSON(w, http.StatusOK, GetTaskByIDResponse{task})
+	if err != nil {
+		t.rc.ServerErrorResponse(w, r, err)
+	}
 }
 
 // Insert inserts a new task.
@@ -171,15 +173,14 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) error {
 // @Failure 404 {object} reactor.ErrorResponse
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/tasks [post]
-func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) error {
-	const op errors.Op = "taksAPI.Insert"
-
+func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
 	var input CreateTaskRequest
 	user := helpers.ContextGetUser(r)
 
-	err := reactor.ReadJSON(w, r, &input)
+	err := t.rc.ReadJSON(w, r, &input)
 	if err != nil {
-		return reactor.BadRequestResponse(w, r, err)
+		t.rc.BadRequestResponse(w, r, err)
+		return
 	}
 
 	task := &domain.Task{
@@ -192,25 +193,25 @@ func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) error {
 	v := validator.New()
 
 	if domain.ValidateTask(v, task); !v.Valid() {
-		return reactor.FailedValidationResponse(w, r, v.Err())
+		t.rc.FailedValidationResponse(w, r, v.Err())
+		return
 	}
 
 	ctx := r.Context()
 	err = t.tu.Insert(ctx, user.ID, task)
 	if err != nil {
-		return errors.E(op, err)
+		t.rc.ServerErrorResponse(w, r, err)
+		return
 	}
 
 	w.Header().Set("Location", fmt.Sprintf("/v1/tasks/%d", task.ID))
 
 	// Write a JSON response with a 201 Created status code, the task data in the
 	// response body, and the Location header.
-	err = reactor.WriteJSON(w, http.StatusCreated, &CreateTaskResponse{task})
+	err = t.rc.WriteJSON(w, http.StatusCreated, &CreateTaskResponse{task})
 	if err != nil {
-		return errors.E(op, err)
+		t.rc.ServerErrorResponse(w, r, err)
 	}
-
-	return nil
 }
 
 // Update updates an exist task for specific user.
@@ -226,20 +227,20 @@ func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) error {
 // @Failure 404 {object} reactor.ErrorResponse
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/tasks/{taskID} [patch]
-func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) error {
-	const op errors.Op = "taskAPI.Update"
-
+func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	user := helpers.ContextGetUser(r)
 
-	taskID, err := reactor.ReadIDParam(r)
+	taskID, err := t.rc.ReadIDParam(r)
 	if err != nil {
-		return reactor.NotFoundResponse(w, r)
+		t.rc.NotFoundResponse(w, r)
+		return
 	}
 
 	ctx := r.Context()
 	task, err := t.tu.GetByID(ctx, user.ID, taskID)
 	if err != nil {
-		return errors.E(op, err)
+		t.rc.ServerErrorResponse(w, r, err)
+		return
 	}
 
 	var input struct {
@@ -248,9 +249,11 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) error {
 		Done    *bool   `json:"done"`    // true if task is done
 	}
 
-	err = reactor.ReadJSON(w, r, &input)
+	err = t.rc.ReadJSON(w, r, &input)
 	if err != nil {
-		return errors.E(op, err)
+		t.rc.ServerErrorResponse(w, r, err)
+		return
+
 	}
 
 	if input.Title != nil {
@@ -268,16 +271,21 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) error {
 	v := validator.New()
 
 	if domain.ValidateTask(v, task); !v.Valid() {
-		return reactor.FailedValidationResponse(w, r, v.Err())
+		t.rc.FailedValidationResponse(w, r, v.Err())
+		return
 	}
 
 	ctx = r.Context()
 	err = t.tu.Update(ctx, task)
 	if err != nil {
-		return errors.E(op, err)
+		t.rc.ServerErrorResponse(w, r, err)
+		return
 	}
 
-	return reactor.WriteJSON(w, http.StatusOK, &UpdateTaskByIDResponse{task})
+	err = t.rc.WriteJSON(w, http.StatusOK, &UpdateTaskByIDResponse{task})
+	if err != nil {
+		t.rc.ServerErrorResponse(w, r, err)
+	}
 }
 
 // Delete delets an exist task.
@@ -293,15 +301,14 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) error {
 // @Failure 404 {object} reactor.ErrorResponse
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/tasks/{taskID} [delete]
-func (t *taskAPI) Delete(w http.ResponseWriter, r *http.Request) error {
-	const op errors.Op = "taskAPI.Delete"
-
+func (t *taskAPI) Delete(w http.ResponseWriter, r *http.Request) {
 	user := helpers.ContextGetUser(r)
 
 	// Extract the task ID from the URL.
-	taskID, err := reactor.ReadIDParam(r)
+	taskID, err := t.rc.ReadIDParam(r)
 	if err != nil {
-		return reactor.NotFoundResponse(w, r)
+		t.rc.NotFoundResponse(w, r)
+		return
 	}
 
 	ctx := r.Context()
@@ -309,11 +316,17 @@ func (t *taskAPI) Delete(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		switch {
 		case errors.KindIs(err, errors.ErrRecordNotFound):
-			return reactor.NotFoundResponse(w, r)
+			t.rc.NotFoundResponse(w, r)
+			return
 		default:
-			return errors.E(op, err)
+			t.rc.ServerErrorResponse(w, r, err)
+			return
 		}
 	}
 
-	return reactor.WriteJSON(w, http.StatusOK, &DeleteTaskByIDResponse{"task successfully deleted"})
+	err = t.rc.WriteJSON(w, http.StatusOK, &DeleteTaskByIDResponse{"task successfully deleted"})
+	if err != nil {
+		t.rc.ServerErrorResponse(w, r, err)
+		return
+	}
 }

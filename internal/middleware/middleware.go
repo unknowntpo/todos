@@ -36,8 +36,7 @@ func (mid *Middleware) RecoverPanic(next http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				w.Header().Set("Connection", "close")
-				mid.rc.Logger.PrintError(errors.New(fmt.Sprintf("%s", err)), nil)
-				reactor.ServerErrorResponse(w, r)
+				mid.rc.ServerErrorResponse(w, r, errors.New(fmt.Sprintf("%s", err)))
 			}
 		}()
 

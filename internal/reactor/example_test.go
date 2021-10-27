@@ -12,8 +12,17 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func helloHandler(w http.ResponseWriter, r *http.Request) error {
-	return WriteJSON(w, http.StatusOK, "Hello from helloHandler")
+type hello struct {
+	rc *Reactor
+}
+
+func NewHello(router *httprouter.Router, rc *Reactor) {
+	hello := &hello{rc}
+	router.HandlerFunc(http.MethodGet, "/", hello.helloHandler)
+}
+
+func (h *hello) helloHandler(w http.ResponseWriter, r *http.Request) {
+	h.rc.WriteJSON(w, http.StatusOK, "Hello from helloHandler")
 }
 
 func Example_httprouter() {
@@ -32,8 +41,7 @@ func Example_httprouter() {
 
 	router := httprouter.New()
 
-	// attach our handler with rc.HandlerWrapper
-	router.Handler(http.MethodGet, "/", rc.HandlerWrapper(helloHandler))
+	NewHello(router, rc)
 
 	router.ServeHTTP(rr, r)
 
