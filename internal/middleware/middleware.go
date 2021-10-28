@@ -142,7 +142,7 @@ func (mid *Middleware) Authenticate(next http.Handler) http.Handler {
 		}
 
 		ctx := r.Context()
-		user, err := mid.usecase.GetForToken(ctx, domain.ScopeAuthentication, token)
+		user, err := mid.usecase.Authenticate(ctx, domain.ScopeAuthentication, token)
 		if err != nil {
 			switch {
 			case errors.KindIs(err, errors.ErrRecordNotFound):
