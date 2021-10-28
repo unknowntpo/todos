@@ -165,3 +165,14 @@ vendor:
 	go mod verify
 	@echo 'Vendoring dependencies...'
 	go mod vendor
+
+# ==================================================================================== #
+# PRODUCTION
+# ==================================================================================== #
+
+production_host_ip = todos.unknowntpo.net
+
+## production/connect: connect to the production server
+.PHONY: production/connect
+production/connect:
+	ssh todos@${production_host_ip}
