@@ -11,12 +11,12 @@ import (
 
 	"github.com/unknowntpo/todos/config"
 	"github.com/unknowntpo/todos/internal/domain"
+	"github.com/unknowntpo/todos/internal/domain/errors"
 	"github.com/unknowntpo/todos/internal/helpers"
 	"github.com/unknowntpo/todos/internal/reactor"
 	"github.com/unknowntpo/todos/pkg/validator"
 
 	"github.com/felixge/httpsnoop"
-	"github.com/pkg/errors"
 	"github.com/tomasen/realip"
 	"golang.org/x/time/rate"
 )
@@ -98,7 +98,7 @@ func (mid *Middleware) RateLimit(next http.Handler) http.Handler {
 			// response, just like before.
 			if !clients[ip].limiter.Allow() {
 				mu.Unlock()
-				helpers.RateLimitExceededResponse(w, r)
+				mid.rc.RateLimitExceededResponse(w, r)
 				return
 			}
 
@@ -128,7 +128,7 @@ func (mid *Middleware) Authenticate(next http.Handler) http.Handler {
 		// "Bearer <token>".
 		headerParts := strings.Split(authorizationHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			helpers.InvalidAuthenticationTokenResponse(w, r)
+			mid.rc.InvalidAuthenticationTokenResponse(w, r)
 			return
 		}
 
@@ -137,7 +137,7 @@ func (mid *Middleware) Authenticate(next http.Handler) http.Handler {
 		v := validator.New()
 
 		if domain.ValidateTokenPlaintext(v, token); !v.Valid() {
-			helpers.InvalidAuthenticationTokenResponse(w, r)
+			mid.rc.InvalidAuthenticationTokenResponse(w, r)
 			return
 		}
 
@@ -145,10 +145,10 @@ func (mid *Middleware) Authenticate(next http.Handler) http.Handler {
 		user, err := mid.usecase.GetForToken(ctx, domain.ScopeAuthentication, token)
 		if err != nil {
 			switch {
-			case errors.Is(err, domain.ErrRecordNotFound):
-				helpers.InvalidAuthenticationTokenResponse(w, r)
+			case errors.KindIs(err, errors.ErrRecordNotFound):
+				mid.rc.InvalidAuthenticationTokenResponse(w, r)
 			default:
-				helpers.ServerErrorResponse(w, r, err)
+				mid.rc.ServerErrorResponse(w, r, err)
 			}
 			return
 		}
@@ -165,7 +165,7 @@ func (mid *Middleware) RequireAuthenticatedUser(next http.Handler) http.Handler 
 		user := helpers.ContextGetUser(r)
 
 		if user.IsAnonymous() {
-			helpers.AuthenticationRequiredResponse(w, r)
+			mid.rc.AuthenticationRequiredResponse(w, r)
 			return
 		}
 
@@ -180,7 +180,7 @@ func (mid *Middleware) RequireActivatedUser(next http.Handler) http.Handler {
 		user := helpers.ContextGetUser(r)
 
 		if !user.Activated {
-			helpers.InactiveAccountResponse(w, r)
+			mid.rc.InactiveAccountResponse(w, r)
 			return
 		}
 
