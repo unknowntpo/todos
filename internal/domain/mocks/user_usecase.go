@@ -14,29 +14,6 @@ type UserUsecase struct {
 	mock.Mock
 }
 
-// GetByEmail provides a mock function with given fields: ctx, email
-func (_m *UserUsecase) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
-	ret := _m.Called(ctx, email)
-
-	var r0 *domain.User
-	if rf, ok := ret.Get(0).(func(context.Context, string) *domain.User); ok {
-		r0 = rf(ctx, email)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*domain.User)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, email)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetForToken provides a mock function with given fields: ctx, tokenScope, tokenPlaintext
 func (_m *UserUsecase) GetForToken(ctx context.Context, tokenScope string, tokenPlaintext string) (*domain.User, error) {
 	ret := _m.Called(ctx, tokenScope, tokenPlaintext)
@@ -72,6 +49,29 @@ func (_m *UserUsecase) Insert(ctx context.Context, user *domain.User) error {
 	}
 
 	return r0
+}
+
+// Login provides a mock function with given fields: ctx, email, password
+func (_m *UserUsecase) Login(ctx context.Context, email string, password string) (*domain.Token, error) {
+	ret := _m.Called(ctx, email, password)
+
+	var r0 *domain.Token
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *domain.Token); ok {
+		r0 = rf(ctx, email, password)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.Token)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, email, password)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // Update provides a mock function with given fields: ctx, user

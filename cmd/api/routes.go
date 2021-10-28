@@ -37,7 +37,7 @@ func (app *application) newRoutes() http.Handler {
 
 	// usecase
 	taskUsecase := _taskUsecase.NewTaskUsecase(taskRepo, 3*time.Second)
-	userUsecase := _userUsecase.NewUserUsecase(userRepo, 3*time.Second)
+	userUsecase := _userUsecase.NewUserUsecase(userRepo, tokenRepo, 3*time.Second)
 	tokenUsecase := _tokenUsecase.NewTokenUsecase(tokenRepo, 3*time.Second)
 
 	// reactor
