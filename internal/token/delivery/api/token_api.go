@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/domain/errors"
@@ -61,43 +60,16 @@ func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Requ
 	}
 
 	ctx := r.Context()
-
-	user, err := t.UU.GetByEmail(ctx, input.Email)
+	token, err := t.UU.Login(ctx, input.Email, input.Password)
 	if err != nil {
 		switch {
-		case errors.KindIs(err, errors.ErrRecordNotFound):
+		case errors.KindIs(err, errors.ErrInvalidCredentials):
 			t.rc.InvalidCredentialsResponse(w, r)
 			return
 		default:
 			t.rc.ServerErrorResponse(w, r, err)
 			return
 		}
-	}
-
-	// Check if the provided password matches the actual password for the user.
-	match, err := user.Password.Matches(input.Password)
-	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	if !match {
-		t.rc.InvalidCredentialsResponse(w, r)
-		return
-	}
-
-	// Otherwise, if the password is correct, we generate a new token with a 24-hour
-	// expiry time and the scope 'authentication'.
-	token, err := domain.GenerateToken(user.ID, 24*time.Hour, domain.ScopeAuthentication)
-	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	err = t.TU.Insert(ctx, token)
-	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
-		return
 	}
 
 	// Encode the token to JSON and send it in the response along with a 201 Created

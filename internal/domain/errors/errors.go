@@ -137,11 +137,12 @@ func (e *Error) Unwrap() error { return e.Err }
 const (
 	Other Kind = iota // Unclassified error. This value is not printed in the error message.
 	// Maybe moved to httperror.go file ?
-	ErrRecordNotFound // Record not found when we request some resource in database.
-	ErrDuplicateEmail // Duplicate Email error.
-	ErrEditConflict   // Edit conflict while manipulating database.
-	ErrInternal       // Internal server error.
-	ErrDatabase       // Error happened while querying database, this should be treated as subset of internal error and logged it carefully.
+	ErrRecordNotFound     // Record not found when we request some resource in database.
+	ErrDuplicateEmail     // Duplicate Email error.
+	ErrEditConflict       // Edit conflict while manipulating database.
+	ErrInvalidCredentials // Edit conflict while manipulating database.
+	ErrInternal           // Internal server error.
+	ErrDatabase           // Error happened while querying database, this should be treated as subset of internal error and logged it carefully.
 )
 
 func (k Kind) String() string {
@@ -154,6 +155,8 @@ func (k Kind) String() string {
 		return "duplicate email"
 	case ErrEditConflict:
 		return "edit conflict"
+	case ErrInvalidCredentials:
+		return "invalid credentials"
 	case ErrInternal:
 		return "internal server error"
 	case ErrDatabase:
