@@ -14,8 +14,8 @@ type UserUsecase struct {
 	mock.Mock
 }
 
-// GetForToken provides a mock function with given fields: ctx, tokenScope, tokenPlaintext
-func (_m *UserUsecase) GetForToken(ctx context.Context, tokenScope string, tokenPlaintext string) (*domain.User, error) {
+// Authenticate provides a mock function with given fields: ctx, tokenScope, tokenPlaintext
+func (_m *UserUsecase) Authenticate(ctx context.Context, tokenScope string, tokenPlaintext string) (*domain.User, error) {
 	ret := _m.Called(ctx, tokenScope, tokenPlaintext)
 
 	var r0 *domain.User

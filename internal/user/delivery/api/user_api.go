@@ -176,7 +176,7 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	user, err := u.uu.GetForToken(ctx, domain.ScopeActivation, tokenPlaintext)
+	user, err := u.uu.Authenticate(ctx, domain.ScopeActivation, tokenPlaintext)
 	if err != nil {
 		switch {
 		case errors.KindIs(err, errors.ErrRecordNotFound):

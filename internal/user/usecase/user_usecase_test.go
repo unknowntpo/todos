@@ -63,7 +63,7 @@ func TestInsert(t *testing.T) {
 	})
 }
 
-func TestGetForToken(t *testing.T) {
+func TestAuthenticate(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		userRepo := new(_repoMock.UserRepository)
 		tokenRepo := new(_repoMock.TokenRepository)
@@ -83,7 +83,7 @@ func TestGetForToken(t *testing.T) {
 		userUsecase := NewUserUsecase(userRepo, tokenRepo, 3*time.Second)
 
 		ctx := context.TODO()
-		gotUser, err := userUsecase.GetForToken(ctx, token.Scope, token.Plaintext)
+		gotUser, err := userUsecase.Authenticate(ctx, token.Scope, token.Plaintext)
 		assert.NoError(t, err)
 
 		assert.Equal(t, user.ID, gotUser.ID, "user ID should be equal")
@@ -117,11 +117,11 @@ func TestGetForToken(t *testing.T) {
 		userUsecase := NewUserUsecase(userRepo, tokenRepo, 3*time.Second)
 
 		ctx := context.TODO()
-		gotUser, err := userUsecase.GetForToken(ctx, token.Scope, token.Plaintext)
+		gotUser, err := userUsecase.Authenticate(ctx, token.Scope, token.Plaintext)
 		assert.Nil(t, gotUser, "gotUser should be nil due to provided error")
 
 		assert.ErrorIs(t, err, dummyErr)
-		assert.Equal(t, "userUsecase.GetForToken: mockUserRepo.GetForToken: something goes wrong", err.Error(), "error message should be equal")
+		assert.Equal(t, "userUsecase.Authenticate: mockUserRepo.GetForToken: something goes wrong", err.Error(), "error message should be equal")
 
 		userRepo.AssertExpectations(t)
 	})

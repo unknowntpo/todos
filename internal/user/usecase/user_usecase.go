@@ -31,8 +31,11 @@ func (uu *userUsecase) Insert(ctx context.Context, user *domain.User) error {
 
 	return nil
 }
-func (uu *userUsecase) GetForToken(ctx context.Context, tokenScope, tokenPlaintext string) (*domain.User, error) {
-	const op errors.Op = "userUsecase.GetForToken"
+
+// Authenticate authenticates the user with given tokenScope and tokenPlaintext.
+// If succeed, returns user object and nil, if not return nil and the error.
+func (uu *userUsecase) Authenticate(ctx context.Context, tokenScope, tokenPlaintext string) (*domain.User, error) {
+	const op errors.Op = "userUsecase.Authenticate"
 
 	ctx, cancel := context.WithTimeout(ctx, uu.contextTimeout)
 	defer cancel()
@@ -44,6 +47,7 @@ func (uu *userUsecase) GetForToken(ctx context.Context, tokenScope, tokenPlainte
 
 	return user, nil
 }
+
 func (uu *userUsecase) Update(ctx context.Context, user *domain.User) error {
 	const op errors.Op = "userUsecase.Update"
 
