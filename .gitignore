@@ -1,1 +1,3 @@
 bin/
+gnuplot/*.png
+gnuplot/*.dat
