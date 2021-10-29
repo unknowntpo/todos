@@ -138,9 +138,23 @@ docs/show:
 	--mount type=bind,source="$(shell pwd)"/docs,target=/docs \
 	swaggerapi/swagger-ui
 
+# ==================================================================================== #
+# BENCHMARK
+# ==================================================================================== #
+
+## bench/naivepool: Run the benchmark of naivepool and output the plot.
+bench/naivepool:
+	#@cat perf.txt | sed -n 's/^BenchmarkExecute1000Tasks\///p' | awk '/(\w)+-[0-9]+/{print $$1, $$3}' > ./gnuplot/perf.dat
+	@go test -v ./pkg/naivepool -bench=. | \
+	    sed -n 's/^BenchmarkExecute1000Tasks\///p' | \
+	    awk '/(\w)+-[0-9]+/{print $$1, $$3}' > ./gnuplot/perf.dat
+	@gnuplot \
+		-e "output_path='./gnuplot/perf.png'" \
+		-e "input_path='./gnuplot/perf.dat'" \
+		./gnuplot/naivepool_perf.gp
 
 
-
+	
 
 # ==================================================================================== #
 # QUALITY CONTROL
