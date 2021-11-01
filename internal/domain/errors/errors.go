@@ -141,6 +141,7 @@ const (
 	ErrDuplicateEmail     // Duplicate Email error.
 	ErrEditConflict       // Edit conflict while manipulating database.
 	ErrInvalidCredentials // Edit conflict while manipulating database.
+	ErrFailedValidation   //  Failed validation error.
 	ErrInternal           // Internal server error.
 	ErrDatabase           // Error happened while querying database, this should be treated as subset of internal error and logged it carefully.
 )
@@ -157,6 +158,8 @@ func (k Kind) String() string {
 		return "edit conflict"
 	case ErrInvalidCredentials:
 		return "invalid credentials"
+	case ErrFailedValidation:
+		return "failed validation"
 	case ErrInternal:
 		return "internal server error"
 	case ErrDatabase:
