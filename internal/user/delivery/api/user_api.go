@@ -61,6 +61,8 @@ func NewUserAPI(router *httprouter.Router,
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/users/registration [post]
 func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
+	const op errors.Op = "userAPI.RegisterUser"
+
 	// Create an anonymous struct to hold the expected data from the request body.
 	var input UserRegistrationRequest
 
@@ -103,7 +105,7 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 			u.rc.FailedValidationResponse(w, r, v.Err())
 			return
 		default:
-			u.rc.ServerErrorResponse(w, r, err)
+			u.rc.ServerErrorResponse(w, r, errors.E(op, err))
 			return
 		}
 	}
@@ -176,12 +178,16 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	user, err := u.uu.Authenticate(ctx, domain.ScopeActivation, tokenPlaintext)
+	user, err := u.uu.Activate(ctx, tokenPlaintext)
 	if err != nil {
 		switch {
+		// should be ErrInvalidCredentials
 		case errors.KindIs(err, errors.ErrRecordNotFound):
 			v.AddError("token", "invalid or expired activation token")
 			u.rc.FailedValidationResponse(w, r, v.Err())
+			return
+		case errors.KindIs(err, errors.ErrEditConflict):
+			u.rc.EditConflictResponse(w, r)
 			return
 		default:
 			u.rc.ServerErrorResponse(w, r, err)

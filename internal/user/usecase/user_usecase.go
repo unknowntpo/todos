@@ -10,12 +10,12 @@ import (
 
 type userUsecase struct {
 	userRepo       domain.UserRepository
-	tokenRepo      domain.TokenRepository
+	tokenUsecase   domain.TokenUsecase
 	contextTimeout time.Duration
 }
 
-func NewUserUsecase(ur domain.UserRepository, tr domain.TokenRepository, timeout time.Duration) domain.UserUsecase {
-	return &userUsecase{userRepo: ur, tokenRepo: tr, contextTimeout: timeout}
+func NewUserUsecase(ur domain.UserRepository, tu domain.TokenUsecase, timeout time.Duration) domain.UserUsecase {
+	return &userUsecase{userRepo: ur, tokenUsecase: tu, contextTimeout: timeout}
 }
 
 func (uu *userUsecase) Insert(ctx context.Context, user *domain.User) error {
@@ -94,10 +94,44 @@ func (uu *userUsecase) Login(ctx context.Context, email, password string) (*doma
 		return nil, errors.E(op, err)
 	}
 
-	err = uu.tokenRepo.Insert(ctx, token)
+	err = uu.tokenUsecase.Insert(ctx, token)
 	if err != nil {
 		return nil, errors.E(op, err)
 	}
 
 	return token, nil
+}
+
+// Activate performs user activation and returns user, nil if succeed,
+// if failed, it returns nil and errors.ErrInvalidCredentials error,
+// if some internal server error happened, returns nil and wrapped error.
+func (uu *userUsecase) Activate(ctx context.Context, tokenPlaintext string) (*domain.User, error) {
+	const op errors.Op = "userUsecase.Activate"
+
+	ctx, cancel := context.WithTimeout(ctx, uu.contextTimeout)
+	defer cancel()
+
+	user, err := uu.Authenticate(ctx, domain.ScopeActivation, tokenPlaintext)
+	if err != nil {
+		return nil, errors.E(op, err)
+	}
+
+	// Update the user's activation status.
+	user.Activated = true
+
+	// Save the updated user record in our database, checking for any edit conflicts in
+	// the same way that we did for our movie records.
+	err = uu.Update(ctx, user)
+	if err != nil {
+		return nil, errors.E(op, err)
+	}
+
+	// If everything went successfully, then we delete all activation tokens for the
+	// user.
+	err = uu.tokenUsecase.DeleteAllForUser(ctx, domain.ScopeActivation, user.ID)
+	if err != nil {
+		return nil, errors.E(op, err)
+	}
+
+	return user, nil
 }
