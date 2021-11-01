@@ -7,8 +7,7 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
-
-	"github.com/pkg/errors"
+	"github.com/unknowntpo/todos/internal/domain/errors"
 )
 
 type userRepo struct {
@@ -24,6 +23,8 @@ func NewUserRepo(db *sql.DB) domain.UserRepository {
 // in method parameter.
 // If user is already in the database, return domain.ErrDuplicateEmail error.
 func (ur *userRepo) Insert(ctx context.Context, user *domain.User) error {
+	const op errors.Op = "userRepo.Insert"
+
 	query := `
         INSERT INTO users (name, email, password_hash, activated) 
         VALUES ($1, $2, $3, $4)
@@ -35,9 +36,12 @@ func (ur *userRepo) Insert(ctx context.Context, user *domain.User) error {
 	if err != nil {
 		switch {
 		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
-			return domain.ErrDuplicateEmail
+			// Just send our custom error type, we don't need error message from database, because at here,
+			// we don't treat err as error.
+			return errors.E(op, errors.ErrDuplicateEmail)
 		default:
-			return err
+			// ErrDatabase is a subset internal server error.
+			return errors.E(op, errors.ErrDatabase, err)
 		}
 	}
 
@@ -47,6 +51,8 @@ func (ur *userRepo) Insert(ctx context.Context, user *domain.User) error {
 // GetByEmail gets the User details from the database based on the user's email address.
 // If there's no record, domain.ErrRecordNotFound will be returned.
 func (ur *userRepo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+	const op errors.Op = "userRepo.GetByEmail"
+
 	query := `
         SELECT id, created_at, name, email, password_hash, activated, version
         FROM users
@@ -67,9 +73,9 @@ func (ur *userRepo) GetByEmail(ctx context.Context, email string) (*domain.User,
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, domain.ErrRecordNotFound
+			return nil, errors.E(op, errors.ErrRecordNotFound)
 		default:
-			return nil, err
+			return nil, errors.E(op, errors.ErrDatabase, err)
 		}
 	}
 
@@ -82,6 +88,8 @@ func (ur *userRepo) GetByEmail(ctx context.Context, email string) (*domain.User,
 // And we also check for a violation of the "users_email_key"
 // constraint when performing the update.
 func (ur *userRepo) Update(ctx context.Context, user *domain.User) error {
+	const op errors.Op = "userRepo.Update"
+
 	query := `
         UPDATE users 
         SET name = $1, email = $2, password_hash = $3, activated = $4, version = version + 1
@@ -101,11 +109,11 @@ func (ur *userRepo) Update(ctx context.Context, user *domain.User) error {
 	if err != nil {
 		switch {
 		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
-			return domain.ErrDuplicateEmail
+			return errors.E(op, errors.ErrDuplicateEmail)
 		case errors.Is(err, sql.ErrNoRows):
-			return domain.ErrEditConflict
+			return errors.E(op, errors.ErrEditConflict)
 		default:
-			return err
+			return errors.E(op, errors.ErrDatabase, err)
 		}
 	}
 
@@ -114,6 +122,8 @@ func (ur *userRepo) Update(ctx context.Context, user *domain.User) error {
 
 // GetForToken returns the user corresponding to the given token.
 func (ur *userRepo) GetForToken(ctx context.Context, tokenScope, tokenPlaintext string) (*domain.User, error) {
+	const op errors.Op = "userRepo.GetForToken"
+
 	// Calculate the SHA-256 hash of the plaintext token provided by the client.
 	// Remember that this returns a byte *array* with length 32, not a slice.
 	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
@@ -145,9 +155,9 @@ func (ur *userRepo) GetForToken(ctx context.Context, tokenScope, tokenPlaintext 
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, domain.ErrRecordNotFound
+			return nil, errors.E(op, errors.ErrRecordNotFound)
 		default:
-			return nil, err
+			return nil, errors.E(op, errors.ErrDatabase, err)
 		}
 	}
 
