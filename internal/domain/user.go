@@ -33,6 +33,7 @@ func (u *User) IsAnonymous() bool {
 type UserUsecase interface {
 	Insert(ctx context.Context, user *User) error
 	Update(ctx context.Context, user *User) error
+	Register(ctx context.Context, user *User) error
 	Activate(ctx context.Context, tokenPlaintext string) (*User, error)
 	Login(ctx context.Context, email, password string) (*Token, error)
 	Authenticate(ctx context.Context, tokenScope, tokenPlaintext string) (*User, error)

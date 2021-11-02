@@ -1,109 +1,162 @@
 package usecase
 
 import (
+	"bytes"
 	"context"
 	"testing"
 	"time"
 
+	"github.com/unknowntpo/todos/config"
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/domain/errors"
 	_repoMock "github.com/unknowntpo/todos/internal/domain/mocks"
+	"github.com/unknowntpo/todos/internal/logger"
+	"github.com/unknowntpo/todos/internal/logger/zerolog"
+	"github.com/unknowntpo/todos/internal/mailer"
 	"github.com/unknowntpo/todos/internal/testutil"
+	"github.com/unknowntpo/todos/pkg/naivepool"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestInsert(t *testing.T) {
-	// When success, it should return no error.
-	t.Run("Success", func(t *testing.T) {
-		userRepo := new(_repoMock.UserRepository)
-		// We don't use tokenRepo, just a placeholder.
-		tokenRepo := new(_repoMock.TokenRepository)
+type UserUsecaseTestSuite struct {
+	suite.Suite
+	userRepo   *_repoMock.UserRepository
+	tokenRepo  *_repoMock.TokenRepository
+	logBuf     *bytes.Buffer
+	logger     logger.Logger
+	pool       *naivepool.Pool
+	poolCancel context.CancelFunc
+	mailer     *mailer.Mailer
+	fakeUser   *domain.User
+}
 
-		fakeUser := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
+func (suite *UserUsecaseTestSuite) SetupSuite() {
+	maxJobs := 5
+	maxWorkers := 5
+	workerChanSize := 5
+	suite.pool = naivepool.New(maxJobs, maxWorkers, workerChanSize)
+	// Starting worker pool.
+	poolCtx, poolCancel := context.WithCancel(context.Background())
+	suite.poolCancel = poolCancel
 
-		userRepo.On("Insert", mock.Anything, mock.MatchedBy(func(user *domain.User) bool {
-			return user.Name == "Alice Smith" && user.Email == "alice@example.com"
+	suite.pool.Start(poolCtx)
+
+}
+
+func (suite *UserUsecaseTestSuite) TearDownSuite() {
+	suite.poolCancel()
+	suite.pool.Wait()
+}
+
+// SetupTest do migration up for each test.
+func (suite *UserUsecaseTestSuite) SetupTest() {
+	suite.userRepo = new(_repoMock.UserRepository)
+	suite.tokenRepo = new(_repoMock.TokenRepository)
+	suite.logBuf = new(bytes.Buffer)
+	suite.logger = zerolog.New(suite.logBuf)
+	suite.mailer = mailer.New(&config.Smtp{})
+	suite.fakeUser = testutil.NewFakeUser(suite.T(), "Alice Smith", "alice@example.com", "pa55word", false)
+
+}
+
+// SetupTest do migration down for each test to ensure the results of
+// this test won't affect to the result of next test.
+func (suite *UserUsecaseTestSuite) TearDownTest() {
+	suite.userRepo = nil
+	suite.tokenRepo = nil
+	suite.logBuf = nil
+	suite.logger = nil
+	suite.mailer = nil
+	suite.fakeUser = nil
+}
+
+// In order for 'go test' to run this suite, we need to create
+// a normal test function and pass our suite to suite.Run
+func TestUserUsecaseTestSuite(t *testing.T) {
+	suite.Run(t, new(UserUsecaseTestSuite))
+}
+
+func (suite *UserUsecaseTestSuite) TestInsert() {
+	suite.Run("Success", func() {
+		// Manually setup test because suite won't do it for us at each sub-test.
+		suite.SetupTest()
+		suite.userRepo.On("Insert", mock.Anything, mock.MatchedBy(func(user *domain.User) bool {
+			return user.Name == suite.fakeUser.Name && user.Email == suite.fakeUser.Email
 		})).Return(nil)
 
-		userUsecase := NewUserUsecase(userRepo, tokenRepo, 3*time.Second)
+		userUsecase := NewUserUsecase(suite.userRepo, suite.tokenRepo, suite.pool, suite.mailer, suite.logger, 3*time.Second)
 
 		ctx := context.TODO()
-		err := userUsecase.Insert(ctx, fakeUser)
-		assert.NoError(t, err)
+		err := userUsecase.Insert(ctx, suite.fakeUser)
+		suite.NoError(err)
 
-		userRepo.AssertExpectations(t)
+		suite.userRepo.AssertExpectations(suite.T())
+
+		// Manually tear down test because suite won't do it for us at each sub-test.
+		suite.TearDownTest()
 	})
 
-	t.Run("Fail with some errors", func(t *testing.T) {
-		userRepo := new(_repoMock.UserRepository)
-		tokenRepo := new(_repoMock.TokenRepository)
-
-		fakeUser := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
-
+	suite.Run("Fail with some errors", func() {
+		suite.SetupTest()
 		dummyErr := errors.New("something goes wrong")
 		wantErr := errors.E(errors.Op("mockUserRepo.Insert"), dummyErr)
 
-		userRepo.On("Insert", mock.Anything, mock.MatchedBy(func(user *domain.User) bool {
-			return user.Name == "Alice Smith" && user.Email == "alice@example.com"
+		suite.userRepo.On("Insert", mock.Anything, mock.MatchedBy(func(user *domain.User) bool {
+			return user.Name == suite.fakeUser.Name && user.Email == suite.fakeUser.Email
 		})).Return(wantErr)
 
-		userUsecase := NewUserUsecase(userRepo, tokenRepo, 3*time.Second)
+		userUsecase := NewUserUsecase(suite.userRepo, suite.tokenRepo, suite.pool, suite.mailer, suite.logger, 3*time.Second)
 
-		ctx, cancel := context.WithTimeout(context.Background(), -7*time.Minute)
-		defer cancel()
+		ctx := context.TODO()
 
-		err := userUsecase.Insert(ctx, fakeUser)
+		// FIXME: Why err == nil ??
+		err := userUsecase.Insert(ctx, suite.fakeUser)
 
-		assert.ErrorIs(t, err, dummyErr)
-		assert.Equal(t, "userUsecase.Insert: mockUserRepo.Insert: something goes wrong", err.Error(), "error message should be equal")
+		suite.ErrorIs(err, dummyErr)
+		suite.Equal("userUsecase.Insert: mockUserRepo.Insert: something goes wrong", err.Error(), "error message should be equal")
 
-		userRepo.AssertExpectations(t)
+		suite.userRepo.AssertExpectations(suite.T())
+		suite.TearDownTest()
 	})
 }
 
-func TestAuthenticate(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
-		userRepo := new(_repoMock.UserRepository)
-		tokenRepo := new(_repoMock.TokenRepository)
+func (suite *UserUsecaseTestSuite) TestAuthenticate() {
+	suite.Run("Success", func() {
+		suite.SetupTest()
 
-		// new fake user
-		user := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
-
-		token, err := domain.GenerateToken(user.ID, 30*time.Minute, domain.ScopeActivation)
+		token, err := domain.GenerateToken(suite.fakeUser.ID, 30*time.Minute, domain.ScopeActivation)
 		if err != nil {
-			t.Fatal("fail to generate token")
+			suite.T().Fatal("fail to generate token")
 		}
 
 		// when GetForToken is called with token.Scope and token.Plaintext as arguments,
 		// it should return user we defined and nil error.
-		userRepo.On("GetForToken", mock.Anything, token.Scope, token.Plaintext).Return(user, nil)
+		suite.userRepo.On("GetForToken", mock.Anything, token.Scope, token.Plaintext).Return(suite.fakeUser, nil)
 
-		userUsecase := NewUserUsecase(userRepo, tokenRepo, 3*time.Second)
+		userUsecase := NewUserUsecase(suite.userRepo, suite.tokenRepo, suite.pool, suite.mailer, suite.logger, 3*time.Second)
 
 		ctx := context.TODO()
 		gotUser, err := userUsecase.Authenticate(ctx, token.Scope, token.Plaintext)
-		assert.NoError(t, err)
+		suite.NoError(err)
 
-		assert.Equal(t, user.ID, gotUser.ID, "user ID should be equal")
-		assert.Equal(t, user.Name, gotUser.Name, "user name should be equal")
-		assert.Equal(t, user.Email, gotUser.Email, "email should be equal")
-		assert.Equal(t, user.Password.Hash, gotUser.Password.Hash, "password_hash should be equal")
+		suite.Equal(suite.fakeUser.ID, gotUser.ID, "user ID should be equal")
+		suite.Equal(suite.fakeUser.Name, gotUser.Name, "user name should be equal")
+		suite.Equal(suite.fakeUser.Email, gotUser.Email, "email should be equal")
+		suite.Equal(suite.fakeUser.Password.Hash, gotUser.Password.Hash, "password_hash should be equal")
 
-		userRepo.AssertExpectations(t)
+		suite.userRepo.AssertExpectations(suite.T())
+
+		suite.TearDownTest()
 	})
 
-	t.Run("Fail with some errors", func(t *testing.T) {
-		userRepo := new(_repoMock.UserRepository)
-		tokenRepo := new(_repoMock.TokenRepository)
+	suite.Run("Fail with some errors", func() {
+		suite.SetupTest()
 
-		// new fake user
-		user := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
-
-		token, err := domain.GenerateToken(user.ID, 30*time.Minute, domain.ScopeActivation)
+		token, err := domain.GenerateToken(suite.fakeUser.ID, 30*time.Minute, domain.ScopeActivation)
 		if err != nil {
-			t.Fatal("fail to generate token")
+			suite.T().Fatal("fail to generate token")
 		}
 
 		// Define the error we expect
@@ -112,56 +165,54 @@ func TestAuthenticate(t *testing.T) {
 
 		// when GetForToken is called with token.Scope and token.Plaintext as arguments,
 		// it should return user we defined and nil error.
-		userRepo.On("GetForToken", mock.Anything, token.Scope, token.Plaintext).Return(nil, wantErr)
+		suite.userRepo.On("GetForToken", mock.Anything, token.Scope, token.Plaintext).Return(nil, wantErr)
 
-		userUsecase := NewUserUsecase(userRepo, tokenRepo, 3*time.Second)
+		userUsecase := NewUserUsecase(suite.userRepo, suite.tokenRepo, suite.pool, suite.mailer, suite.logger, 3*time.Second)
 
 		ctx := context.TODO()
 		gotUser, err := userUsecase.Authenticate(ctx, token.Scope, token.Plaintext)
-		assert.Nil(t, gotUser, "gotUser should be nil due to provided error")
+		suite.Nil(gotUser, "gotUser should be nil due to provided error")
 
-		assert.ErrorIs(t, err, dummyErr)
-		assert.Equal(t, "userUsecase.Authenticate: mockUserRepo.GetForToken: something goes wrong", err.Error(), "error message should be equal")
+		suite.ErrorIs(err, dummyErr)
+		suite.Equal("userUsecase.Authenticate: mockUserRepo.GetForToken: something goes wrong", err.Error(), "error message should be equal")
 
-		userRepo.AssertExpectations(t)
+		suite.userRepo.AssertExpectations(suite.T())
+
+		suite.TearDownTest()
 	})
 }
 
-func TestUpdate(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
-		userRepo := new(_repoMock.UserRepository)
-		tokenRepo := new(_repoMock.TokenRepository)
-
-		fakeUser := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
+func (suite *UserUsecaseTestSuite) TestUpdate() {
+	suite.Run("Success", func() {
+		suite.SetupTest()
 
 		wantUpdatedName := "Alice Smith Jr."
 
 		// When Update is called, we expect no error is returned
-		userRepo.On("Update", mock.Anything, mock.MatchedBy(func(user *domain.User) bool {
-			return user.Name == wantUpdatedName && user.Email == "alice@example.com"
+		suite.userRepo.On("Update", mock.Anything, mock.MatchedBy(func(user *domain.User) bool {
+			return user.Name == suite.fakeUser.Name && user.Email == suite.fakeUser.Email
 		})).Return(nil)
 
-		userUsecase := NewUserUsecase(userRepo, tokenRepo, 3*time.Second)
+		userUsecase := NewUserUsecase(suite.userRepo, suite.tokenRepo, suite.pool, suite.mailer, suite.logger, 3*time.Second)
 
 		ctx := context.TODO()
 
 		// set the new name to fakeUser
-		fakeUser.Name = wantUpdatedName
+		suite.fakeUser.Name = wantUpdatedName
 
-		err := userUsecase.Update(ctx, fakeUser)
-		assert.NoError(t, err)
+		err := userUsecase.Update(ctx, suite.fakeUser)
+		suite.NoError(err)
 
 		// and fakeUser.Name should be updated to "Alice Smith Jr."
-		assert.Equalf(t, wantUpdatedName, fakeUser.Name, "user name should be updated to %s", wantUpdatedName)
+		suite.Equalf(wantUpdatedName, suite.fakeUser.Name, "user name should be updated to %s", wantUpdatedName)
 
-		userRepo.AssertExpectations(t)
+		suite.userRepo.AssertExpectations(suite.T())
+
+		suite.TearDownTest()
 	})
 
-	t.Run("Fail with some errors", func(t *testing.T) {
-		userRepo := new(_repoMock.UserRepository)
-		tokenRepo := new(_repoMock.TokenRepository)
-
-		fakeUser := testutil.NewFakeUser(t, "Alice Smith", "alice@example.com", "pa55word", false)
+	suite.Run("Fail with some errors", func() {
+		suite.SetupTest()
 
 		wantUpdatedName := "Alice Smith Jr."
 
@@ -170,22 +221,24 @@ func TestUpdate(t *testing.T) {
 		wantErr := errors.E(errors.Op("mockUserRepo.Update"), dummyErr)
 
 		// When Update is called, we expect no error is returned
-		userRepo.On("Update", mock.Anything, mock.MatchedBy(func(user *domain.User) bool {
-			return user.Name == wantUpdatedName && user.Email == "alice@example.com"
+		suite.userRepo.On("Update", mock.Anything, mock.MatchedBy(func(user *domain.User) bool {
+			return user.Name == suite.fakeUser.Name && user.Email == suite.fakeUser.Email
 		})).Return(wantErr)
 
-		userUsecase := NewUserUsecase(userRepo, tokenRepo, 3*time.Second)
+		userUsecase := NewUserUsecase(suite.userRepo, suite.tokenRepo, suite.pool, suite.mailer, suite.logger, 3*time.Second)
 
 		ctx := context.TODO()
 
 		// set the new name to fakeUser
-		fakeUser.Name = wantUpdatedName
+		suite.fakeUser.Name = wantUpdatedName
 
-		err := userUsecase.Update(ctx, fakeUser)
+		err := userUsecase.Update(ctx, suite.fakeUser)
 
-		assert.ErrorIs(t, err, dummyErr)
-		assert.Equal(t, "userUsecase.Update: mockUserRepo.Update: something goes wrong", err.Error(), "error message should be equal")
+		suite.ErrorIs(err, dummyErr)
+		suite.Equal("userUsecase.Update: mockUserRepo.Update: something goes wrong", err.Error(), "error message should be equal")
 
-		userRepo.AssertExpectations(t)
+		suite.userRepo.AssertExpectations(suite.T())
+
+		suite.TearDownTest()
 	})
 }

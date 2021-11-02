@@ -6,16 +6,36 @@ import (
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/domain/errors"
+	"github.com/unknowntpo/todos/internal/logger"
+	"github.com/unknowntpo/todos/internal/mailer"
+	"github.com/unknowntpo/todos/pkg/naivepool"
 )
 
 type userUsecase struct {
 	userRepo       domain.UserRepository
 	tokenUsecase   domain.TokenUsecase
+	pool           *naivepool.Pool
+	mailer         *mailer.Mailer
+	logger         logger.Logger
 	contextTimeout time.Duration
 }
 
-func NewUserUsecase(ur domain.UserRepository, tu domain.TokenUsecase, timeout time.Duration) domain.UserUsecase {
-	return &userUsecase{userRepo: ur, tokenUsecase: tu, contextTimeout: timeout}
+func NewUserUsecase(
+	ur domain.UserRepository,
+	tu domain.TokenUsecase,
+	p *naivepool.Pool,
+	mailer *mailer.Mailer,
+	logger logger.Logger,
+	timeout time.Duration,
+) domain.UserUsecase {
+	return &userUsecase{
+		userRepo:       ur,
+		tokenUsecase:   tu,
+		pool:           p,
+		mailer:         mailer,
+		logger:         logger,
+		contextTimeout: timeout,
+	}
 }
 
 func (uu *userUsecase) Insert(ctx context.Context, user *domain.User) error {
@@ -134,4 +154,58 @@ func (uu *userUsecase) Activate(ctx context.Context, tokenPlaintext string) (*do
 	}
 
 	return user, nil
+}
+
+// Register registers a user and send welcome email with activation token, then insert the user into
+// database by calling userRepo.Insert.
+// It returns error if exists.
+func (uu *userUsecase) Register(ctx context.Context, user *domain.User) error {
+	const op errors.Op = "userUsecase.Register"
+
+	ctx, cancel := context.WithTimeout(ctx, uu.contextTimeout)
+	defer cancel()
+
+	// Insert the user data into the database.
+	err := uu.Insert(ctx, user)
+	if err != nil {
+		return errors.E(op, err)
+	}
+
+	// After the user record has been created in the database, generate a new activation
+	// token for the user, and insert it to the database.
+	token, err := domain.GenerateToken(user.ID, 3*24*time.Hour, domain.ScopeActivation)
+	if err != nil {
+		return errors.E(op, err)
+	}
+
+	err = uu.tokenUsecase.Insert(ctx, token)
+	if err != nil {
+		return errors.E(op, err)
+	}
+
+	uu.pool.Schedule(func() {
+		const op errors.Op = "userAPI.RegisterUser"
+
+		data := map[string]interface{}{
+			"activationToken": token.Plaintext,
+			"userID":          user.ID,
+		}
+
+		err = uu.mailer.Send(user.Email, "user_welcome.tmpl", data)
+		if err != nil {
+			uu.logger.PrintError(
+				errors.E(
+					op,
+					errors.UserEmail(user.Email),
+					errors.ErrInternal,
+					errors.Msg("failed to send welcome email"),
+					err,
+				),
+				nil,
+			)
+			return
+		}
+	})
+
+	return nil
 }
