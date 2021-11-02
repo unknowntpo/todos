@@ -97,6 +97,20 @@ func (_m *UserUsecase) Login(ctx context.Context, email string, password string)
 	return r0, r1
 }
 
+// Register provides a mock function with given fields: ctx, user
+func (_m *UserUsecase) Register(ctx context.Context, user *domain.User) error {
+	ret := _m.Called(ctx, user)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *domain.User) error); ok {
+		r0 = rf(ctx, user)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Update provides a mock function with given fields: ctx, user
 func (_m *UserUsecase) Update(ctx context.Context, user *domain.User) error {
 	ret := _m.Called(ctx, user)

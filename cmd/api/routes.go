@@ -37,7 +37,7 @@ func (app *application) newRoutes() http.Handler {
 
 	// usecase
 	taskUsecase := _taskUsecase.NewTaskUsecase(taskRepo, 3*time.Second)
-	userUsecase := _userUsecase.NewUserUsecase(userRepo, tokenRepo, 3*time.Second)
+	userUsecase := _userUsecase.NewUserUsecase(userRepo, tokenRepo, app.pool, app.mailer, app.logger, 3*time.Second)
 	tokenUsecase := _tokenUsecase.NewTokenUsecase(tokenRepo, 3*time.Second)
 
 	// reactor
@@ -52,7 +52,7 @@ func (app *application) newRoutes() http.Handler {
 	_healthcheckAPI.NewHealthcheckAPI(router, version, app.config.Env, rc)
 
 	_taskAPI.NewTaskAPI(router, taskUsecase, genMid, rc)
-	_userAPI.NewUserAPI(router, userUsecase, tokenUsecase, app.pool, app.mailer, rc)
+	_userAPI.NewUserAPI(router, userUsecase, tokenUsecase, rc)
 	_tokenAPI.NewTokenAPI(router, tokenUsecase, userUsecase, rc)
 
 	router.Handler(http.MethodGet, "/debug/vars", expvar.Handler())

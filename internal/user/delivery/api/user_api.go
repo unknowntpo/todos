@@ -2,12 +2,9 @@ package api
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
 	"github.com/unknowntpo/todos/internal/domain/errors"
-	"github.com/unknowntpo/todos/internal/mailer"
-	"github.com/unknowntpo/todos/pkg/naivepool"
 	"github.com/unknowntpo/todos/pkg/validator"
 
 	"github.com/unknowntpo/todos/internal/reactor"
@@ -16,11 +13,9 @@ import (
 )
 
 type userAPI struct {
-	uu     domain.UserUsecase
-	tu     domain.TokenUsecase
-	pool   *naivepool.Pool
-	mailer *mailer.Mailer
-	rc     *reactor.Reactor
+	uu domain.UserUsecase
+	tu domain.TokenUsecase
+	rc *reactor.Reactor
 }
 
 type UserRegistrationResponse struct {
@@ -40,10 +35,9 @@ type UserActivationResponse struct {
 func NewUserAPI(router *httprouter.Router,
 	uu domain.UserUsecase,
 	tu domain.TokenUsecase,
-	pool *naivepool.Pool,
-	mailer *mailer.Mailer, rc *reactor.Reactor) {
+	rc *reactor.Reactor) {
 
-	api := &userAPI{uu: uu, tu: tu, pool: pool, mailer: mailer, rc: rc}
+	api := &userAPI{uu: uu, tu: tu, rc: rc}
 
 	router.HandlerFunc(http.MethodPost, "/v1/users/registration", api.RegisterUser)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activation", api.ActivateUser)
@@ -96,8 +90,7 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	// Insert the user data into the database.
-	err = u.uu.Insert(ctx, user)
+	err = u.uu.Register(ctx, user)
 	if err != nil {
 		switch {
 		case errors.KindIs(err, errors.ErrDuplicateEmail):
@@ -109,44 +102,6 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	// After the user record has been created in the database, generate a new activation
-	// token for the user, and insert it to the database.
-	token, err := domain.GenerateToken(user.ID, 3*24*time.Hour, domain.ScopeActivation)
-	if err != nil {
-		u.rc.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	err = u.tu.Insert(ctx, token)
-	if err != nil {
-		u.rc.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	u.pool.Schedule(func() {
-		const op errors.Op = "userAPI.RegisterUser"
-
-		data := map[string]interface{}{
-			"activationToken": token.Plaintext,
-			"userID":          user.ID,
-		}
-
-		err = u.mailer.Send(user.Email, "user_welcome.tmpl", data)
-		if err != nil {
-			u.rc.Logger.PrintError(
-				errors.E(
-					op,
-					errors.UserEmail(user.Email),
-					errors.ErrInternal,
-					errors.Msg("failed to send welcome email"),
-					err,
-				),
-				nil,
-			)
-			return
-		}
-	})
 
 	err = u.rc.WriteJSON(w, http.StatusAccepted, &UserRegistrationResponse{User: user})
 	if err != nil {
