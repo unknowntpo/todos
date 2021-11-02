@@ -53,7 +53,7 @@ func (app *application) newRoutes() http.Handler {
 
 	_taskAPI.NewTaskAPI(router, taskUsecase, genMid, rc)
 	_userAPI.NewUserAPI(router, userUsecase, tokenUsecase, rc)
-	_tokenAPI.NewTokenAPI(router, tokenUsecase, userUsecase, rc)
+	_tokenAPI.NewTokenAPI(router, userUsecase, rc)
 
 	router.Handler(http.MethodGet, "/debug/vars", expvar.Handler())
 

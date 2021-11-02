@@ -12,7 +12,6 @@ import (
 )
 
 type tokenAPI struct {
-	TU domain.TokenUsecase
 	UU domain.UserUsecase
 	rc *reactor.Reactor
 }
@@ -26,8 +25,8 @@ type AuthenticationResponse struct {
 	Token *domain.Token `json:"token"`
 }
 
-func NewTokenAPI(router *httprouter.Router, tu domain.TokenUsecase, uu domain.UserUsecase, rc *reactor.Reactor) {
-	api := &tokenAPI{TU: tu, UU: uu, rc: rc}
+func NewTokenAPI(router *httprouter.Router, uu domain.UserUsecase, rc *reactor.Reactor) {
+	api := &tokenAPI{UU: uu, rc: rc}
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", api.CreateAuthenticationToken)
 }
 
