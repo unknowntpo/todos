@@ -35,6 +35,7 @@ steps:
       key:
         from_secret: deploy_key
       source: src/github.com/unknowntpo/todos/*
+      target: src/github.com/unknowntpo/todos/
       exclude:
         - README.md
       recursive: true
