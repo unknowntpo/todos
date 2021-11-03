@@ -189,3 +189,11 @@ production_host_ip = todos.unknowntpo.net
 .PHONY: production/connect
 production/connect:
 	ssh todos@${production_host_ip}
+
+## production/configure/caddyfile: configure the production Caddyfile
+.PHONY: production/configure/caddyfile
+production/configure/caddyfile:
+	rsync -P ./remote/production/Caddyfile todos@${production_host_ip}:~
+	ssh -t todos@${production_host_ip} '\
+		sudo mv ~/Caddyfile /etc/caddy/ \
+		&& sudo systemctl reload caddy'

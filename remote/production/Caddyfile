@@ -1,0 +1,15 @@
+# Set the email address that should be used to contact you if there is a problem with 
+# your TLS certificates.
+{
+  email e850506@gmail.com
+}
+
+todos.unknowntpo.net {
+    respond /debug/* "Not Permitted" 403
+    reverse_proxy localhost:4000
+}
+
+# see https://blog.wu-boy.com/2017/02/caddy-setting-with-drone-ci-server/
+drone.unknowntpo.net {
+    reverse_proxy localhost:8000
+}
