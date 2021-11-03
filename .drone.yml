@@ -6,7 +6,7 @@ workspace:
 steps:
   - name: test
     image: golang
-    commands: 
+    commands:
       - go install honnef.co/go/tools/cmd/staticcheck@latest
       - make vendor
       - make audit
@@ -18,7 +18,28 @@ steps:
   - name: coverage
     image: plugins/codecov
     settings:
-      token: "e05e9a00-8a97-442f-a610-0b8a2b3b4761"
+      token:
+        from_secret: codecov_toen
       files:
-        - "*.go"
+        - '*.go'
       required: true
+  - name: deploy
+    image: drillster/drone-rsync
+    settings:
+      hosts:
+        from_secret: deploy_host
+      port:
+        from_secret: deploy_port
+      user:
+        from_secret: deploy_user
+      key:
+        from_secret: deploy_key
+      source: src/github.com/unknowntpo/todos/*
+      exclude:
+        - README.md
+      recursive: true
+      delete: true
+      script:
+        - ls -la ./
+        - cd src/github.com/unknowntpo/todos
+        - make run/compose/up -d
