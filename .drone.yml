@@ -19,7 +19,7 @@ steps:
     image: plugins/codecov
     settings:
       token:
-        from_secret: codecov_toen
+        from_secret: codecov_token
       files:
         - '*.go'
       required: true
