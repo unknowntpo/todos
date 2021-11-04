@@ -114,7 +114,7 @@ func (suite *UserRepoTestSuite) TestInsert() {
 		defer cancel()
 
 		err := repo.Insert(ctx, user)
-		suite.True(errors.KindIs(err, errors.ErrDatabase))
+		suite.True(errors.KindIs(err, errors.KindDatabase))
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 	suite.Run("Fail on duplicate email", func() {
@@ -133,7 +133,7 @@ func (suite *UserRepoTestSuite) TestInsert() {
 		}
 
 		err := repo.Insert(ctx, userAlan)
-		suite.True(errors.KindIs(err, errors.ErrDuplicateEmail))
+		suite.True(errors.KindIs(err, errors.KindDuplicateEmail))
 	})
 
 }
@@ -185,7 +185,7 @@ func (suite *UserRepoTestSuite) TestGetByEmail() {
 		defer cancel()
 
 		_, err := repo.GetByEmail(ctx, user.Email)
-		suite.True(errors.KindIs(err, errors.ErrDatabase))
+		suite.True(errors.KindIs(err, errors.KindDatabase))
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 	suite.Run("Fail on record not found", func() {
@@ -198,7 +198,9 @@ func (suite *UserRepoTestSuite) TestGetByEmail() {
 		// insert user into testdb
 		ctx := context.TODO()
 		_, err := repo.GetByEmail(ctx, user.Email)
-		suite.True(errors.KindIs(err, errors.ErrRecordNotFound))
+
+		suite.ErrorIs(err, domain.ErrRecordNotFound)
+		suite.True(errors.KindIs(err, errors.KindRecordNotFound))
 	})
 }
 
@@ -258,7 +260,8 @@ func (suite *UserRepoTestSuite) TestUpdate() {
 		defer cancel()
 
 		err := repo.Update(ctx, user)
-		suite.True(errors.KindIs(err, errors.ErrDatabase))
+
+		suite.True(errors.KindIs(err, errors.KindDatabase))
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 	suite.Run("Fail on edit conflict", func() {
@@ -278,7 +281,7 @@ func (suite *UserRepoTestSuite) TestUpdate() {
 		user.ID = 333
 
 		err := repo.Update(ctx, user)
-		suite.True(errors.KindIs(err, errors.ErrEditConflict))
+		suite.True(errors.KindIs(err, errors.KindEditConflict))
 	})
 	suite.Run("Fail on duplicate email", func() {
 		suite.TearDownTest()
@@ -303,7 +306,7 @@ func (suite *UserRepoTestSuite) TestUpdate() {
 
 		err := repo.Update(ctx, userAlan)
 
-		suite.True(errors.KindIs(err, errors.ErrDuplicateEmail))
+		suite.True(errors.KindIs(err, errors.KindDuplicateEmail))
 	})
 }
 
@@ -397,7 +400,7 @@ func (suite *UserRepoTestSuite) TestGetForToken() {
 
 		_, err = repo.GetForToken(ctx, token.Scope, token.Plaintext)
 
-		suite.True(errors.KindIs(err, errors.ErrDatabase))
+		suite.True(errors.KindIs(err, errors.KindDatabase))
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 	suite.Run("Fail on record not found", func() {
@@ -415,6 +418,7 @@ func (suite *UserRepoTestSuite) TestGetForToken() {
 		ctx := context.TODO()
 		_, err = repo.GetForToken(ctx, token.Scope, token.Plaintext)
 
-		suite.True(errors.KindIs(err, errors.ErrRecordNotFound))
+		suite.True(errors.KindIs(err, errors.KindRecordNotFound))
+		suite.ErrorIs(err, domain.ErrRecordNotFound)
 	})
 }

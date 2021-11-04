@@ -44,7 +44,7 @@ func TestMsgFormat(t *testing.T) {
 // test building an error
 // table-driven test
 func TestE(t *testing.T) {
-	t.Run("build a record not found error", func(t *testing.T) {
+	t.Run("build a KindRecordNotFound error", func(t *testing.T) {
 		// define operation
 		const op Op = "taskRepo.GetByID"
 
@@ -54,7 +54,7 @@ func TestE(t *testing.T) {
 		// assume that we performed an sql query to task database and got sql.ErrNoRows error.
 		errFromDB := sql.ErrNoRows
 
-		err := E(op, ErrRecordNotFound, userEmail, errFromDB)
+		err := E(op, KindRecordNotFound, userEmail, errFromDB)
 		assert.Equal(t, "alice@example.com: taskRepo.GetByID: record not found: sql: no rows in result set", err.Error())
 	})
 	t.Run("build a error with error message only", func(t *testing.T) {
@@ -116,10 +116,10 @@ func TestError(t *testing.T) {
 func TestKindIs(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		// declare err which is *Error
-		err := E(ErrInternal)
+		err := E(KindInternal)
 		// call KindIs()
-		isInternal := KindIs(err, ErrInternal)
-		assert.True(t, isInternal, "kind of error should be ErrInternal")
+		isInternal := KindIs(err, KindInternal)
+		assert.True(t, isInternal, "kind of error should be KindInternal")
 	})
 	t.Run("Panic", func(t *testing.T) {
 		defer func() {
@@ -129,6 +129,19 @@ func TestKindIs(t *testing.T) {
 		}()
 
 		// call KindIs with error which does not have type *Error.
-		_ = KindIs(sql.ErrNoRows, ErrInternal)
+		_ = KindIs(sql.ErrNoRows, KindInternal)
+	})
+}
+
+func TestKindInherit(t *testing.T) {
+	t.Run("Outer error doesn't have kind specified", func(t *testing.T) {
+		inner := E(KindFailedValidation, errors.New("something goes wrong"))
+		outer := E(inner)
+		assert.True(t, KindIs(outer, KindFailedValidation), "the outer error with no kind specified should inherit inner error's kind")
+	})
+	t.Run("Outer error has kind specified", func(t *testing.T) {
+		inner := E(KindFailedValidation, errors.New("something goes wrong"))
+		outer := E(KindInternal, inner)
+		assert.True(t, KindIs(outer, KindInternal), "the outer error with no kind specified should inherit inner error's kind")
 	})
 }

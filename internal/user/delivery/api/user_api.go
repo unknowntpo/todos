@@ -93,7 +93,7 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	err = u.uu.Register(ctx, user)
 	if err != nil {
 		switch {
-		case errors.KindIs(err, errors.ErrDuplicateEmail):
+		case errors.KindIs(err, errors.KindDuplicateEmail):
 			v.AddError("email", "a user with this email address already exists")
 			u.rc.FailedValidationResponse(w, r, v.Err())
 			return
@@ -137,11 +137,11 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		// should be ErrInvalidCredentials
-		case errors.KindIs(err, errors.ErrRecordNotFound):
+		case errors.KindIs(err, errors.KindRecordNotFound):
 			v.AddError("token", "invalid or expired activation token")
 			u.rc.FailedValidationResponse(w, r, v.Err())
 			return
-		case errors.KindIs(err, errors.ErrEditConflict):
+		case errors.KindIs(err, errors.KindEditConflict):
 			u.rc.EditConflictResponse(w, r)
 			return
 		default:
@@ -158,7 +158,7 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
 	err = u.uu.Update(ctx, user)
 	if err != nil {
 		switch {
-		case errors.KindIs(err, errors.ErrEditConflict):
+		case errors.KindIs(err, errors.KindEditConflict):
 			u.rc.EditConflictResponse(w, r)
 			return
 		default:
