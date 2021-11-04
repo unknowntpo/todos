@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
+	"github.com/unknowntpo/todos/internal/domain/errors"
 	"github.com/unknowntpo/todos/internal/testutil"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -136,6 +137,7 @@ func (suite *TokenRepoTestSuite) TestInsert() {
 
 		repo := NewTokenRepo(suite.db)
 		err = repo.Insert(ctx, token)
+		suite.True(errors.KindIs(err, errors.KindDatabase))
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 }
@@ -213,6 +215,8 @@ func (suite *TokenRepoTestSuite) TestDeleteAllForUser() {
 		defer cancel()
 
 		err = repo.DeleteAllForUser(ctx, domain.ScopeActivation, suite.fakeuser.ID)
+
+		suite.True(errors.KindIs(err, errors.KindDatabase))
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 }

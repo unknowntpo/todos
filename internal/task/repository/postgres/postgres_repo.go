@@ -65,9 +65,9 @@ func (tr *taskRepo) GetAll(ctx context.Context, userID int64, title string, filt
 	if err = rows.Err(); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, domain.CalculateMetadata(0, 0, 0), errors.E(op, errors.ErrRecordNotFound)
+			return nil, domain.CalculateMetadata(0, 0, 0), errors.E(op, domain.ErrRecordNotFound)
 		default:
-			return nil, domain.CalculateMetadata(0, 0, 0), errors.E(op, err)
+			return nil, domain.CalculateMetadata(0, 0, 0), errors.E(op, errors.KindDatabase, err)
 		}
 	}
 
@@ -79,7 +79,7 @@ func (tr *taskRepo) GetAll(ctx context.Context, userID int64, title string, filt
 func (tr *taskRepo) GetByID(ctx context.Context, userID int64, taskID int64) (*domain.Task, error) {
 	const op errors.Op = "taskRepo.GetByID"
 	if taskID < 1 {
-		return nil, errors.E(op, errors.ErrRecordNotFound)
+		return nil, errors.E(op, errors.KindRecordNotFound, domain.ErrRecordNotFound)
 	}
 
 	query := `
@@ -102,9 +102,9 @@ func (tr *taskRepo) GetByID(ctx context.Context, userID int64, taskID int64) (*d
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, errors.E(op, errors.ErrRecordNotFound)
+			return nil, errors.E(op, errors.KindRecordNotFound, domain.ErrRecordNotFound)
 		default:
-			return nil, errors.E(op, err)
+			return nil, errors.E(op, errors.KindDatabase, err)
 		}
 	}
 
@@ -121,7 +121,7 @@ func (tr *taskRepo) Insert(ctx context.Context, userID int64, task *domain.Task)
 
 	err := tr.DB.QueryRowContext(ctx, query, args...).Scan(&task.ID, &task.CreatedAt, &task.Version)
 	if err != nil {
-		return errors.E(op, err)
+		return errors.E(op, errors.KindDatabase, err)
 	}
 
 	return nil
@@ -147,9 +147,9 @@ func (tr *taskRepo) Update(ctx context.Context, task *domain.Task) error {
 	if err := tr.DB.QueryRowContext(ctx, query, args...).Scan(&task.Version); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return errors.E(op, errors.ErrRecordNotFound)
+			return errors.E(op, errors.KindRecordNotFound, domain.ErrRecordNotFound)
 		default:
-			return errors.E(op, err)
+			return errors.E(op, errors.KindDatabase, err)
 		}
 	}
 
@@ -164,19 +164,19 @@ func (tr *taskRepo) Delete(ctx context.Context, userID int64, taskID int64) erro
 
 	result, err := tr.DB.ExecContext(ctx, query, taskID, userID)
 	if err != nil {
-		return errors.E(op, err)
+		return errors.E(op, errors.KindDatabase, err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return errors.E(op, err)
+		return errors.E(op, errors.KindDatabase, err)
 	}
 
 	// If no rows were affected, we know that the tasks table didn't contain a record
 	// with the provided ID at the moment we tried to delete it. In that case we
-	// return an ErrRecordNotFound error.
+	// return an domain.ErrRecordNotFound error.
 	if rowsAffected == 0 {
-		return errors.E(op, errors.ErrRecordNotFound)
+		return errors.E(op, errors.KindRecordNotFound, domain.ErrRecordNotFound)
 	}
 
 	return nil

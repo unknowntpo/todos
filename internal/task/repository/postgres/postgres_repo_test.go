@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/internal/domain"
+	"github.com/unknowntpo/todos/internal/domain/errors"
 	"github.com/unknowntpo/todos/internal/testutil"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -301,7 +302,7 @@ func (suite *TaskRepoTestSuite) TestInsert() {
 		suite.Equal(wantTask.Done, gotTask.Done)
 	})
 
-	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
+	// FIXME: Maybe using failed on database error to test errors.KindDatabase ?
 	suite.Run("Fail on database error-timeout", func() {
 		suite.TearDownTest()
 		suite.SetupTest()
@@ -325,6 +326,7 @@ func (suite *TaskRepoTestSuite) TestInsert() {
 		defer cancel()
 
 		_, err := repo.GetByID(ctx, suite.fakeuser.ID, wantTask.ID)
+		suite.True(errors.KindIs(err, errors.KindDatabase))
 		suite.ErrorIs(err, context.DeadlineExceeded)
 	})
 }
