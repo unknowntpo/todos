@@ -62,7 +62,7 @@ func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Requ
 	token, err := t.UU.Login(ctx, input.Email, input.Password)
 	if err != nil {
 		switch {
-		case errors.KindIs(err, errors.ErrInvalidCredentials):
+		case errors.KindIs(err, errors.KindInvalidCredentials):
 			t.rc.InvalidCredentialsResponse(w, r)
 			return
 		default:

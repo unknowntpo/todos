@@ -145,7 +145,7 @@ func (mid *Middleware) Authenticate(next http.Handler) http.Handler {
 		user, err := mid.usecase.Authenticate(ctx, domain.ScopeAuthentication, token)
 		if err != nil {
 			switch {
-			case errors.KindIs(err, errors.ErrRecordNotFound):
+			case errors.KindIs(err, errors.KindRecordNotFound):
 				mid.rc.InvalidAuthenticationTokenResponse(w, r)
 			default:
 				mid.rc.ServerErrorResponse(w, r, err)

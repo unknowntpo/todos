@@ -145,7 +145,7 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 	task, err := t.tu.GetByID(ctx, user.ID, id)
 	if err != nil {
 		switch {
-		case errors.KindIs(err, errors.ErrRecordNotFound):
+		case errors.KindIs(err, errors.KindRecordNotFound):
 			t.rc.NotFoundResponse(w, r)
 			return
 		default:
@@ -315,7 +315,7 @@ func (t *taskAPI) Delete(w http.ResponseWriter, r *http.Request) {
 	err = t.tu.Delete(ctx, user.ID, taskID)
 	if err != nil {
 		switch {
-		case errors.KindIs(err, errors.ErrRecordNotFound):
+		case errors.KindIs(err, errors.KindRecordNotFound):
 			t.rc.NotFoundResponse(w, r)
 			return
 		default:

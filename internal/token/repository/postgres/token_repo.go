@@ -28,7 +28,7 @@ func (tr *tokenRepo) Insert(ctx context.Context, token *domain.Token) error {
 
 	_, err := tr.DB.ExecContext(ctx, query, args...)
 	if err != nil {
-		return errors.E(op, errors.ErrDatabase, err)
+		return errors.E(op, errors.KindDatabase, err)
 	}
 	return nil
 }
@@ -43,7 +43,7 @@ func (tr *tokenRepo) DeleteAllForUser(ctx context.Context, scope string, userID 
 
 	_, err := tr.DB.ExecContext(ctx, query, scope, userID)
 	if err != nil {
-		return errors.E(op, errors.ErrDatabase, err)
+		return errors.E(op, errors.KindDatabase, err)
 	}
 	return nil
 }
