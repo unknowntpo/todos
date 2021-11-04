@@ -38,10 +38,10 @@ func (ur *userRepo) Insert(ctx context.Context, user *domain.User) error {
 		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
 			// Just send our custom error type, we don't need error message from database, because at here,
 			// we don't treat err as error.
-			return errors.E(op, errors.ErrDuplicateEmail)
+			return errors.E(op, errors.KindDuplicateEmail, domain.ErrDuplicateEmail)
 		default:
-			// ErrDatabase is a subset internal server error.
-			return errors.E(op, errors.ErrDatabase, err)
+			// KindDatabase is a subset internal server error.
+			return errors.E(op, errors.KindDatabase, err)
 		}
 	}
 
@@ -73,9 +73,9 @@ func (ur *userRepo) GetByEmail(ctx context.Context, email string) (*domain.User,
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, errors.E(op, errors.ErrRecordNotFound)
+			return nil, errors.E(op, errors.KindRecordNotFound, domain.ErrRecordNotFound)
 		default:
-			return nil, errors.E(op, errors.ErrDatabase, err)
+			return nil, errors.E(op, errors.KindDatabase, err)
 		}
 	}
 
@@ -109,11 +109,11 @@ func (ur *userRepo) Update(ctx context.Context, user *domain.User) error {
 	if err != nil {
 		switch {
 		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
-			return errors.E(op, errors.ErrDuplicateEmail)
+			return errors.E(op, errors.KindDuplicateEmail, domain.ErrDuplicateEmail)
 		case errors.Is(err, sql.ErrNoRows):
-			return errors.E(op, errors.ErrEditConflict)
+			return errors.E(op, errors.KindEditConflict, domain.ErrEditConflict)
 		default:
-			return errors.E(op, errors.ErrDatabase, err)
+			return errors.E(op, errors.KindDatabase, err)
 		}
 	}
 
@@ -155,9 +155,9 @@ func (ur *userRepo) GetForToken(ctx context.Context, tokenScope, tokenPlaintext 
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, errors.E(op, errors.ErrRecordNotFound)
+			return nil, errors.E(op, errors.KindRecordNotFound, domain.ErrRecordNotFound)
 		default:
-			return nil, errors.E(op, errors.ErrDatabase, err)
+			return nil, errors.E(op, errors.KindDatabase, err)
 		}
 	}
 

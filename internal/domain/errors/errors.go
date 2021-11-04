@@ -135,34 +135,33 @@ func (e *Error) Unwrap() error { return e.Err }
 // The values of the error kinds are common between both
 // clients and servers.
 const (
-	Other Kind = iota // Unclassified error. This value is not printed in the error message.
-	// Maybe moved to httperror.go file ?
-	ErrRecordNotFound     // Record not found when we request some resource in database.
-	ErrDuplicateEmail     // Duplicate Email error.
-	ErrEditConflict       // Edit conflict while manipulating database.
-	ErrInvalidCredentials // Edit conflict while manipulating database.
-	ErrFailedValidation   //  Failed validation error.
-	ErrInternal           // Internal server error.
-	ErrDatabase           // Error happened while querying database, this should be treated as subset of internal error and logged it carefully.
+	KindOther              Kind = iota // Unclassified error. This value is not printed in the error message.
+	KindRecordNotFound                 // Record not found when we request some resource in database.
+	KindDuplicateEmail                 // Duplicate Email error.
+	KindEditConflict                   // Edit conflict while manipulating database.
+	KindInvalidCredentials             // Edit conflict while manipulating database.
+	KindFailedValidation               //  Failed validation error.
+	KindInternal                       // Internal server error.
+	KindDatabase                       // Error happened while querying database, this should be treated as subset of internal error and logged it carefully.
 )
 
 func (k Kind) String() string {
 	switch k {
-	case Other:
+	case KindOther:
 		return "other error"
-	case ErrRecordNotFound:
+	case KindRecordNotFound:
 		return "record not found"
-	case ErrDuplicateEmail:
+	case KindDuplicateEmail:
 		return "duplicate email"
-	case ErrEditConflict:
+	case KindEditConflict:
 		return "edit conflict"
-	case ErrInvalidCredentials:
+	case KindInvalidCredentials:
 		return "invalid credentials"
-	case ErrFailedValidation:
+	case KindFailedValidation:
 		return "failed validation"
-	case ErrInternal:
+	case KindInternal:
 		return "internal server error"
-	case ErrDatabase:
+	case KindDatabase:
 		return "database error"
 	}
 	return "unknown error kind"
@@ -214,6 +213,7 @@ func E(args ...interface{}) error {
 		case UserEmail:
 			e.UserEmail = arg
 		case Kind:
+			//TODO: If Kind not set, maybe we should inherit e.Err's Kind
 			e.Kind = arg
 		case Msg:
 			e.Msg = arg
@@ -232,6 +232,15 @@ func E(args ...interface{}) error {
 		default:
 			_, file, line, _ := runtime.Caller(1)
 			return fmt.Errorf("errors.E: bad call from %s:%d: %v, unknown type %T, value %v in error call", file, line, args, arg, arg)
+		}
+	}
+
+	// check if e.Err is our custom *Error
+	if innerE, ok := e.Err.(*Error); ok {
+		// if it is our custom *Error, and if e.Kind is not set
+		// inherit e.Err 's kind
+		if e.Kind == KindOther {
+			e.Kind = innerE.Kind
 		}
 	}
 

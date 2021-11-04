@@ -103,7 +103,7 @@ func (uu *userUsecase) Login(ctx context.Context, email, password string) (*doma
 	}
 
 	if !match {
-		return nil, errors.E(op, errors.ErrInvalidCredentials, err)
+		return nil, errors.E(op, errors.KindInvalidCredentials, err)
 	}
 
 	// Otherwise, if the password is correct, we generate a new token with a 24-hour
@@ -197,7 +197,7 @@ func (uu *userUsecase) Register(ctx context.Context, user *domain.User) error {
 				errors.E(
 					op,
 					errors.UserEmail(user.Email),
-					errors.ErrInternal,
+					errors.KindInternal,
 					errors.Msg("failed to send welcome email"),
 					err,
 				),

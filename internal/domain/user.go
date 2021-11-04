@@ -3,12 +3,6 @@ package domain
 import (
 	"context"
 	"time"
-
-	"github.com/pkg/errors"
-)
-
-var (
-	ErrDuplicateEmail = errors.New("duplicate email")
 )
 
 // User represents an individual user.
