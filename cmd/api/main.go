@@ -10,11 +10,10 @@ import (
 	"time"
 
 	"github.com/unknowntpo/todos/config"
-	"github.com/unknowntpo/todos/internal/mailer"
-	"github.com/unknowntpo/todos/pkg/naivepool"
-
 	"github.com/unknowntpo/todos/internal/logger"
 	"github.com/unknowntpo/todos/internal/logger/zerolog"
+	"github.com/unknowntpo/todos/internal/mailer"
+	"github.com/unknowntpo/todos/pkg/naivepool"
 
 	_ "github.com/lib/pq"
 )
@@ -38,6 +37,7 @@ type application struct {
 // @version 1.0
 // @description This is the api documentation of TODOS server.
 // @host localhost:4000
+// @schemes http https
 // @BasePath /
 func main() {
 	cfg := setConfig()

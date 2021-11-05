@@ -437,4 +437,7 @@ paths:
           schema:
             $ref: '#/definitions/reactor.ErrorResponse'
       summary: Register user based on given information.
+schemes:
+- http
+- https
 swagger: "2.0"

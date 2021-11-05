@@ -694,7 +694,7 @@ var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
 	Host:        "localhost:4000",
 	BasePath:    "/",
-	Schemes:     []string{},
+	Schemes:     []string{"http", "https"},
 	Title:       "TODOS API",
 	Description: "This is the api documentation of TODOS server.",
 }
