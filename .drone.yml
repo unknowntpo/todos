@@ -7,14 +7,14 @@ steps:
   - name: test
     image: golang
     commands:
-      - go install honnef.co/go/tools/cmd/staticcheck@latest
-      - make vendor
+      #   - go install honnef.co/go/tools/cmd/staticcheck@latest
+      #- make vendor
         #- make audit
   - name: build
     image: golang
     commands:
-      - make build/api
-      - chmod +x ./bin/api
+      #- make build/api
+      #- chmod +x ./bin/api
   - name: coverage
     image: plugins/codecov
     settings:
@@ -24,12 +24,48 @@ steps:
         - '*.go'
       required: true
   - name: deploy
-    image: alpine
+    image: docker:dind
     environment:
       DRONE_DEPLOY_HOST:
         from_secret: deploy_host
       DRONE_DEPLOY_USERNAME:
         from_secret: deploy_user
+    volumes:
+      - name: dockersock
+        path: /var/run
     commands:
-      - docker context create remote ‐‐docker “host=ssh://$$(DRONE_DEPLOY_HOST)@$$(DRONE_DEPLOY_USERNAME)”
-      - make run/compose/up
+      - sleep 10 # give docker enough time to initialize
+      - docker ps -a
+      - echo $${DRONE_DEPLOY_HOST}
+      - echo $${DRONE_DEPLOY_USERNAME}
+      - docker context create remote --docker "host=ssh://$${DRONE_DEPLOY_HOST}@$${DRONE_DEPLOY_USERNAME}"
+      # - make run/compose/up
+      # todo fetch from docker hub
+      - DOCKER_BUILDKIT=1 docker-compose \
+        -f docker-compose-prod.yml \
+        --project-name todos-prod \
+        build --parallel
+      - docker-compose -f docker-compose-prod.yml \
+        --context remote \
+        --env-file .envrc \
+        up \
+        -d \
+        --remove-orphans \
+        --force-recreate
+
+
+
+# Specify docker:dind as a service
+# Ref: https://github.com/testcontainers/dind-drone-plugin
+services:
+- name: docker
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+  detach: true
+
+volumes:
+  - name: dockersock
+    temp: {}
