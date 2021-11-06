@@ -197,3 +197,20 @@ production/configure/caddyfile:
 	ssh -t todos@${production_host_ip} '\
 		sudo mv ~/Caddyfile /etc/caddy/ \
 		&& sudo systemctl reload caddy'
+
+## production/deploy: deploy the services
+.PHONY: production/deploy
+prodcution/deploy:
+	@DOCKER_BUILDKIT=1 docker-compose \
+	    --context remote \
+	    -f docker-compose-prod.yml \
+	    --project-name todos-prod \
+	    build --parallel
+	@docker-compose -f docker-compose-prod.yml \
+	    --env-file .envrc \
+	    up \
+	    -d \
+	    --remove-orphans \
+	    --force-recreate
+
+#

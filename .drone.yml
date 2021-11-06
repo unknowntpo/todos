@@ -9,7 +9,7 @@ steps:
     commands:
       - go install honnef.co/go/tools/cmd/staticcheck@latest
       - make vendor
-      - make audit
+        #- make audit
   - name: build
     image: golang
     commands:
@@ -24,22 +24,12 @@ steps:
         - '*.go'
       required: true
   - name: deploy
-    image: drillster/drone-rsync
-    settings:
-      hosts:
+    image: alpine
+    environment:
+      DRONE_DEPLOY_HOST:
         from_secret: deploy_host
-      port:
-        from_secret: deploy_port
-      user:
+      DRONE_DEPLOY_USERNAME:
         from_secret: deploy_user
-      key:
-        from_secret: deploy_key
-      source: /go/src/github.com/unknowntpo/todos
-      target: ~/deploy
-      exclude:
-        - README.md
-      recursive: true
-      delete: true
-      script:
-        - cd ~/deploy/todos
-        - make run/compose/up -d
+    commands:
+      - docker context create remote ‐‐docker “host=ssh://$(DRONE_DEPLOY_HOST)@$(DRONE_DEPLOY_USERNAME)”
+      - make run/compose/up
