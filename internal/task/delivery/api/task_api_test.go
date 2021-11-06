@@ -31,6 +31,18 @@ func TestGetAll(t *testing.T) {
 
 func TestGetByID(t *testing.T) {
 	t.Skip("TODO: finish the implementation")
+	// Note: manually set up user in context.
+	t.Run("test params - taskID", func(t *testing.T) {
+		// Note: Should return http.StatusOK, task
+		t.Run("test valid taskID", func(t *testing.T) {
+
+		})
+		// Note: Should return http.StatusNotFound
+		t.Run("test invalid taskID", func(t *testing.T) {
+
+		})
+	})
+
 	t.Fail()
 }
 
