@@ -31,5 +31,5 @@ steps:
       DRONE_DEPLOY_USERNAME:
         from_secret: deploy_user
     commands:
-      - docker context create remote ‐‐docker “host=ssh://$(DRONE_DEPLOY_HOST)@$(DRONE_DEPLOY_USERNAME)”
+      - docker context create remote ‐‐docker “host=ssh://$$(DRONE_DEPLOY_HOST)@$$(DRONE_DEPLOY_USERNAME)”
       - make run/compose/up
