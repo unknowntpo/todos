@@ -21,11 +21,9 @@ import (
 
 	_generalMiddleware "github.com/unknowntpo/todos/internal/middleware"
 
-	_ "github.com/unknowntpo/todos/docs"
 	"github.com/unknowntpo/todos/internal/reactor"
 
 	"github.com/julienschmidt/httprouter"
-	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func (app *application) newRoutes() http.Handler {
@@ -56,10 +54,6 @@ func (app *application) newRoutes() http.Handler {
 	_tokenAPI.NewTokenAPI(router, userUsecase, rc)
 
 	router.Handler(http.MethodGet, "/debug/vars", expvar.Handler())
-
-	router.Handler(http.MethodGet, "/swagger/:any", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:4000/swagger/doc.json"), //The url pointing to API definition
-	))
 
 	//return genMid.Metrics(genMid.RecoverPanic(genMid.EnableCORS(genMid.RateLimit(genMid.Authenticate(router)))))
 	//return app.metrics(app.recoverPanic(app.enableCORS(app.rateLimit(app.authenticate(router)))))

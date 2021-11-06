@@ -51,3 +51,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  swagger:
+    container_name: swagger
+    image: swaggerapi/swagger-ui:v4.0.0
+    volumes:
+      - ./docs:/docs
+    env_file:
+      - ./.envrc
+    ports:
+      - "8090:8080"
+networks:
+  default:
+    name: todos_prod

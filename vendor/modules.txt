@@ -211,12 +211,6 @@ github.com/stretchr/testify/require
 github.com/stretchr/testify/suite
 # github.com/subosito/gotenv v1.2.0
 github.com/subosito/gotenv
-# github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
-## explicit
-github.com/swaggo/files
-# github.com/swaggo/http-swagger v1.1.1
-## explicit
-github.com/swaggo/http-swagger
 # github.com/swaggo/swag v1.7.1
 ## explicit
 github.com/swaggo/swag
@@ -242,8 +236,6 @@ golang.org/x/crypto/blowfish
 golang.org/x/net/idna
 golang.org/x/net/internal/socks
 golang.org/x/net/proxy
-golang.org/x/net/webdav
-golang.org/x/net/webdav/internal/xml
 # golang.org/x/sys v0.0.0-20210915083310-ed5796bab164
 ## explicit
 golang.org/x/sys/execabs
