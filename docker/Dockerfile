@@ -1,6 +1,9 @@
 # build base
 FROM golang:alpine as build-base
 
+ARG VERSION
+ENV TODOS_BIN_VERSION=${VERSION}
+
 RUN apk add --no-cache curl \
 git \
 bash \
