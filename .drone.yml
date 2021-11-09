@@ -59,7 +59,7 @@ steps:
 # Ref: https://github.com/testcontainers/dind-drone-plugin
 services:
 - name: docker
-  image: hmajid2301/dind-docker-compose@sha256:522c274a1da3f363f195251557b211447dbcbc6c2d9fa4b64ad0237e2ec33f94
+  image: selectcode/dind-docker-compose@sha256:1d51e0e69e2e7c5c377727448d837bb52f96a7caa2dff52f57d29b57021ee25d
   privileged: true
   volumes:
   - name: dockersock
