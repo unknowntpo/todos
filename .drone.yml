@@ -66,11 +66,11 @@ services:
     path: /var/run
   detach: true
   commands:
+    - apk add --no-cache docker-compose make
     # Run scripts in ENTRYPOINT manually because if we use commands, we will overwrite the ENTRYPOINT.
     # See https://docs.drone.io/pipeline/docker/syntax/steps/
     - /usr/local/bin/dockerd-entrypoint.sh
-    - apk add --no-cache docker-compose make
-
+    
 volumes:
   - name: dockersock
     temp: {}
