@@ -3,8 +3,10 @@ module github.com/unknowntpo/todos
 go 1.16
 
 require (
+	github.com/cpuguy83/go-md2man v1.0.8 // indirect
 	github.com/docker/go-connections v0.4.0
 	github.com/felixge/httpsnoop v1.0.2
+	github.com/go-delve/delve v1.7.2 // indirect
 	github.com/go-mail/mail/v2 v2.3.0
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
@@ -13,7 +15,9 @@ require (
 	github.com/lib/pq v1.10.2
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/pkg/profile v0.0.0-20170413231811-06b906832ed0 // indirect
 	github.com/rs/zerolog v1.15.0
+	github.com/russross/blackfriday v0.0.0-20180428102519-11635eb403ff // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
