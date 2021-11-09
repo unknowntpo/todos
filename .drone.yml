@@ -67,7 +67,7 @@ services:
   detach: true
   commands:
     - apk add --no-cache docker-compose make
-    - ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+    - ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
     - chmod +x /usr/local/bin/docker-compose
     - docker-compose --version
     # Run scripts in ENTRYPOINT manually because if we use commands, we will overwrite the ENTRYPOINT.
