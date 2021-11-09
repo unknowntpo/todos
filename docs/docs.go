@@ -134,13 +134,6 @@ var doc = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "userID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
                         "description": "create task request body",
                         "name": "reqBody",
                         "in": "body",
@@ -246,13 +239,6 @@ var doc = `{
                         "description": "Insert your access token",
                         "name": "Authorization",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "userID",
-                        "in": "query",
                         "required": true
                     },
                     {

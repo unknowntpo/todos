@@ -166,7 +166,6 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param userID query int true "User ID"
 // @Param reqBody body CreateTaskRequest true "create task request body"
 // @Success 201 {object} domain.Task
 // @Failure 400 {object} reactor.ErrorResponse
@@ -294,7 +293,6 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param userID query int true "User ID"
 // @Param taskID path int true "Task ID"
 // @Success 200 {object} DeleteTaskByIDResponse
 // @Failure 400 {object} reactor.ErrorResponse

@@ -210,11 +210,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: User ID
-        in: query
-        name: userID
-        required: true
-        type: integer
       - description: create task request body
         in: body
         name: reqBody
@@ -252,11 +247,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: User ID
-        in: query
-        name: userID
-        required: true
-        type: integer
       - description: Task ID
         in: path
         name: taskID
