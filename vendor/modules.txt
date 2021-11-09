@@ -42,8 +42,6 @@ github.com/containerd/containerd/errdefs
 github.com/containerd/containerd/log
 github.com/containerd/containerd/platforms
 github.com/containerd/containerd/sys
-# github.com/cpuguy83/go-md2man v1.0.8
-## explicit
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/docker/distribution v2.7.1+incompatible
@@ -89,8 +87,6 @@ github.com/docker/go-units
 github.com/felixge/httpsnoop
 # github.com/fsnotify/fsnotify v1.4.9
 github.com/fsnotify/fsnotify
-# github.com/go-delve/delve v1.7.2
-## explicit
 # github.com/go-mail/mail/v2 v2.3.0
 ## explicit
 github.com/go-mail/mail/v2
@@ -182,8 +178,6 @@ github.com/pelletier/go-toml
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors
-# github.com/pkg/profile v0.0.0-20170413231811-06b906832ed0
-## explicit
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
 # github.com/rs/zerolog v1.15.0
@@ -192,8 +186,6 @@ github.com/rs/zerolog
 github.com/rs/zerolog/internal/cbor
 github.com/rs/zerolog/internal/json
 github.com/rs/zerolog/pkgerrors
-# github.com/russross/blackfriday v0.0.0-20180428102519-11635eb403ff
-## explicit
 # github.com/sirupsen/logrus v1.8.1
 ## explicit
 github.com/sirupsen/logrus
