@@ -24,7 +24,7 @@ steps:
         - '*.go'
       required: true
   - name: deploy
-    image: docker:dind
+    image: hmajid2301/dind-docker-compose@sha256:522c274a1da3f363f195251557b211447dbcbc6c2d9fa4b64ad0237e2ec33f94
     environment:
       DRONE_DEPLOY_HOST:
         from_secret: deploy_host
@@ -34,7 +34,7 @@ steps:
       - name: dockersock
         path: /var/run
     commands:
-      - sleep 10 # give docker enough time to initialize
+      - sleep 30 # give docker enough time to initialize
       - docker ps -a
       - echo $${DRONE_DEPLOY_HOST}
       - echo $${DRONE_DEPLOY_USERNAME}
@@ -59,7 +59,7 @@ steps:
 # Ref: https://github.com/testcontainers/dind-drone-plugin
 services:
 - name: docker
-  image: hmajid2301/dind-docker-compose
+  image: hmajid2301/dind-docker-compose@sha256:522c274a1da3f363f195251557b211447dbcbc6c2d9fa4b64ad0237e2ec33f94
   privileged: true
   volumes:
   - name: dockersock
