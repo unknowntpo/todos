@@ -41,7 +41,7 @@ test/integration:
 
 current_time = $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 git_description = $(shell git describe --always --dirty --tags --long)
-linker_flags = '-s -X main.buildTime=${current_time} -X main.version=${git_description}'
+linker_flags = '-s -X main.buildTime=${current_time} -X main.version=${TODOS_BIN_VERSION}' 
 
 ## build/docker/image: build the docker image for api
 .PHONY: build/docker/image
@@ -71,7 +71,9 @@ run/compose/up:
 	@DOCKER_BUILDKIT=1 docker-compose \
 	    -f docker-compose-prod.yml \
 	    --project-name todos-prod \
-	    build --parallel
+	    build \
+	    --parallel \
+	    --build-arg VERSION=${git_description}
 	@docker-compose -f docker-compose-prod.yml \
 	    --env-file .envrc \
 	    up \
