@@ -68,7 +68,7 @@ services:
   commands:
     # Run scripts in ENTRYPOINT manually because if we use commands, we will overwrite the ENTRYPOINT.
     # See https://docs.drone.io/pipeline/docker/syntax/steps/
-    - ./dockerd-entrypoint.sh
+    - /dockerd-entrypoint.sh
     - apk add --no-cache docker-compose make
 
 volumes:
