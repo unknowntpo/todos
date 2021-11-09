@@ -65,6 +65,8 @@ services:
   - name: dockersock
     path: /var/run
   detach: true
+  commands:
+    - apk add --no-cache docker-compose make
 
 volumes:
   - name: dockersock
