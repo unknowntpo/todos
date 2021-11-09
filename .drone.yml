@@ -7,8 +7,8 @@ steps:
   - name: test
     image: golang
     commands:
-      #   - go install honnef.co/go/tools/cmd/staticcheck@latest
-      #- make vendor
+    - go install honnef.co/go/tools/cmd/staticcheck@latest
+    - make vendor
         #- make audit
   - name: build
     image: golang
