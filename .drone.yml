@@ -24,7 +24,7 @@ steps:
         - '*.go'
       required: true
   - name: deploy
-    image: docker:dind
+    image: gitlab/dind
     environment:
       DRONE_DEPLOY_HOST:
         from_secret: deploy_host
@@ -59,7 +59,7 @@ steps:
 # Ref: https://github.com/testcontainers/dind-drone-plugin
 services:
 - name: docker
-  image: selectcode/dind-docker-compose@sha256:1d51e0e69e2e7c5c377727448d837bb52f96a7caa2dff52f57d29b57021ee25d
+  image: gitlab/dind
   privileged: true
   volumes:
   - name: dockersock
