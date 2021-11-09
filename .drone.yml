@@ -25,6 +25,7 @@ steps:
       required: true
   - name: deploy
     image: gitlab/dind
+    privileged: true
     environment:
       DRONE_DEPLOY_HOST:
         from_secret: deploy_host
