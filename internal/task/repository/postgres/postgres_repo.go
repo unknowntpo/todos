@@ -147,7 +147,7 @@ func (tr *taskRepo) Update(ctx context.Context, task *domain.Task) error {
 	if err := tr.DB.QueryRowContext(ctx, query, args...).Scan(&task.Version); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return errors.E(op, errors.KindRecordNotFound, domain.ErrRecordNotFound)
+			return errors.E(op, errors.KindEditConflict, domain.ErrRecordNotFound)
 		default:
 			return errors.E(op, errors.KindDatabase, err)
 		}

@@ -107,8 +107,15 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	tasks, metadata, err := t.tu.GetAll(ctx, user.ID, input.Title, input.Filters)
 	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
-		return
+		switch {
+		case errors.KindIs(err, errors.KindRecordNotFound):
+			t.rc.NotFoundResponse(w, r)
+			return
+		// TODO: Should we explicitly specify errors.KindInternal and errors.KindDatabase ?
+		default:
+			t.rc.ServerErrorResponse(w, r, err)
+			return
+		}
 	}
 
 	err = t.rc.WriteJSON(w, http.StatusOK, &GetAllTasksResponse{
@@ -250,9 +257,14 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 
 	err = t.rc.ReadJSON(w, r, &input)
 	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
-		return
-
+		switch {
+		case errors.KindIs(err, errors.KindRecordNotFound):
+			t.rc.NotFoundResponse(w, r)
+			return
+		default:
+			t.rc.ServerErrorResponse(w, r, err)
+			return
+		}
 	}
 
 	if input.Title != nil {
@@ -277,8 +289,14 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	ctx = r.Context()
 	err = t.tu.Update(ctx, task)
 	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
-		return
+		switch {
+		case errors.KindIs(err, errors.KindEditConflict):
+			t.rc.EditConflictResponse(w, r)
+			return
+		default:
+			t.rc.ServerErrorResponse(w, r, err)
+			return
+		}
 	}
 
 	err = t.rc.WriteJSON(w, http.StatusOK, &UpdateTaskByIDResponse{task})
@@ -305,6 +323,7 @@ func (t *taskAPI) Delete(w http.ResponseWriter, r *http.Request) {
 	// Extract the task ID from the URL.
 	taskID, err := t.rc.ReadIDParam(r)
 	if err != nil {
+		// param invalid
 		t.rc.NotFoundResponse(w, r)
 		return
 	}
