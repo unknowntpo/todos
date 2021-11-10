@@ -1,3 +1,4 @@
 bin/
 gnuplot/*.png
 gnuplot/*.dat
+*.pprof

@@ -146,7 +146,9 @@ docs/show:
 
 ## bench/naivepool: Run the benchmark of naivepool and output the plot.
 bench/naivepool:
-	@go test -v ./pkg/naivepool -bench=. | \
+	@go test -v ./pkg/naivepool -bench=. \
+	    -cpuprofile cpu.pprof \
+	    -memprofile mem.pprof | \
 	    sed -n 's/^BenchmarkExecute1000Tasks\///p' | \
 	    awk '/(\w)+-[0-9]+/{print $$1, $$3}' > ./gnuplot/perf.dat
 	@gnuplot \
