@@ -24,6 +24,8 @@ steps:
     commands:
       - sleep 20 # give docker enough time to initialize
       - docker ps -a
+      - apk add --no-cache make
+      - make test/integration
   - name: coverage
     image: plugins/codecov
     settings:
@@ -75,9 +77,6 @@ services:
   - name: dockersock
     path: /var/run
   detach: true
-  commands:
-    - sh /usr/local/bin/dockerd-entrypoint.sh
-    - apk add --no-cache make
 volumes:
   - name: dockersock
     temp: {}
