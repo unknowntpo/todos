@@ -69,14 +69,14 @@ steps:
 # Ref: https://github.com/testcontainers/dind-drone-plugin
 services:
 - name: docker
-  image: gitlab/dind
+  image: docker:dind
   privileged: true
   volumes:
   - name: dockersock
     path: /var/run
   detach: true
   commands:
-    - /usr/local/bin/dockerd-entrypoint.sh
+    - sh /usr/local/bin/dockerd-entrypoint.sh
     - apk add --no-cache make
 volumes:
   - name: dockersock
