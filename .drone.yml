@@ -18,6 +18,7 @@ steps:
       #- chmod +x ./bin/api
   - name: test-testcontainer
     image: quay.io/testcontainers/dind-drone-plugin
+    privileged: true
     environment:
       CI_WORKSPACE: "/drone/src"
     settings:
