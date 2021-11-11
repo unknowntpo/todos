@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"os"
 	"testing"
 	"time"
 
@@ -24,10 +25,6 @@ type TaskRepoTestSuite struct {
 }
 
 func (suite *TaskRepoTestSuite) SetupSuite() {
-	if testing.Short() {
-		suite.T().Skip("skipping integration test")
-	}
-
 	ctx := context.Background()
 
 	container, db, err := testutil.CreatePostgresTestContainer(ctx, "testdb")
@@ -100,6 +97,10 @@ func (suite *TaskRepoTestSuite) TearDownTest() {
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
 func TestTaskRepoTestSuite(t *testing.T) {
+	if os.Getenv("TEST_IT") == "1" {
+		t.Skip("skipping integration tests")
+	}
+
 	suite.Run(t, new(TaskRepoTestSuite))
 }
 
@@ -228,7 +229,6 @@ func (suite *TaskRepoTestSuite) TestGetAll() {
 	})
 	// FIXME: Maybe using failed on database error to test errors.ErrDatabase ?
 	suite.Run("Fail on database error-timeout", func() {
-
 		suite.T().Skip("TODO: finish the implementation")
 		suite.TearDownTest()
 		suite.SetupTest()

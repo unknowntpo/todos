@@ -1,12 +1,17 @@
 package domain
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSortColumn(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Run("test SortColumn with prefix trimmed column", func(t *testing.T) {
 		var f Filters
 
@@ -31,6 +36,10 @@ func TestSortColumn(t *testing.T) {
 }
 
 func TestSortDirection(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Run("test ASC", func(t *testing.T) {
 		var f Filters
 
@@ -57,6 +66,10 @@ func TestSortDirection(t *testing.T) {
 }
 
 func TestLimit(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	var f Filters
 
 	f.PageSize = 3
@@ -68,6 +81,10 @@ func TestLimit(t *testing.T) {
 }
 
 func TestOffset(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	var f Filters
 
 	f.PageSize = 3

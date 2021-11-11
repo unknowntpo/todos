@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -14,6 +15,10 @@ import (
 )
 
 func TestInsert(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	// When success, it should return no error.
 	t.Run("Success", func(t *testing.T) {
 		repo := new(_repoMock.TokenRepository)
@@ -55,6 +60,10 @@ func TestInsert(t *testing.T) {
 }
 
 func TestDeleteAllForUser(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	// When success, it should return no error.
 	t.Run("Success", func(t *testing.T) {
 		// init token usecase with mock token repo

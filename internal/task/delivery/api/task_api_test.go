@@ -1,10 +1,15 @@
 package api
 
 import (
+	"os"
 	"testing"
 )
 
 func TestGetAll(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Skip("TODO: finish the implementation")
 	t.Run("SUCCESS", func(t *testing.T) {
 		// Should return http.StatusOK, and task
@@ -23,6 +28,10 @@ func TestGetAll(t *testing.T) {
 }
 
 func TestGetByID(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Skip("TODO: finish the implementation")
 	// Note: manually set up user in context.
 	t.Run("test params - taskID", func(t *testing.T) {
@@ -40,6 +49,10 @@ func TestGetByID(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Run("PASS", func(t *testing.T) {
 
 	})
@@ -60,6 +73,10 @@ func TestInsert(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Run("PASS", func(t *testing.T) {
 
 	})
@@ -90,6 +107,10 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Skip("TODO: finish the implementation")
 	t.Run("SUCCESS", func(t *testing.T) {
 		// Should return 'task successfully deleted' message

@@ -26,13 +26,13 @@ $(GIT_HOOKS):
 ## test/unit: execute unit test
 .PHONY: test/unit
 test/unit:
-	@go test -v ./... -short -count=1 -cover -race
+	@TEST_UNIT=1 go test -v ./... -count=1 -cover -race
 
 ## test/integration: execute integration test
 .PHONY: test/integration
 test/integration:
 	@echo "Running integration tests using testcontainers..."
-	@go test -v ./... -run=Integration -cover -race
+	@TEST_IT=1 go test -v ./... -count=1 -cover -race
 
 # ==================================================================================== #
 # BUILD

@@ -1,12 +1,17 @@
 package validator
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMatch(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Run("EmailRX - Match", func(t *testing.T) {
 		email := "alice@example.com"
 
@@ -23,6 +28,10 @@ func TestMatch(t *testing.T) {
 }
 
 func TestErr(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	v := New()
 	v.AddError("key", "value")
 	assert.Equal(t, "key: value", v.Err().Error(), "result should be equal")

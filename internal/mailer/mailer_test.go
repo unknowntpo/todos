@@ -2,6 +2,7 @@ package mailer
 
 import (
 	"bytes"
+	"os"
 	"testing"
 	"time"
 
@@ -13,6 +14,10 @@ import (
 )
 
 func TestSend(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	/*
 		t.Run("send welcome email", func(t *testing.T) {
 			// new mailer with config.Config set.
@@ -43,6 +48,10 @@ func TestSend(t *testing.T) {
 }
 
 func TestPrepareLetterPaper(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	recipient := "alice@example.com"
 	templateName := "user_welcome.tmpl"
 
