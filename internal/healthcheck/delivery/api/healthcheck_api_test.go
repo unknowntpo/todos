@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/unknowntpo/todos/internal/logger/zerolog"
@@ -14,6 +15,10 @@ import (
 )
 
 func TestHealthcheckHandler(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	buf := new(bytes.Buffer)
 	logger := zerolog.New(buf)
 	router := httprouter.New()

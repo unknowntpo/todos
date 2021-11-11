@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -19,6 +20,9 @@ import (
 )
 
 func TestCreateAuthenticationToken(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
 	// Success
 	t.Run("Success", func(t *testing.T) {
 		logBuf := new(bytes.Buffer)

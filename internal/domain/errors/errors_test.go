@@ -3,6 +3,7 @@ package errors
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -36,6 +37,10 @@ func outer() error {
 }
 
 func TestMsgFormat(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	var counter int = 3
 	msg := Msg("current counter value: %d").Format(counter)
 	assert.Equal(t, "current counter value: 3", msg.String(), "formatted output should be equal")
@@ -44,6 +49,10 @@ func TestMsgFormat(t *testing.T) {
 // test building an error
 // table-driven test
 func TestE(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Run("build a KindRecordNotFound error", func(t *testing.T) {
 		// define operation
 		const op Op = "taskRepo.GetByID"
@@ -92,6 +101,10 @@ func TestE(t *testing.T) {
 }
 
 func TestUnwrap(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Run("errors.Is", func(t *testing.T) {
 		// build nested error
 		cause := sql.ErrNoRows
@@ -108,12 +121,20 @@ func TestUnwrap(t *testing.T) {
 }
 
 func TestError(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Run("test duplicated error username and Kind", func(t *testing.T) {
 
 	})
 }
 
 func TestKindIs(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Run("Success", func(t *testing.T) {
 		// declare err which is *Error
 		err := E(KindInternal)
@@ -134,6 +155,10 @@ func TestKindIs(t *testing.T) {
 }
 
 func TestKindInherit(t *testing.T) {
+	if os.Getenv("TEST_UNIT") != "1" {
+		t.Skip("skipping unit tests")
+	}
+
 	t.Run("Outer error doesn't have kind specified", func(t *testing.T) {
 		inner := E(KindFailedValidation, errors.New("something goes wrong"))
 		outer := E(inner)
