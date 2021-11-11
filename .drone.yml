@@ -7,6 +7,7 @@ steps:
   - name: test
     image: golang:alpine
     commands:
+    - apk add --no-cache make
     - go install honnef.co/go/tools/cmd/staticcheck@latest
     - make vendor
         #- make audit
