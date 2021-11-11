@@ -23,7 +23,7 @@ steps:
         path: /var/run
     commands:
       #- sleep 20 # give docker enough time to initialize
-      - apk add --no-cache make
+      - apk add --no-cache make docker-cli
       - docker ps -a
       - make test/integration
   - name: coverage
