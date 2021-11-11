@@ -116,7 +116,6 @@ func (suite *UserUsecaseTestSuite) TestInsert() {
 
 		ctx := context.TODO()
 
-		// FIXME: Why err == nil ??
 		err := userUsecase.Insert(ctx, suite.fakeUser)
 
 		suite.ErrorIs(err, dummyErr)
