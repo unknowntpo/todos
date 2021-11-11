@@ -16,15 +16,15 @@ steps:
       #- make build/api
       #- chmod +x ./bin/api
   - name: integration_test
-    image: docker:dind
+    image: golang
     privileged: true
     volumes:
       - name: dockersock
         path: /var/run
     commands:
-      - sleep 20 # give docker enough time to initialize
-      - docker ps -a
+      #- sleep 20 # give docker enough time to initialize
       - apk add --no-cache make
+      - docker ps -a
       - make test/integration
   - name: coverage
     image: plugins/codecov
