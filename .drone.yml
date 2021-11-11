@@ -15,14 +15,6 @@ steps:
     commands:
       #- make build/api
       #- chmod +x ./bin/api
-  - name: coverage
-    image: plugins/codecov
-    settings:
-      token:
-        from_secret: codecov_token
-      files:
-        - '*.go'
-      required: true
   - name: integration_test
     image: docker:dind
     privileged: true
@@ -32,6 +24,14 @@ steps:
     commands:
       - sleep 20 # give docker enough time to initialize
       - docker ps -a
+  - name: coverage
+    image: plugins/codecov
+    settings:
+      token:
+        from_secret: codecov_token
+      files:
+        - '*.go'
+      required: true
 #  - name: deploy
 #    image: docker:dind
 #    privileged: true
