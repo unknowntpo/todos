@@ -23,43 +23,45 @@ steps:
       files:
         - '*.go'
       required: true
-  - name: testcompose
-    image: compose:1.23.2
-    volumes:
-    - name: docker_sock
-      path: /var/run
-    commands:
-    - docker-compose --version
-  - name: deploy
-    image: gitlab/dind
+  - name: integration_test
+    image: docker:dind
     privileged: true
-    environment:
-      DRONE_DEPLOY_HOST:
-        from_secret: deploy_host
-      DRONE_DEPLOY_USERNAME:
-        from_secret: deploy_user
     volumes:
       - name: dockersock
         path: /var/run
     commands:
-      - sleep 30 # give docker enough time to initialize
+      - sleep 20 # give docker enough time to initialize
       - docker ps -a
-      - echo $${DRONE_DEPLOY_HOST}
-      - echo $${DRONE_DEPLOY_USERNAME}
-      - docker context create remote --docker "host=ssh://$${DRONE_DEPLOY_HOST}@$${DRONE_DEPLOY_USERNAME}"
-      # - make run/compose/up
-      # todo fetch from docker hub
-      - DOCKER_BUILDKIT=1 docker-compose \
-        -f docker-compose-prod.yml \
-        --project-name todos-prod \
-        build --parallel
-      - docker-compose -f docker-compose-prod.yml \
-        --context remote \
-        --env-file .envrc \
-        up \
-        -d \
-        --remove-orphans \
-        --force-recreate
+#  - name: deploy
+#    image: docker:dind
+#    privileged: true
+#    environment:
+#      DRONE_DEPLOY_HOST:
+#        from_secret: deploy_host
+#      DRONE_DEPLOY_USERNAME:
+#        from_secret: deploy_user
+#    volumes:
+#      - name: dockersock
+#        path: /var/run
+#    commands:
+#      - sleep 30 # give docker enough time to initialize
+#      - docker ps -a
+#      - echo $${DRONE_DEPLOY_HOST}
+#      - echo $${DRONE_DEPLOY_USERNAME}
+#      - docker context create remote --docker "host=ssh://$${DRONE_DEPLOY_HOST}@$${DRONE_DEPLOY_USERNAME}"
+#      # - make run/compose/up
+#      # todo fetch from docker hub
+#      - DOCKER_BUILDKIT=1 docker-compose \
+#        -f docker-compose-prod.yml \
+#        --project-name todos-prod \
+#        build --parallel
+#      - docker-compose -f docker-compose-prod.yml \
+#        --context remote \
+#        --env-file .envrc \
+#        up \
+#        -d \
+#        --remove-orphans \
+#        --force-recreate
 
 
 
@@ -74,6 +76,8 @@ services:
     path: /var/run
   detach: true
   commands:
+    - /usr/local/bin/dockerd-entrypoint.sh
+    - apk add --no-cache make
 volumes:
   - name: dockersock
     temp: {}
