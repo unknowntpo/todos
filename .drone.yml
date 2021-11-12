@@ -3,8 +3,6 @@ name: default
 workspace:
   base: /go
   path: src/github.com/unknowntpo/todos
-node:
- machine: rpi
 steps:
   - name: test
     image: golang:alpine
@@ -94,6 +92,8 @@ steps:
 #        --remove-orphans \
 #        --force-recreate
 
+node:
+  machine: rpi
 
 
 # Specify docker:dind as a service
