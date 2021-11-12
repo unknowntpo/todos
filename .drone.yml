@@ -93,7 +93,7 @@ steps:
 #        --force-recreate
 
 node:
-  machine: rpi
+  machine: digitalocean
 
 
 # Specify docker:dind as a service
