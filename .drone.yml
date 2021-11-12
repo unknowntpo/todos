@@ -92,10 +92,6 @@ steps:
 #        --remove-orphans \
 #        --force-recreate
 
-node:
-  machine: digitalocean
-
-
 # Specify docker:dind as a service
 # Ref: https://github.com/testcontainers/dind-drone-plugin
 services:
