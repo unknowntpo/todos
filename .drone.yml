@@ -4,7 +4,7 @@ workspace:
   base: /go
   path: src/github.com/unknowntpo/todos
 node:
- rpi: "true"
+ machine: rpi
 steps:
   - name: test
     image: golang:alpine
