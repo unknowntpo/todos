@@ -61,6 +61,8 @@ steps:
       files:
         - '*.go'
       required: true
+  node:
+    rpi: true
 #  - name: deploy
 #    image: docker:dind
 #    privileged: true
