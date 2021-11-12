@@ -92,8 +92,8 @@ steps:
 #        --remove-orphans \
 #        --force-recreate
 
-node:
-  machine: rpi
+      #node:
+      #  machine: rpi
 
 
 # Specify docker:dind as a service
