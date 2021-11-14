@@ -1,9 +1,8 @@
 kind: pipeline
 type: docker
 name: default
-platform:
-  os: linux
-  arch: amd64
+node:
+  machine: rpi
 workspace:
   base: /go
   path: src/github.com/unknowntpo/todos
