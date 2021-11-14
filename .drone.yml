@@ -25,6 +25,11 @@ steps:
   - name: push-image
     image: docker:dind
     privileged: true
+    environment:
+      DOCKER_USERNAME:
+        from_secret: docker_username
+      DOCKER_PASSWORD:
+        from_secret: docker_password
     volumes:
       - name: dockersock
         path: /var/run
