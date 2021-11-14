@@ -33,11 +33,11 @@ steps:
     volumes:
       - name: dockersock
         path: /var/run
-    secrets: [ docker_username, docker_password ]
     commands:
       - echo "test username"
       - echo $${DOCKER_USERNAME}
       - apk add --no-cache make
+      - sleep 30 # wait for docker daemon finishing setup.
       - docker ps -a
       - make image/build/server
       - make image/build/config
