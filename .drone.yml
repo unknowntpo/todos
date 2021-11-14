@@ -1,5 +1,8 @@
 kind: pipeline
 name: default
+platform:
+  os: linux
+  arch: arm
 workspace:
   base: /go
   path: src/github.com/unknowntpo/todos
