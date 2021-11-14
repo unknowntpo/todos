@@ -15,7 +15,7 @@ steps:
       #- make vendor
       #- make audit
   - name: build
-    image: golang
+    image: golang:alpine
     commands:
       #- make build/api
       #- chmod +x ./bin/api
