@@ -3,9 +3,9 @@ type: docker
 name: default
 platform:
   os: linux
-  arch: arm
+  arch: amd64
 node:
-  machine: rpi
+  machine: digitalocean
 workspace:
   base: /go
   path: src/github.com/unknowntpo/todos
