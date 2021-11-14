@@ -2,7 +2,7 @@ kind: pipeline
 type: docker
 name: default
 node:
-  machine: rpi
+  machine: digitalocean
 workspace:
   base: /go
   path: src/github.com/unknowntpo/todos
