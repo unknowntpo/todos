@@ -204,7 +204,7 @@ production/configure/caddyfile:
 
 ## production/deploy: deploy the services
 .PHONY: production/deploy
-prodcution/deploy:
+production/deploy:
 	@DOCKER_BUILDKIT=1 docker-compose \
 	    --context remote \
 	    -f docker-compose-prod.yml \
