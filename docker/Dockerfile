@@ -26,7 +26,7 @@ COPY Makefile .
 COPY .envrc .
 COPY app_config* .
 
-RUN make build/api
+RUN make build/server
 
 # Production stage
 FROM scratch AS production
@@ -37,7 +37,7 @@ COPY --from=build-base /app/app_config-prod.yml .
 
 EXPOSE 4000
 
-CMD ["./api", "-c", "./app_config-prod.yml"]
+CMD ["./server", "-c", "./app_config-prod.yml"]
 
 # config base
 FROM alpine as config-base

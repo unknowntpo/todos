@@ -43,25 +43,48 @@ current_time = $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 git_description = $(shell git describe --always --dirty --tags --long)
 linker_flags = '-s -X main.buildTime=${current_time} -X main.version=${TODOS_BIN_VERSION}' 
 
-## build/docker/image: build the docker image for api
-.PHONY: build/docker/image
-build/docker/image:
-	@docker build -f ./cmd/api/Dockerfile -t api .
+## image/build/server: build the docker image for server
+.PHONY: image/build/server
+image/build/server:
+	@DOCKER_BUILDKIT=1 docker build \
+	    --file docker/Dockerfile \
+	    --target production \
+	    --build-arg VERSION=${git_description} \
+	    --tag unknowntpo/todos-production-server:latest .
 
-## build/api: build the cmd/api application
-.PHONY: build/api
-build/api:
-	@echo 'Building cmd/api...'
-	CGO_ENABLED=0 go build -ldflags=${linker_flags} -o=./bin/api ./cmd/api
+## image/build/config: build the config image for database.
+.PHONY: image/build/config
+image/build/config:
+	@DOCKER_BUILDKIT=1 docker build \
+	    --file docker/Dockerfile \
+	    --target config \
+	    --tag unknowntpo/todos-config:latest .
+
+## image/push/server: push the server image to dockerhub
+.PHONY: image/push/server
+image/push/server:
+	@docker push unknowntpo/todos-production-server:latest
+
+## image/push/config: push the config image to dockerhub
+.PHONY: image/push/config
+image/push/config:
+	@docker push unknowntpo/todos-config:latest
+
+## build/server: build the cmd/server application
+.PHONY: build/server
+build/server:
+	@echo 'Building cmd/server...'
+	CGO_ENABLED=0 go build -ldflags=${linker_flags} -o=./bin/server ./cmd/server
+
 
 # ==================================================================================== #
 # DEVELOPMENT
 # ==================================================================================== #
 
-## run/api: run the cmd/api application with trusted origin = swagger UI server
-.PHONY: run/api
-run/api: db/start
-	@TODOS_APP_DB_DSN=$(TODOS_APP_DB_DSN_LOCAL) go run ./cmd/api -c ./app_config-dev.yml
+## run/server: run the cmd/server application with trusted origin = swagger UI server
+.PHONY: run/server
+run/server: db/start
+	@TODOS_APP_DB_DSN=$(TODOS_APP_DB_DSN_LOCAL) go run ./cmd/server -c ./app_config-dev.yml
 
 
 
@@ -125,7 +148,7 @@ db/connect:
 .PHONY: docs/gen
 docs/gen:
 	@echo "Generating swagger API documentation..."
-	@swag init --dir ./cmd/api,./internal \
+	@swag init --dir ./cmd/server,./internal \
 	    --parseDepth 5 \
 	    -o ./docs
 
