@@ -50,6 +50,9 @@ image/build/server:
 	    --file docker/Dockerfile \
 	    --target production \
 	    --build-arg VERSION=${git_description} \
+	    --build-arg BUILDKIT_INLINE_CACHE=1 \
+	    --network host \
+	    --cache-from unknowntpo/todos-production-server:latest \
 	    --tag unknowntpo/todos-production-server:latest .
 
 ## image/build/config: build the config image for database.
@@ -58,6 +61,9 @@ image/build/config:
 	@DOCKER_BUILDKIT=1 docker build \
 	    --file docker/Dockerfile \
 	    --target config \
+	    --build-arg BUILDKIT_INLINE_CACHE=1 \
+	    --network host \
+	    --cache-from unknowntpo/todos-config:latest \
 	    --tag unknowntpo/todos-config:latest .
 
 ## image/push/server: push the server image to dockerhub
