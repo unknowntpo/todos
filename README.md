@@ -4,7 +4,9 @@
 [![Build Status](https://drone.unknowntpo.net/api/badges/unknowntpo/todos/status.svg?ref=refs/heads/master)](https://drone.unknowntpo.net/unknowntpo/todos)
 [![Build Status](https://cloud.drone.io/api/badges/unknowntpo/todos/status.svg)](https://cloud.drone.io/unknowntpo/todos) [![Go.Dev](https://godoc.org/github.com/unknowntpo/todos?status.svg=)](https://pkg.go.dev/github.com/unknowntpo/todos?utm_source=godoc) [![Go Report Card](https://goreportcard.com/badge/github.com/unknowntpo/todos)](https://goreportcard.com/report/github.com/unknowntpo/todos) [![codecov](https://codecov.io/gh/unknowntpo/todos/branch/master/graph/badge.svg?token=UV6IIUUCW2)](https://codecov.io/gh/unknowntpo/todos)
 
-If github failed to render mermaid graphs, click the button below to see the Documentation at HackMD
+> If github failed to render mermaid graphs, click the button below to see the Documentation at HackMD
+
+> It's a project based on [Advanced patterns for building APIs and web applications in Go](https://lets-go-further.alexedwards.net/)
 
 [![hackmd-github-sync-badge](https://hackmd.io/niPMhxhbSg-rNNzsj0Hrsw/badge)](https://hackmd.io/niPMhxhbSg-rNNzsj0Hrsw)
 
@@ -12,11 +14,14 @@ If github failed to render mermaid graphs, click the button below to see the Doc
 ## Quick Start
 
 ## Project Walkthrough
+:construction: Not Finished!
 ### Database Schema
-:construction: TODO: Display foreign key
+:construction: TODO: Display foreign key relationship between token -> users task -> users
+token.user_id is the foreign key which points to user.id
+task.user_id is the foreign key which points to user.id
 ```mermaid
 erDiagram
-User {
+user {
     id bigserial
     created_at timestamp
     name text
@@ -25,13 +30,13 @@ User {
     activated bool
     version integer
 }
-Token {
+token {
     hash bytea
     user_id bigint
     expiry timestamp
     scope text
 }
-Task {
+task {
     id bigserial
     user_id bigint
     created_at timestamp
@@ -40,16 +45,19 @@ Task {
     done boolean
     version integer
 }
-User ||..o{ Token: has
-User ||..o{ Task: has
+user ||..o{ token: has
+user ||..o{ task: has
 ```
 ### Clean Architecture
 ### Error Handling
+* [Error Handling in todos](/xRduxQ1_QwaOfLDL6eZ92Q)
+* :question: Why I use custom error type ?
+    * We can define consise and informative error message by just filling in the fields in `errors.Error`
+    * :construction: Explain the detail, give up an example
 #### Delivery
 ##### Reactor package
-* :question:  Why Use Reactor package?
-* :question: The `reactor.Context`
-* :question: Why use `sync.Pool` in `reactor.Reactor.HandlerWrapper` ?
+* [Introduction to reactor package](/mQKfnqHQSsuokVhYTGEZNA)
+
 #### Usecase
 * contains some business logic
 * tested by mocking repository layer using [`stretchr/testify`](https://github.com/stretchr/testify)
