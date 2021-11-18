@@ -87,24 +87,20 @@ build/server:
 # DEVELOPMENT
 # ==================================================================================== #
 
-## run/server: run the cmd/server application with trusted origin = swagger UI server
-.PHONY: run/server
-run/server: db/start
-	@TODOS_APP_DB_DSN=$(TODOS_APP_DB_DSN_LOCAL) go run ./cmd/server -c ./app_config-dev.yml
-
-
-
 ## run/compose/up: run the services
 .PHONY: run/compose/up
 run/compose/up:
 	@DOCKER_BUILDKIT=1 docker-compose \
-	    -f docker-compose-prod.yml \
+	    -f docker-compose.yml \
+	    -f docker-compose-dev.yml \
 	    --project-name todos-prod \
 	    build \
 	    --parallel \
 	    --build-arg VERSION=${git_description}
-	@docker-compose -f docker-compose-prod.yml \
-	    --env-file .envrc \
+	@docker-compose \
+	    -f docker-compose.yml \
+    	    -f docker-compose-dev.yml \
+    	    --env-file .envrc \
 	    up \
 	    -d \
 	    --remove-orphans \
@@ -113,7 +109,7 @@ run/compose/up:
 ## run/compose/down: shutdown the services
 .PHONY: run/compose/down
 run/compose/down:
-	@docker-compose -f docker-compose-prod.yml down --remove-orphans
+	@docker-compose -f docker-compose.yml -f docker-compose-dev.yml down --remove-orphans
 
 ## db/migrations/new name=$1: create a new database migration
 .PHONY: db/migrations/new
@@ -127,28 +123,10 @@ db/migrations/up:
 	@echo 'Running up migrations...'
 	migrate -path ./migrations -database $(TODOS_APP_DB_DSN) up
 
-## db/start: start a postgres container with testdata
-.PHONY: db/start
-db/start:
-	@echo "Start a new postgres db with testdata..."
-	@DOCKER_BUILDKIT=1 docker-compose -f docker-compose-db.yml build --parallel
-	@docker-compose -f docker-compose-db.yml --project-name todos-dev \
-	    --env-file .envrc \
-	    up \
-	    -d \
-	    --remove-orphans \
-	    --force-recreate
-
-## db/stop: stop a postgres container.
-.PHONY: db/stop
-db/stop:
-	@echo "Stop postgres db container..."
-	@docker-compose -f docker-compose-db.yml --project-name todos-dev down
-
 ## db/connect: connect to the database in postgres container
 .PHONY: db/connect
 db/connect:
-	@docker exec -it todos_devdb psql $(TODOS_APP_DB_DSN_LOCAL)
+	@docker exec -it todos_dev-db psql $(TODOS_APP_DB_DSN_LOCAL)
 
 ## docs/gen: use swagger codegen to generate API documentation
 .PHONY: docs/gen
@@ -184,9 +162,6 @@ bench/naivepool:
 		-e "output_path='./gnuplot/perf.png'" \
 		-e "input_path='./gnuplot/perf.dat'" \
 		./gnuplot/naivepool_perf.gp
-
-
-	
 
 # ==================================================================================== #
 # QUALITY CONTROL

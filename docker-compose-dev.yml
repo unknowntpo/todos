@@ -1,0 +1,23 @@
+version: "2.3"
+
+services:
+  server:
+    container_name: todos_dev-server
+    image: dev-server
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: dev-server
+  db:
+    container_name: todos_dev-db
+    image: postgres:alpine
+  config:
+    container_name: todos_dev-config
+    image: dev-config
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: config
+networks:
+  default:
+    name: todos_dev-network
