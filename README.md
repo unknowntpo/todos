@@ -6,263 +6,35 @@
 
 > If github failed to render mermaid graphs, click the button below to see the Documentation at HackMD
 
-> It's a project based on [Advanced patterns for building APIs and web applications in Go](https://lets-go-further.alexedwards.net/)
+> It's a project based on [Advanced patterns for building APIs and web applications in Go](https://lets-go-further.alexedwards.net/),
+
+> I modify the architecture of code to clean architecture, change the purpose of the code (from movie information service to todo list),  add some tests, deploy it to my own server in digitalocean.
+> You can visit the api at [api endpoint](https://todos.unknowntpo.net/v1/healthcheck)
 
 [![hackmd-github-sync-badge](https://hackmd.io/niPMhxhbSg-rNNzsj0Hrsw/badge)](https://hackmd.io/niPMhxhbSg-rNNzsj0Hrsw)
 
 [TOC]
 ## Quick Start
+Clone the repository
+```
+$  git clone https://github.com/unknowntpo/todos.git
+```
 
+Use the default `.envrc` file
+```
+cp .envrc.example .envrc
+```
+
+Run the project
+```
+$ make run/compose/up
+```
+
+Stop the project
+```
+$ make run/compose/down
+```
 ## Project Walkthrough
+[TODOs - Project Walkthrough](/W2c6Ean0Tve3-8QH24pAkg)
+
 :construction: Not Finished!
-### Database Schema
-:construction: TODO: Display foreign key relationship between token -> users task -> users
-token.user_id is the foreign key which points to user.id
-task.user_id is the foreign key which points to user.id
-```mermaid
-erDiagram
-user {
-    id bigserial
-    created_at timestamp
-    name text
-    email citext
-    password_hash bytea
-    activated bool
-    version integer
-}
-token {
-    hash bytea
-    user_id bigint
-    expiry timestamp
-    scope text
-}
-task {
-    id bigserial
-    user_id bigint
-    created_at timestamp
-    title text
-    content text
-    done boolean
-    version integer
-}
-user ||..o{ token: has
-user ||..o{ task: has
-```
-### Clean Architecture
-### Error Handling
-* [Error Handling in todos](/xRduxQ1_QwaOfLDL6eZ92Q)
-* :question: Why I use custom error type ?
-    * We can define consise and informative error message by just filling in the fields in `errors.Error`
-    * :construction: Explain the detail, give up an example
-#### Delivery
-##### Reactor package
-* [Introduction to reactor package](/mQKfnqHQSsuokVhYTGEZNA)
-
-#### Usecase
-* contains some business logic
-* tested by mocking repository layer using [`stretchr/testify`](https://github.com/stretchr/testify)
-    * e.g. If we want to test token usecase: 
-        * we set up mock token repository 
-        * set expectation
-        * assert expectation is satisfied.
-        * assert output of tokenUsecase is correct.
-        * :construction: TODO: Finish the graph
-```mermaid
-graph LR
-A(mockTokenRepo.Insert) --> B(tokenUsecase)
-```
-
-* Repository
-    * the code that make database conne to database
-    * tested by `testcontainers`
-    * 
-####
-#### Token
-:question: How token is generated ?
-
-:question: What is CSPRNG ?
-
-A Cryptographically-secure pseudorandom number generator
-
-:question: Why can't we use the output of `rand.Read()` as token.Hash ?
-#### User
-#### Task
-### pkg / reactor
-:question: Why I choose to implement package reactor?
-
-Because I need an object that I can pass it to the layer which  needs to send / receive request, response.
-
-Example:
-At commit [`002524`](https://github.com/unknowntpo/todos/commit/0025248cec922dea9614e3e213f908d1bc8d9e4b)
-in file `./internal/healthcheck/delivery/api/healthcheck_api.go`
-```go
-// Put reactor at structure that holds all the handler
-type healthcheckAPI struct {
-	version string
-	env     string
-	rc      *reactor.Reactor
-}
-
-type HealthcheckResponse struct {
-	Status      string `json: "status"`
-	Environment string `json: "environment"`
-	Version     string `json: "version"`
-}
-
-// NewHealthcheckAPI registers all handlers in /v1/healcheck to the router.
-func NewHealthcheckAPI(router *httprouter.Router, version, env string, rc *reactor.Reactor) {
-	api := &healthcheckAPI{version: version, env: env, rc: rc}
-	router.Handler(http.MethodGet, "/v1/healthcheck", rc.HandlerWrapper(api.Healthcheck))
-}
-
-// Healthcheck shows status of service.
-// @Summary Show status of service.
-// @Description None.
-// @Produce json
-// @Success 200 {object} HealthcheckResponse
-// @Router /v1/healthcheck [get]
-func (h *healthcheckAPI) Healthcheck(c *reactor.Context) error {
-	return c.WriteJSON(http.StatusOK, &HealthcheckResponse{
-		Status:      "available",
-		Version:     h.version,
-		Environment: h.env,
-	})
-}
-```
-
-:question: How does `*reactor.Reactor.HandlerWrapper` work with `Healthcheck` handler ?
-
-The callgraph:
-
-1. httprouter select the URL `/v1/healthcheck` and calls `(*Reactor).HandlerWrapper.func1.ServeHTTP(w, r)`
-2. Attempt to get new `reactor.Context` instance, if reactor.Context is not in `sync.Pool`, `sync.Pool` will allocate a new one for us.
-3. Store `w, r` inside reactor.Context
-4. call `api.Healthcheck(c)`
-5. if `api.Healthcheck` returns any error, we treat it as internal server error, log it and send response.
-
-
-### Rate Limiter
-* :question: LRU Cache ?
-* :question: IP-Based rate limiter ?
-* :question: What is token bucket ?
-### Makefile
-
-* include `.envrc` to set up
-    * POSTGRES_USER
-    * POSTGRES_PASSWORD
-    * POSTGRES_DB
-    * TODOS_APP_DB_DSN
-    * TODOS_APP_DB_DSN_LOCAL
-* Makefile command tree
-    * we can use tab to do auto-complete
-        * e.g. Type `$ make run/ + [tab]`
-            * We get
-                * `run/api`
-                * `run/compose/down`
-                * `run/compose/up`
-```mermaid
-stateDiagram-v2
-    make --> build/
-    make --> run/
-    make --> db/
-    make --> docs/
-    make --> audit
-    make --> vendor
-    build/ --> api
-    build/ --> docker/image(deprecated)
-    run/ --> api
-    run/ --> compose/
-    compose/ --> up
-    compose/ --> down
-    db/ --> migrations/
-    db/ --> connect
-    db/ --> start
-    db/ --> stop
-    migrations/ --> up
-    migrations/ --> down
-    docs/ --> gen
-    docs/ --> show
-```
-### Testing
-* Testcontainers v.s. sqlmock
-    * Test on real database
-* use build tag to seperate integration test and unit test
-#### Middleware
-* Create a API endpoint for every test
-* Wrap the test api with middleware we wanna test.
-* Assert the result we got in API endpoint is what we want.
-```mermaid
-graph LR
-A(middleware we wanna test) --> B(dummy API)
-```
-#### Delivery/API
-* Mock the usecase layer.
-#### Usecase
-* Mock the repository layer using `github.com/stretchr/testify/mock`
-#### Repository
-* Using TestContainers for test containers,
-* It's a little slow, and it use external resources, so I classify repository test as part of integration tests.
-### Dockerfile
-#### Multi-stage build
-
-```mermaid
-graph TD
-    A(config-base) -->            
-    | copy Makefile<br/>.envrc<br/>golang-migrate binary file<br/>migration files<br/>testdata<br/>config.sh|B(config)
-    C(build-base<br/><build the binary file>) -->
-    |copy binary file<br/>app_config-prod.yml| F(production)
-    E(scratch) -->|as base image| F(production)
-```
-* Parallel build
-    * When we change content in build base, config won't be changed.
-* `.envrc`
-### Configuration management
-* Use [spf13/viper](https://github.com/spf13/viper) for configuration management
-* :question: The order of config variable parsing ?
-* in `go doc viper.Get`
-    * override, flag, env, config file, key/value store, default
-    * We use env, config file, default only
-
-```mermaid
-graph LR
-A(env, TODOS_*)
-B(config file *.yml)
-C(default config in cmd/api/config.go)
-D(viper.Get)
-
-A --> |1| D
-B --> |2|D
-C --> |3|D
-
-```
-### Graceful shutdown
-:question:  How to represent goroutines ?
-```mermaid
-stateDiagram-v2
-    [*] --> app.serve()
-    app.serve() --> app.pool.Start(poolCtx)
-    app.pool.Start(poolCtx) --> go_new_monitor_goroutine
-    state go_new_monitor_goroutine {
-        [*] --> listenShutdownErr
-        shutdownErrChan --> listenShutdownErr : "err == nil"
-        listenShutdownErr --> log_stopped_server
-        --
-        [*] --> func()
-        state func() {
-            state quit_chan
-            state signal.Notify() {
-                SIGINT --> quit_chan : "signal.Notify() send os.Signal to quit channel"
-                quit_chan --> s : "quit channel send signal to s"
-            }
-            --
-            [*] --> s
-            
-            s --> poolCancel()
-            poolCancel() --> srv.Shutdown()
-            srv.Shutdown() --> app.pool.Wait() : "wait for pool finish its job"
-            app.pool.Wait() --> shutdownErr : "send nil to shutdown error channel"
-            shutdownErr --> shutdownErrChan
-        }
-    }
-    
-```
