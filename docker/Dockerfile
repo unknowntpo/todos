@@ -28,8 +28,20 @@ COPY app_config* .
 
 RUN make build/server
 
+# Development stage
+# Use golang:alpine image, great for debugging.
+FROM golang:alpine AS dev-server
+
+WORKDIR /app/
+COPY --from=build-base /app/bin .
+COPY --from=build-base /app/app_config-dev.yml .
+
+EXPOSE 4000
+
+CMD ["./server", "-c", "./app_config-dev.yml"]
+
 # Production stage
-FROM scratch AS production
+FROM scratch AS production-server
 
 WORKDIR /app/
 COPY --from=build-base /app/bin .
