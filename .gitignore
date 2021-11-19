@@ -2,3 +2,4 @@ bin/
 gnuplot/*.png
 gnuplot/*.dat
 *.pprof
+.envrc
