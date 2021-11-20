@@ -48,7 +48,7 @@ linker_flags = '-s -X main.buildTime=${current_time} -X main.version=${TODOS_BIN
 image/build/server:
 	@DOCKER_BUILDKIT=1 docker build \
 	    --file docker/Dockerfile \
-	    --target production \
+	    --target production-server \
 	    --build-arg VERSION=${git_description} \
 	    --build-arg BUILDKIT_INLINE_CACHE=1 \
 	    --network host \
