@@ -25,6 +25,19 @@ Use the default `.envrc` file
 cp .envrc.example .envrc
 ```
 
+Set up [mailtrap](https://mailtrap.io) for receiving email (for testing purpose)
+
+Change username and password in `app_config-dev.yml` to your username and password.
+
+```
+smtp:
+    host: "smtp.mailtrap.io"
+    port: 25
+    username: "<your-username>"
+    password: "<your-password>"
+    sender: "TODOs <no-reply@todos.unknowntpo.net>"
+```
+
 Run the project
 ```
 $ make run/compose/up
