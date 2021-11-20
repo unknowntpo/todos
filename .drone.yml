@@ -34,7 +34,7 @@ steps:
       - name: dockersock
         path: /var/run
     commands:
-      - apk add --no-cache make
+      - apk add --no-cache make git
       - sleep 30 # wait for docker daemon finishing setup.
       - docker ps -a
       - cp .envrc.example .envrc
