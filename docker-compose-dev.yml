@@ -10,7 +10,6 @@ services:
       target: dev-server
   db:
     container_name: todos_dev-db
-    image: postgres:alpine
   config:
     container_name: todos_dev-config
     image: dev-config

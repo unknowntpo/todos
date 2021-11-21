@@ -13,6 +13,7 @@ services:
       db:
         condition: service_healthy
   db:
+    image: postgres:13-alpine
     restart: always
     env_file:
       - ./.envrc

@@ -5,7 +5,6 @@ services:
     image: unknowntpo/todos-production-server
   db:
     container_name: todos_prod-db
-    image: postgres:alpine
     restart: always
   config:
     container_name: todos_prod-config

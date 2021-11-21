@@ -17,6 +17,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
+	github.com/swaggo/http-swagger v1.1.2
 	github.com/swaggo/swag v1.7.1
 	github.com/testcontainers/testcontainers-go v0.11.1
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce
