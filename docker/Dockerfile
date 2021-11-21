@@ -1,5 +1,5 @@
 # build base
-FROM golang:alpine as build-base
+FROM golang:1.16-alpine as build-base
 
 ARG VERSION
 ENV TODOS_BIN_VERSION=${VERSION}
@@ -29,8 +29,8 @@ COPY app_config* .
 RUN make build/server
 
 # Development stage
-# Use golang:alpine image, great for debugging.
-FROM golang:alpine AS dev-server
+# Use golang:1.16-alpine image, great for debugging.
+FROM golang:1.16-alpine AS dev-server
 
 WORKDIR /app/
 COPY --from=build-base /app/bin .
