@@ -1,9 +1,6 @@
 # build base
 FROM golang:1.16-alpine as build-base
 
-ARG VERSION
-ENV TODOS_BIN_VERSION=${VERSION}
-
 RUN apk add --no-cache curl \
 git \
 bash \
@@ -25,6 +22,9 @@ COPY vendor ./vendor
 COPY Makefile .
 COPY .envrc .
 COPY app_config* .
+
+ARG VERSION
+ENV TODOS_BIN_VERSION=${VERSION}
 
 RUN make build/server
 
