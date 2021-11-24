@@ -31,8 +31,15 @@ func ValidateUser(v *validator.Validator, user *User) {
 	// Call the standalone ValidateEmail() helper.
 	ValidateEmail(v, user.Email)
 
+	// If the password plaintext is ever nil, this will be due to a logic error in our
+	// codebase (probably because we forgot to set a password for the user). It's a
+	// useful sanity check to include here, but it's not a problem with the data
+	// provided by the client. So rather than adding an error to the validation map we
+	// raise a panic instead.
 	if user.Password.Plaintext != nil {
 		ValidatePasswordPlaintext(v, *user.Password.Plaintext)
+	} else {
+		panic("missing password plaintext for user")
 	}
 
 	// If the password hash is ever nil, this will be due to a logic error in our
