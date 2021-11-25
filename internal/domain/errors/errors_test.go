@@ -141,6 +141,18 @@ func TestKindIs(t *testing.T) {
 		// call KindIs()
 		isInternal := KindIs(err, KindInternal)
 		assert.True(t, isInternal, "kind of error should be KindInternal")
+		t.Run("Only inner error has kind specified", func(t *testing.T) {
+			inner := E(Op("inner error"), KindFailedValidation, errors.New("something goes wrong"))
+			middle := E(Op("middle error"), inner)
+			outer := E(Op("outer error"), middle)
+			assert.True(t, KindIs(outer, KindFailedValidation), "the outer error with no kind specified should inherit inner error's kind")
+		})
+		t.Run("No kind specified", func(t *testing.T) {
+			inner := E(Op("inner error"), errors.New("something goes wrong"))
+			middle := E(Op("middle error"), inner)
+			outer := E(Op("outer error"), middle)
+			assert.False(t, KindIs(outer, KindFailedValidation), "this should be false because no error kind specified")
+		})
 	})
 	t.Run("Panic", func(t *testing.T) {
 		defer func() {
@@ -151,22 +163,5 @@ func TestKindIs(t *testing.T) {
 
 		// call KindIs with error which does not have type *Error.
 		_ = KindIs(sql.ErrNoRows, KindInternal)
-	})
-}
-
-func TestKindInherit(t *testing.T) {
-	if os.Getenv("TEST_UNIT") != "1" {
-		t.Skip("skipping unit tests")
-	}
-
-	t.Run("Outer error doesn't have kind specified", func(t *testing.T) {
-		inner := E(KindFailedValidation, errors.New("something goes wrong"))
-		outer := E(inner)
-		assert.True(t, KindIs(outer, KindFailedValidation), "the outer error with no kind specified should inherit inner error's kind")
-	})
-	t.Run("Outer error has kind specified", func(t *testing.T) {
-		inner := E(KindFailedValidation, errors.New("something goes wrong"))
-		outer := E(KindInternal, inner)
-		assert.True(t, KindIs(outer, KindInternal), "the outer error with no kind specified should inherit inner error's kind")
 	})
 }
