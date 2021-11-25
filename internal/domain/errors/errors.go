@@ -235,15 +235,6 @@ func E(args ...interface{}) error {
 		}
 	}
 
-	// check if e.Err is our custom *Error
-	if innerE, ok := e.Err.(*Error); ok {
-		// if it is our custom *Error, and if e.Kind is not set
-		// inherit e.Err 's kind
-		if e.Kind == KindOther {
-			e.Kind = innerE.Kind
-		}
-	}
-
 	return e
 }
 
@@ -278,10 +269,25 @@ func As(err error, target interface{}) bool {
 // KindIs returns whether err.Kind == kind.
 // err must has the type *Error or Error, if not,
 // we panic.
+// If there are multiple kind specified in error chain,
+// we take the outer-most error kind.
 func KindIs(err error, kind Kind) bool {
-	if e, ok := err.(*Error); !ok {
-		panic(fmt.Sprintf("want err has the type *Error, got %T", err))
+	if e, ok := err.(*Error); ok {
+		// fast path: we found a kind in current level of error.
+		if e.Kind != KindOther {
+			return e.Kind == kind
+		}
+
+		// There's no kind specified in current level of error,
+		// so we look into e.Err to find out the kind.
+		if eInner, ok := e.Err.(*Error); ok && eInner != nil {
+			// recursively check if e.Err's kind is equal to kind
+			return KindIs(e.Err, kind)
+		}
+
+		// there's is no inner error, or inner error is not our custom Error type
+		return false
 	} else {
-		return e.Kind == kind
+		panic(fmt.Sprintf("want err has the type *Error, got %T", err))
 	}
 }
