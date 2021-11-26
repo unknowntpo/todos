@@ -3,8 +3,6 @@ services:
   server:
     volumes:
         - /tmp/app:/var/log/app
-    env_file:
-      - ./.envrc
     ports:
       - "4000:4000"
     depends_on:
@@ -15,8 +13,6 @@ services:
   db:
     image: postgres:13-alpine
     restart: always
-    env_file:
-      - ./.envrc
     ports:
       - "5432:5432"
     healthcheck:
@@ -31,8 +27,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    env_file:
-      - ./.envrc
     depends_on:
       db:
         condition: service_healthy
