@@ -8,8 +8,12 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile
       target: dev-server
+    env_file:
+      - ./.envrc
   db:
     container_name: todos_dev-db
+    env_file:
+      - ./.envrc
   config:
     container_name: todos_dev-config
     image: dev-config
@@ -17,6 +21,8 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile
       target: config
+    env_file:
+      - ./.envrc
 networks:
   default:
     name: todos_dev-network
