@@ -97,7 +97,7 @@ func (suite *TaskRepoTestSuite) TearDownTest() {
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
 func TestTaskRepoTestSuite(t *testing.T) {
-	if os.Getenv("TEST_IT") == "1" {
+	if os.Getenv("TEST_IT") != "1" {
 		t.Skip("skipping integration tests")
 	}
 
