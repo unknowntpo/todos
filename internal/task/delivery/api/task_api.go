@@ -57,11 +57,11 @@ type taskAPI struct {
 
 func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, mid *middleware.Middleware, rc *reactor.Reactor) {
 	api := &taskAPI{tu: tu, mid: mid, rc: rc}
-	router.Handler(http.MethodGet, "/v1/tasks", mid.RequireAuthenticatedUser(http.HandlerFunc(api.GetAll)))
-	router.Handler(http.MethodGet, "/v1/tasks/:id", mid.RequireAuthenticatedUser(http.HandlerFunc(api.GetByID)))
-	router.Handler(http.MethodPost, "/v1/tasks", mid.RequireAuthenticatedUser(http.HandlerFunc(api.Insert)))
-	router.Handler(http.MethodPatch, "/v1/tasks/:id", mid.RequireAuthenticatedUser(http.HandlerFunc(api.Update)))
-	router.Handler(http.MethodDelete, "/v1/tasks/:id", mid.RequireAuthenticatedUser(http.HandlerFunc(api.Delete)))
+	router.Handler(http.MethodGet, "/v1/tasks", mid.RequireActivatedUser(http.HandlerFunc(api.GetAll)))
+	router.Handler(http.MethodGet, "/v1/tasks/:id", mid.RequireActivatedUser(http.HandlerFunc(api.GetByID)))
+	router.Handler(http.MethodPost, "/v1/tasks", mid.RequireActivatedUser(http.HandlerFunc(api.Insert)))
+	router.Handler(http.MethodPatch, "/v1/tasks/:id", mid.RequireActivatedUser(http.HandlerFunc(api.Update)))
+	router.Handler(http.MethodDelete, "/v1/tasks/:id", mid.RequireActivatedUser(http.HandlerFunc(api.Delete)))
 }
 
 // GetAll gets all tasks.
