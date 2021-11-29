@@ -15,6 +15,7 @@ steps:
     commands:
       - apk add --no-cache make
       - go install honnef.co/go/tools/cmd/staticcheck@latest
+      - cp .envrc.example .envrc
       - make vendor
       - make audit
   - name: build
