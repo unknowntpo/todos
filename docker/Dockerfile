@@ -52,7 +52,7 @@ EXPOSE 4000
 CMD ["./server", "-c", "./app_config-prod.yml"]
 
 # config base
-FROM alpine as config-base
+FROM alpine:3.13 as config-base
 RUN apk add --no-cache curl \
 git \
 bash \
