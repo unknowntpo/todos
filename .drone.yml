@@ -12,6 +12,9 @@ workspace:
 steps:
   - name: test
     image: golang:1.16-alpine
+    volumes:
+      - name: dockersock
+        path: /var/run
     commands:
       - apk add --no-cache make build-base
       - go install honnef.co/go/tools/cmd/staticcheck@latest
