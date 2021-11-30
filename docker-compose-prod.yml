@@ -1,14 +1,25 @@
-version: "2.3"
+version: "3.7"
 services:
   server:
     container_name: todos_prod-server
     image: unknowntpo/todos-production-server
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
   db:
     container_name: todos_prod-db
-    restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
   config:
     container_name: todos_prod-config
     image: unknowntpo/todos-config
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 networks:
   default:
     name: todos_prod-network

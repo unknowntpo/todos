@@ -24,5 +24,4 @@ services:
     env_file:
       - ./.envrc
 networks:
-  default:
-    name: todos_dev-network
+  backend:
