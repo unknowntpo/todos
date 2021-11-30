@@ -5,30 +5,31 @@ services:
         - /tmp/app:/var/log/app
     ports:
       - "4000:4000"
+    networks:
+      - backend
     depends_on:
-      config:
-        condition: service_healthy
-      db:
-        condition: service_healthy
+      - config
+      - db
   db:
     image: postgres:13-alpine
-    restart: always
     ports:
       - "5432:5432"
+    networks:
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
   config:
-    restart: always
+    networks:
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "psql $$TODOS_APP_DB_DSN -c SELECT * FROM tasks"]
       interval: 10s
       timeout: 5s
       retries: 5
     depends_on:
-      db:
-        condition: service_healthy
+      - db
 networks:
-  default:
+  backend:
