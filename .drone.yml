@@ -59,16 +59,22 @@ steps:
         from_secret: postgres_db
       TODOS_APP_DB_DSN:
         from_secret: todos_app_db_dsn
+      SSH_KEY:
+        from_secret: ssh_key
     volumes:
       - name: dockersock
         path: /var/run
     commands:
-      - apk add --no-cache make git
+      - apk add --no-cache make git openssh
       - docker ps -a
       - docker context create production --docker "host=$${REMOTE_DOCKER_HOST}"
       - docker context use production
       - docker context list
       - echo $${REMOTE_DOCKER_HOST}
+      - /etc/init.d/sshd start
+      - echo "$SSH_KEY" > $HOME/.ssh/id_rsa
+      - chmod 600 $HOME/.ssh/id_rsa
+      - make production/deploy
   - name: coverage
     image: plugins/codecov
     settings:
@@ -77,37 +83,6 @@ steps:
       files:
         - '*.go'
       required: true
-  #  - name: deploy
-#    image: docker:20-dind
-#    privileged: true
-#    environment:
-#      DRONE_DEPLOY_HOST:
-#        from_secret: deploy_host
-#      DRONE_DEPLOY_USERNAME:
-#        from_secret: deploy_user
-#    volumes:
-#      - name: dockersock
-#        path: /var/run
-#    commands:
-#      - sleep 30 # give docker enough time to initialize
-#      - docker ps -a
-#      - echo $${DRONE_DEPLOY_HOST}
-#      - echo $${DRONE_DEPLOY_USERNAME}
-#      - docker context create remote --docker "host=ssh://$${DRONE_DEPLOY_HOST}@$${DRONE_DEPLOY_USERNAME}"
-#      # - make run/compose/up
-#      # todo fetch from docker hub
-#      - DOCKER_BUILDKIT=1 docker-compose \
-#        -f docker-compose-prod.yml \
-#        --project-name todos-prod \
-#        build --parallel
-#      - docker-compose -f docker-compose-prod.yml \
-#        --context remote \
-#        --env-file .envrc \
-#        up \
-#        -d \
-#        --remove-orphans \
-#        --force-recreate
-
 # Specify docker:20-dind as a service
 # Ref: https://github.com/testcontainers/dind-drone-plugin
 services:

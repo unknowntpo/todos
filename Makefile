@@ -209,16 +209,10 @@ production/configure/caddyfile:
 ## production/deploy: deploy the services
 .PHONY: production/deploy
 production/deploy:
-	@DOCKER_BUILDKIT=1 docker-compose \
-	    --context remote \
-	    -f docker-compose-prod.yml \
-	    --project-name todos-prod \
-	    build --parallel
-	@docker-compose -f docker-compose-prod.yml \
-	    --env-file .envrc \
+	@docker-compose \
+	    --context production \
+	    -f docker-compose.yml docker-compose-prod.yml \
 	    up \
 	    -d \
 	    --remove-orphans \
 	    --force-recreate
-
-#
