@@ -41,9 +41,20 @@ func TestMsgFormat(t *testing.T) {
 		t.Skip("skipping unit tests")
 	}
 
-	var counter int = 3
-	msg := Msg("current counter value: %d").Format(counter)
-	assert.Equal(t, "current counter value: 3", msg.String(), "formatted output should be equal")
+	t.Run("formating a message", func(t *testing.T) {
+		var counter int = 3
+		msg := Msg("current counter value: %d").Format(counter)
+		assert.Equal(t, "current counter value: 3", msg.String(), "formatted output should be equal")
+	})
+
+	t.Run("formating message in error chain", func(t *testing.T) {
+		var counter int = 3
+		msg := Msg("current counter value: %d").Format(counter)
+		e := E(msg, New("something goes wrong"))
+		t.Logf("%v", e)
+		assert.Equal(t, "current counter value: 3: something goes wrong", e.Error(), "error message should be equal")
+	})
+
 }
 
 // test building an error
