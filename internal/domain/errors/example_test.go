@@ -1,39 +1,70 @@
 package errors
 
 import (
+	"database/sql"
 	"fmt"
 )
 
-func _inner() error {
-	const op Op = "inner operation"
-	return E(op, New("something goes wrong"))
+func getFromDB() error {
+	const op Op = "getFromDB"
+	return E(op, KindDatabase, sql.ErrNoRows)
 }
 
-func _middle() error {
-	const op Op = "middle operation"
+func businessLogic() error {
+	const op Op = "businessLogic"
 	cnt := 3
-	err := _inner()
+	err := getFromDB()
 	if err != nil {
 		return E(op, Msg("counter value = %d").Format(cnt), err)
 	}
 	return nil
 }
 
-func _outer() error {
-	const op Op = "outer operation"
+func getHandler() error {
+	const op Op = "getHandler"
 	const email UserEmail = "alice@example.com"
-	err := _middle()
+	err := businessLogic()
 	if err != nil {
-		return E(email, op, err)
+		// Handle error here
+		switch {
+		case KindIs(err, KindDatabase):
+			return E(op, email, err)
+		default:
+			// Do something else
+		}
 	}
 	return nil
 }
 
+// You can also use "%+v" to show the full stack trace about error, like:
+// alice@example.com: getHandler: businessLogic: counter value = 3: getFromDB: database error: sql: no rows in result set
+// github.com/unknowntpo/todos/internal/domain/errors.E
+// 	/Users/unknowntpo/repo/unknowntpo/todos/feat-error/internal/domain/errors/errors.go:230
+// github.com/unknowntpo/todos/internal/domain/errors.getFromDB
+// 	/Users/unknowntpo/repo/unknowntpo/todos/feat-error/internal/domain/errors/example_test.go:10
+// github.com/unknowntpo/todos/internal/domain/errors.businessLogic
+// 	/Users/unknowntpo/repo/unknowntpo/todos/feat-error/internal/domain/errors/example_test.go:16
+// github.com/unknowntpo/todos/internal/domain/errors.getHandler
+// 	/Users/unknowntpo/repo/unknowntpo/todos/feat-error/internal/domain/errors/example_test.go:26
+// github.com/unknowntpo/todos/internal/domain/errors.Example
+// 	/Users/unknowntpo/repo/unknowntpo/todos/feat-error/internal/domain/errors/example_test.go:41
+// testing.runExample
+// 	/usr/local/Cellar/go/1.16.4/libexec/src/testing/run_example.go:63
+// testing.runExamples
+// 	/usr/local/Cellar/go/1.16.4/libexec/src/testing/example.go:44
+// testing.(*M).Run
+// 	/usr/local/Cellar/go/1.16.4/libexec/src/testing/testing.go:1418
+// main.main
+// 	_testmain.go:55
+// runtime.main
+// 	/usr/local/Cellar/go/1.16.4/libexec/src/runtime/proc.go:225
+// runtime.goexit
+// 	/usr/local/Cellar/go/1.16.4/libexec/src/runtime/asm_amd64.s:1371
 func Example() {
-	err := _outer()
+	err := getHandler()
 	fmt.Printf("%v\n", err)
 	// Output:
-	// alice@example.com: outer operation: middle operation: counter value = 3: inner operation: something goes wrong
+	// alice@example.com: getHandler: businessLogic: counter value = 3: getFromDB: database error: sql: no rows in result set
 }
 
 func ExampleMsg_Format() {
