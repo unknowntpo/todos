@@ -75,7 +75,7 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	err = user.Password.Set(input.Password)
 	if err != nil {
-		u.rc.ServerErrorResponse(w, r, err)
+		u.rc.ServerErrorResponse(w, r, errors.E(op, err))
 		return
 	}
 
@@ -105,7 +105,7 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	err = u.rc.WriteJSON(w, http.StatusAccepted, &UserRegistrationResponse{User: user})
 	if err != nil {
-		u.rc.ServerErrorResponse(w, r, err)
+		u.rc.ServerErrorResponse(w, r, errors.E(op, err))
 	}
 }
 
@@ -120,6 +120,8 @@ func (u *userAPI) RegisterUser(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/users/activation [put]
 func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
+	const op errors.Op = "userAPI.ActivateUser"
+
 	// Read token from request query string.
 	qs := r.URL.Query()
 	tokenPlaintext := u.rc.ReadString(qs, "token", "")
@@ -145,7 +147,7 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
 			u.rc.EditConflictResponse(w, r)
 			return
 		default:
-			u.rc.ServerErrorResponse(w, r, err)
+			u.rc.ServerErrorResponse(w, r, errors.E(op, err))
 			return
 		}
 	}
@@ -162,7 +164,7 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
 			u.rc.EditConflictResponse(w, r)
 			return
 		default:
-			u.rc.ServerErrorResponse(w, r, err)
+			u.rc.ServerErrorResponse(w, r, errors.E(op, err))
 			return
 		}
 	}
@@ -171,13 +173,13 @@ func (u *userAPI) ActivateUser(w http.ResponseWriter, r *http.Request) {
 	// user.
 	err = u.tu.DeleteAllForUser(ctx, domain.ScopeActivation, user.ID)
 	if err != nil {
-		u.rc.ServerErrorResponse(w, r, err)
+		u.rc.ServerErrorResponse(w, r, errors.E(op, err))
 		return
 	}
 
 	// Send the updated user details to the client in a JSON response.
 	err = u.rc.WriteJSON(w, http.StatusOK, &UserActivationResponse{User: user})
 	if err != nil {
-		u.rc.ServerErrorResponse(w, r, err)
+		u.rc.ServerErrorResponse(w, r, errors.E(op, err))
 	}
 }
