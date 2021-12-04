@@ -82,6 +82,8 @@ func NewTaskAPI(router *httprouter.Router, tu domain.TaskUsecase, mid *middlewar
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/tasks [get]
 func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
+	const op = errors.Op("taskAPI.GetAll")
+
 	user := helpers.ContextGetUser(r)
 
 	var input struct {
@@ -113,7 +115,7 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 			return
 		// TODO: Should we explicitly specify errors.KindInternal and errors.KindDatabase ?
 		default:
-			t.rc.ServerErrorResponse(w, r, err)
+			t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 			return
 		}
 	}
@@ -123,7 +125,7 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 		Tasks:    tasks,
 	})
 	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
+		t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 	}
 }
 
@@ -140,6 +142,8 @@ func (t *taskAPI) GetAll(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/tasks/{taskID} [get]
 func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
+	const op = errors.Op("taskAPI.GetByID")
+
 	user := helpers.ContextGetUser(r)
 
 	id, err := t.rc.ReadIDParam(r)
@@ -156,14 +160,14 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 			t.rc.NotFoundResponse(w, r)
 			return
 		default:
-			t.rc.ServerErrorResponse(w, r, err)
+			t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 			return
 		}
 	}
 
 	err = t.rc.WriteJSON(w, http.StatusOK, GetTaskByIDResponse{task})
 	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
+		t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 	}
 }
 
@@ -180,6 +184,8 @@ func (t *taskAPI) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/tasks [post]
 func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
+	const op = errors.Op("taksAPI.Insert")
+
 	var input CreateTaskRequest
 	user := helpers.ContextGetUser(r)
 
@@ -206,7 +212,7 @@ func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	err = t.tu.Insert(ctx, user.ID, task)
 	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
+		t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 		return
 	}
 
@@ -216,7 +222,7 @@ func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
 	// response body, and the Location header.
 	err = t.rc.WriteJSON(w, http.StatusCreated, &CreateTaskResponse{task})
 	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
+		t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 	}
 }
 
@@ -234,6 +240,8 @@ func (t *taskAPI) Insert(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/tasks/{taskID} [patch]
 func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
+	const op = errors.Op("taskAPI.Update")
+
 	user := helpers.ContextGetUser(r)
 
 	taskID, err := t.rc.ReadIDParam(r)
@@ -245,7 +253,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	task, err := t.tu.GetByID(ctx, user.ID, taskID)
 	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
+		t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 		return
 	}
 
@@ -262,7 +270,7 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 			t.rc.NotFoundResponse(w, r)
 			return
 		default:
-			t.rc.ServerErrorResponse(w, r, err)
+			t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 			return
 		}
 	}
@@ -294,14 +302,14 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 			t.rc.EditConflictResponse(w, r)
 			return
 		default:
-			t.rc.ServerErrorResponse(w, r, err)
+			t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 			return
 		}
 	}
 
 	err = t.rc.WriteJSON(w, http.StatusOK, &UpdateTaskByIDResponse{task})
 	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
+		t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 	}
 }
 
@@ -318,6 +326,8 @@ func (t *taskAPI) Update(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} reactor.ErrorResponse
 // @Router /v1/tasks/{taskID} [delete]
 func (t *taskAPI) Delete(w http.ResponseWriter, r *http.Request) {
+	const op = errors.Op("taksAPI.Delete")
+
 	user := helpers.ContextGetUser(r)
 
 	// Extract the task ID from the URL.
@@ -336,14 +346,14 @@ func (t *taskAPI) Delete(w http.ResponseWriter, r *http.Request) {
 			t.rc.NotFoundResponse(w, r)
 			return
 		default:
-			t.rc.ServerErrorResponse(w, r, err)
+			t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 			return
 		}
 	}
 
 	err = t.rc.WriteJSON(w, http.StatusOK, &DeleteTaskByIDResponse{"task successfully deleted"})
 	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
+		t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 		return
 	}
 }

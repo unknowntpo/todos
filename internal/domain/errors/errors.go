@@ -55,10 +55,11 @@ func (u UserEmail) String() string {
 // Kind defines the kind of error this is.
 type Kind uint8
 
+const sep = ": "
+const nestedSep = ">> "
+
 func (e *Error) Error() string {
 	// Build the error message for this level of error.
-	sep := ": "
-
 	out := ""
 	if e.UserEmail != "" {
 		out += e.UserEmail.String()
@@ -80,6 +81,7 @@ func (e *Error) Error() string {
 	}
 
 	if e.Err != nil {
+		out += nestedSep
 		out += e.Err.Error()
 	}
 
@@ -94,8 +96,6 @@ func (e *Error) Format(s fmt.State, verb rune) {
 	case 'v':
 		if formatter, ok := e.Err.(fmt.Formatter); ok && s.Flag('+') {
 			// Print current level of error message.
-			sep := ": "
-
 			out := ""
 			if e.UserEmail != "" {
 				out += e.UserEmail.String()
@@ -117,6 +117,8 @@ func (e *Error) Format(s fmt.State, verb rune) {
 			}
 
 			io.WriteString(s, out)
+			io.WriteString(s, nestedSep)
+			// Format inner error recursively
 			formatter.Format(s, verb)
 			return
 		}
@@ -148,21 +150,21 @@ const (
 func (k Kind) String() string {
 	switch k {
 	case KindOther:
-		return "other error"
+		return "kind other error"
 	case KindRecordNotFound:
-		return "record not found"
+		return "kind record not found"
 	case KindDuplicateEmail:
-		return "duplicate email"
+		return "kind duplicate email"
 	case KindEditConflict:
-		return "edit conflict"
+		return "kind edit conflict"
 	case KindInvalidCredentials:
-		return "invalid credentials"
+		return "kind invalid credentials"
 	case KindFailedValidation:
-		return "failed validation"
+		return "kind failed validation"
 	case KindInternal:
-		return "internal server error"
+		return "kind internal server error"
 	case KindDatabase:
-		return "database error"
+		return "kind database error"
 	}
 	return "unknown error kind"
 }

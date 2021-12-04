@@ -119,7 +119,7 @@ func (suite *UserUsecaseTestSuite) TestInsert() {
 		err := userUsecase.Insert(ctx, suite.fakeUser)
 
 		suite.ErrorIs(err, dummyErr)
-		suite.Equal("userUsecase.Insert: mockUserRepo.Insert: something goes wrong", err.Error(), "error message should be equal")
+		suite.Equal("userUsecase.Insert: >> mockUserRepo.Insert: >> something goes wrong", err.Error(), "error message should be equal")
 
 		suite.userRepo.AssertExpectations(suite.T())
 		suite.TearDownTest()
@@ -178,7 +178,7 @@ func (suite *UserUsecaseTestSuite) TestAuthenticate() {
 		suite.Nil(gotUser, "gotUser should be nil due to provided error")
 
 		suite.ErrorIs(err, dummyErr)
-		suite.Equal("userUsecase.Authenticate: mockUserRepo.GetForToken: something goes wrong", err.Error(), "error message should be equal")
+		suite.Equal("userUsecase.Authenticate: >> mockUserRepo.GetForToken: >> something goes wrong", err.Error(), "error message should be equal")
 
 		suite.userRepo.AssertExpectations(suite.T())
 
@@ -239,7 +239,7 @@ func (suite *UserUsecaseTestSuite) TestUpdate() {
 		err := userUsecase.Update(ctx, suite.fakeUser)
 
 		suite.ErrorIs(err, dummyErr)
-		suite.Equal("userUsecase.Update: mockUserRepo.Update: something goes wrong", err.Error(), "error message should be equal")
+		suite.Equal("userUsecase.Update: >> mockUserRepo.Update: >> something goes wrong", err.Error(), "error message should be equal")
 
 		suite.userRepo.AssertExpectations(suite.T())
 

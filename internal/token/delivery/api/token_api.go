@@ -38,6 +38,8 @@ func NewTokenAPI(router *httprouter.Router, uu domain.UserUsecase, rc *reactor.R
 // @Success 200 {object} AuthenticationResponse
 // @Router /v1/tokens/authentication [post]
 func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Request) {
+	const op errors.Op = "tokenAPI.CreateAuthenticationToken"
+
 	// Parse the email and password from the request body.
 	var input AuthenticationRequestBody
 
@@ -66,7 +68,7 @@ func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Requ
 			t.rc.InvalidCredentialsResponse(w, r)
 			return
 		default:
-			t.rc.ServerErrorResponse(w, r, err)
+			t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 			return
 		}
 	}
@@ -75,7 +77,7 @@ func (t *tokenAPI) CreateAuthenticationToken(w http.ResponseWriter, r *http.Requ
 	// status code.
 	err = t.rc.WriteJSON(w, http.StatusCreated, &AuthenticationResponse{Token: token})
 	if err != nil {
-		t.rc.ServerErrorResponse(w, r, err)
+		t.rc.ServerErrorResponse(w, r, errors.E(op, err))
 		return
 	}
 }
