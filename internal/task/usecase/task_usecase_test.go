@@ -116,7 +116,7 @@ func TestGetAll(t *testing.T) {
 		assert.Nil(t, gotTasks)
 		assert.Equal(t, wantMeta, gotMeta)
 		assert.ErrorIs(t, err, dummyErr)
-		assert.Equal(t, "taskUsecase.GetAll: mockTaskRepo.GetAll: something goes wrong", err.Error())
+		assert.Equal(t, "taskUsecase.GetAll: >> mockTaskRepo.GetAll: >> something goes wrong", err.Error())
 
 		repo.AssertExpectations(t)
 	})

@@ -51,8 +51,7 @@ func TestMsgFormat(t *testing.T) {
 		var counter int = 3
 		msg := Msg("current counter value: %d").Format(counter)
 		e := E(msg, New("something goes wrong"))
-		t.Logf("%v", e)
-		assert.Equal(t, "current counter value: 3: something goes wrong", e.Error(), "error message should be equal")
+		assert.Equal(t, "current counter value: 3: >> something goes wrong", e.Error(), "error message should be equal")
 	})
 
 }
@@ -75,24 +74,19 @@ func TestE(t *testing.T) {
 		errFromDB := sql.ErrNoRows
 
 		err := E(op, KindRecordNotFound, userEmail, errFromDB)
-		assert.Equal(t, "alice@example.com: taskRepo.GetByID: record not found: sql: no rows in result set", err.Error())
-	})
-	t.Run("build a error with error message only", func(t *testing.T) {
-		err := E(New("some error message"))
-
-		assert.Equal(t, "some error message", err.Error())
+		assert.Equal(t, "alice@example.com: taskRepo.GetByID: kind record not found: >> sql: no rows in result set", err.Error())
 	})
 	t.Run("build a error with op and Error.Msg", func(t *testing.T) {
 		const op Op = "Counter.Get"
 		counter := 3
 		err := E(op, Msg("current counter value: %d").Format(counter), New("some error message"))
 
-		assert.Equal(t, "Counter.Get: current counter value: 3: some error message", err.Error())
+		assert.Equal(t, "Counter.Get: current counter value: 3: >> some error message", err.Error())
 	})
 
 	t.Run("nested error with verb is %s", func(t *testing.T) {
 		err := outer()
-		want := "alice@example.com: outer operation: middle operation: inner operation: something goes wrong"
+		want := "alice@example.com: outer operation: >> middle operation: >> inner operation: >> something goes wrong"
 		assert.Equal(t, want, fmt.Sprintf("%s", err))
 	})
 	// TODO: Should we test stacktrace message ?
