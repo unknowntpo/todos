@@ -1,4 +1,4 @@
-version: "3.7"
+version: "2.3"
 services:
   server:
     volumes:
@@ -8,8 +8,10 @@ services:
     networks:
       - backend
     depends_on:
-      - config
-      - db
+      config:
+        condition: service_healthy
+      db:
+        condition: service_healthy
   db:
     image: postgres:13-alpine
     ports:
@@ -30,6 +32,7 @@ services:
       timeout: 5s
       retries: 5
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 networks:
   backend:
