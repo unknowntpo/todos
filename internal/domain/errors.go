@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"github.com/unknowntpo/todos/internal/domain/errors"
+	"errors"
 )
 
 var (
