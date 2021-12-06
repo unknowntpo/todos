@@ -93,7 +93,7 @@ func (uu *userUsecase) Login(ctx context.Context, email, password string) (*doma
 
 	user, err := uu.userRepo.GetByEmail(ctx, email)
 	if err != nil {
-		return nil, errors.E(op, err)
+		return nil, errors.E(op, errors.KindInvalidCredentials, err)
 	}
 
 	// Check if the provided password matches the actual password for the user.
