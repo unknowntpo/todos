@@ -126,6 +126,85 @@ func (suite *UserUsecaseTestSuite) TestInsert() {
 	})
 }
 
+func (suite *UserUsecaseTestSuite) TestLogin() {
+	suite.Run("Success", func() {
+		// Prevent from the scenario that other suite.Run doesn't teardown test manually.
+		suite.TearDownTest()
+		suite.SetupTest()
+
+		suite.tokenRepo.On("Insert", mock.Anything, mock.MatchedBy(func(token *domain.Token) bool {
+			return token.Scope == domain.ScopeAuthentication
+		})).Return(nil)
+		suite.userRepo.On("GetByEmail", mock.Anything, suite.fakeUser.Email).Return(suite.fakeUser, nil)
+
+		userUsecase := NewUserUsecase(suite.userRepo, suite.tokenRepo, suite.pool, suite.mailer, suite.logger, 3*time.Second)
+
+		ctx := context.TODO()
+		token, err := userUsecase.Login(ctx, "alice@example.com", "pa55word")
+		suite.Equal(domain.ScopeAuthentication, token.Scope)
+
+		suite.NoError(err)
+		suite.userRepo.AssertExpectations(suite.T())
+
+		suite.TearDownTest()
+	})
+
+	suite.Run("Fail with some errors", func() {
+		suite.Run("GetByEmail failed", func() {
+			// Prevent from the scenario that other suite.Run doesn't teardown test manually.
+			suite.TearDownTest()
+			suite.SetupTest()
+
+			// Do something
+
+			// Setup expectations
+			// When userRepo.GetByEmail is called, it should return nil, err
+			suite.userRepo.On("GetByEmail", mock.Anything, suite.fakeUser.Email).Return(nil, errors.E(errors.Op("userRepo.GetByEmail"), errors.KindRecordNotFound, domain.ErrRecordNotFound))
+
+			userUsecase := NewUserUsecase(suite.userRepo, suite.tokenRepo, suite.pool, suite.mailer, suite.logger, 3*time.Second)
+			ctx := context.TODO()
+
+			token, err := userUsecase.Login(ctx, "alice@example.com", "pa55word")
+			suite.Nil(token, "token should be nil because some error happened")
+			suite.True(errors.KindIs(err, errors.KindInvalidCredentials))
+			suite.Equal("userUsecase.Login: kind invalid credentials: >> userRepo.GetByEmail: kind record not found: >> record not found", err.Error())
+
+			suite.userRepo.AssertExpectations(suite.T())
+
+			suite.TearDownTest()
+		})
+		// FIXME: Do we need this test ?
+		suite.Run("user.Password.Match failed", func() {
+			// Prevent from the scenario that other suite.Run doesn't teardown test manually.
+			suite.TearDownTest()
+			// Do something
+			suite.SetupTest()
+			suite.TearDownTest()
+		})
+		suite.Run("password not match", func() {
+			// Prevent from the scenario that other suite.Run doesn't teardown test manually.
+			suite.TearDownTest()
+			// Do something
+			suite.SetupTest()
+			suite.TearDownTest()
+		})
+		suite.Run("failed to generate token", func() {
+			// Prevent from the scenario that other suite.Run doesn't teardown test manually.
+			suite.TearDownTest()
+			// Do something
+			suite.SetupTest()
+			suite.TearDownTest()
+		})
+		suite.Run("failed to insert token", func() {
+			// Prevent from the scenario that other suite.Run doesn't teardown test manually.
+			suite.TearDownTest()
+			// Do something
+			suite.SetupTest()
+			suite.TearDownTest()
+		})
+	})
+}
+
 func (suite *UserUsecaseTestSuite) TestAuthenticate() {
 	suite.Run("Success", func() {
 		suite.SetupTest()
