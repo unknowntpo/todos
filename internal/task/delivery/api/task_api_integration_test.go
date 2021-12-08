@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
-	"os"
 	"testing"
 
 	"github.com/unknowntpo/todos/internal/domain"
@@ -89,8 +88,8 @@ func (suite *TaskAPIIntegrationTestSuite) TearDownTest() {
 }
 
 func TestTaskAPIIntegrationTestSuite(t *testing.T) {
-	if os.Getenv("TEST_IT") != "1" {
-		t.Skip("skipping integration tests")
+	if testing.Short() {
+		t.Skip("skipping integration tests...")
 	}
 
 	suite.Run(t, new(TaskAPIIntegrationTestSuite))

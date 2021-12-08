@@ -2,7 +2,6 @@ package zerolog
 
 import (
 	"bytes"
-	"os"
 	"testing"
 
 	"github.com/unknowntpo/todos/internal/domain/errors"
@@ -11,10 +10,6 @@ import (
 )
 
 func TestPrintInfo(t *testing.T) {
-	if os.Getenv("TEST_UNIT") != "1" {
-		t.Skip("skipping unit tests")
-	}
-
 	out := bytes.NewBufferString("")
 	log := New(out)
 	log.PrintInfo("test PrintInfo", map[string]interface{}{
@@ -30,10 +25,6 @@ func TestPrintInfo(t *testing.T) {
 }
 
 func TestPrintError(t *testing.T) {
-	if os.Getenv("TEST_UNIT") != "1" {
-		t.Skip("skipping unit tests")
-	}
-
 	out := bytes.NewBufferString("")
 	log := New(out)
 

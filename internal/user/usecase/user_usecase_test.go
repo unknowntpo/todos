@@ -3,7 +3,6 @@ package usecase
 import (
 	"bytes"
 	"context"
-	"os"
 	"testing"
 	"time"
 
@@ -76,10 +75,6 @@ func (suite *UserUsecaseTestSuite) TearDownTest() {
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
 func TestUserUsecaseTestSuite(t *testing.T) {
-	if os.Getenv("TEST_UNIT") != "1" {
-		t.Skip("skipping unit tests")
-	}
-
 	suite.Run(t, new(UserUsecaseTestSuite))
 }
 

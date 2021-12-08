@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
@@ -15,10 +14,6 @@ import (
 )
 
 func TestGetAll(t *testing.T) {
-	if os.Getenv("TEST_UNIT") != "1" {
-		t.Skip("skipping unit tests")
-	}
-
 	t.Run("Success", func(t *testing.T) {
 		// init mock taskrepo
 		repo := new(_repoMock.TaskRepository)
@@ -123,37 +118,21 @@ func TestGetAll(t *testing.T) {
 }
 
 func TestGetByID(t *testing.T) {
-	if os.Getenv("TEST_UNIT") != "1" {
-		t.Skip("skipping unit tests")
-	}
-
 	t.Skip("TODO: finish the implementation")
 	t.Fail()
 }
 
 func TestInsert(t *testing.T) {
-	if os.Getenv("TEST_UNIT") != "1" {
-		t.Skip("skipping unit tests")
-	}
-
 	t.Skip("TODO: finish the implementation")
 	t.Fail()
 }
 
 func TestUpdate(t *testing.T) {
-	if os.Getenv("TEST_UNIT") != "1" {
-		t.Skip("skipping unit tests")
-	}
-
 	t.Skip("TODO: finish the implementation")
 	t.Fail()
 }
 
 func TestDelete(t *testing.T) {
-	if os.Getenv("TEST_UNIT") != "1" {
-		t.Skip("skipping unit tests")
-	}
-
 	t.Skip("TODO: finish the implementation")
 	t.Fail()
 }

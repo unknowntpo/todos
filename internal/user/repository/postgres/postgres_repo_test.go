@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"os"
 	"testing"
 	"time"
 
@@ -67,9 +66,9 @@ func (suite *UserRepoTestSuite) TearDownTest() {
 
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
-func TestUserRepoTestSuite(t *testing.T) {
-	if os.Getenv("TEST_IT") != "1" {
-		t.Skip("skipping integration tests")
+func TestUserRepoIntegrationTestSuite(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration tests...")
 	}
 
 	suite.Run(t, new(UserRepoTestSuite))

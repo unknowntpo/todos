@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/unknowntpo/todos/internal/domain/errors"
@@ -15,10 +14,6 @@ import (
 )
 
 func TestHandlerWrapper(t *testing.T) {
-	if os.Getenv("TEST_UNIT") != "1" {
-		t.Skip("skipping unit tests")
-	}
-
 	// Set up logger.
 	//logBuf := new(bytes.Buffer)
 	logBuf := bytes.NewBufferString("")
