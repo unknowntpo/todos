@@ -26,13 +26,13 @@ $(GIT_HOOKS):
 ## test/unit: execute unit test
 .PHONY: test/unit
 test/unit:
-	@TEST_UNIT=1 go test -v ./... -count=1 -race -coverprofile=coverage.txt -covermode=atomic
+	@go test -v -short ./... -count=1 -race -coverprofile=coverage.txt -covermode=atomic
 
 ## test/integration: execute integration test
 .PHONY: test/integration
 test/integration:
 	@echo "Running integration tests using testcontainers..."
-	@TEST_IT=1 go test -v ./... -count=1 -race -coverprofile=coverage.txt -covermode=atomic
+	@go test -v ./internal/.../repository/... -run=Integration -count=1 -race -coverprofile=coverage.txt -covermode=atomic
 
 # ==================================================================================== #
 # BUILD
