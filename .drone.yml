@@ -23,60 +23,60 @@ steps:
     commands:
       #- make build/api
       #- chmod +x ./bin/api
-  # - name: push-image
-  #   image: docker:20-dind
-  #   privileged: true
-  #   environment:
-  #     DOCKER_USERNAME:
-  #       from_secret: docker_username
-  #     DOCKER_PASSWORD:
-  #       from_secret: docker_password
-  #   volumes:
-  #     - name: dockersock
-  #       path: /var/run
-  #   commands:
-  #     - apk add --no-cache make git
-  #     - sleep 30 # wait for docker daemon finishing setup.
-  #     - docker ps -a
-  #     - cp .envrc.example .envrc
-  #     - make image/build/server
-  #     - make image/build/config
-  #     # Ref: https://0-8-0.docs.drone.io/manage-secrets/
-  #     - docker login --username $${DOCKER_USERNAME} --password $${DOCKER_PASSWORD}
-  #     - make image/push/server
-  #     - make image/push/config
-  # - name: deploy
-  #   image: docker:20-dind
-  #   privileged: true
-  #   environment:
-  #     REMOTE_DOCKER_HOST:
-  #       from_secret: remote_docker_host
-  #     POSTGRES_USER:
-  #       from_secret: postgres_user
-  #     POSTGRES_PASSWORD:
-  #       from_secret: postgres_password
-  #     POSTGRES_DB:
-  #       from_secret: postgres_db
-  #     TODOS_APP_DB_DSN:
-  #       from_secret: todos_app_db_dsn
-  #     SSH_KEY:
-  #       from_secret: ssh_key
-  #   volumes:
-  #     - name: dockersock
-  #       path: /var/run
-  #   commands:
-  #     - sleep 20
-  #     - apk add --no-cache make git openssh
-  #     - docker ps -a
-  #     - docker context create production --docker "host=$${REMOTE_DOCKER_HOST}"
-  #     - docker context use production
-  #     - docker context list
-  #     - echo $${REMOTE_DOCKER_HOST}
-  #     - echo $${SSH_KEY}
-  #     - mkdir -p $HOME/.ssh
-  #     - echo "$SSH_KEY" > $HOME/.ssh/id_rsa
-  #     - chmod 600 $HOME/.ssh/id_rsa
-  #     ## TODO: Use docker context deploy
+  - name: push-image
+    image: docker:20-dind
+    privileged: true
+    environment:
+      DOCKER_USERNAME:
+        from_secret: docker_username
+      DOCKER_PASSWORD:
+        from_secret: docker_password
+    volumes:
+      - name: dockersock
+        path: /var/run
+    commands:
+      - apk add --no-cache make git
+      - sleep 30 # wait for docker daemon finishing setup.
+      - docker ps -a
+      - cp .envrc.example .envrc
+      - make image/build/server
+      - make image/build/config
+      # Ref: https://0-8-0.docs.drone.io/manage-secrets/
+      - docker login --username $${DOCKER_USERNAME} --password $${DOCKER_PASSWORD}
+      - make image/push/server
+      - make image/push/config
+  - name: deploy
+    image: docker:20-dind
+    privileged: true
+    environment:
+      REMOTE_DOCKER_HOST:
+        from_secret: remote_docker_host
+      POSTGRES_USER:
+        from_secret: postgres_user
+      POSTGRES_PASSWORD:
+        from_secret: postgres_password
+      POSTGRES_DB:
+        from_secret: postgres_db
+      TODOS_APP_DB_DSN:
+        from_secret: todos_app_db_dsn
+      SSH_KEY:
+        from_secret: ssh_key
+    volumes:
+      - name: dockersock
+        path: /var/run
+    commands:
+      - sleep 20
+      - apk add --no-cache make git openssh
+      - docker ps -a
+      - docker context create production --docker "host=$${REMOTE_DOCKER_HOST}"
+      - docker context use production
+      - docker context list
+      - echo $${REMOTE_DOCKER_HOST}
+      - echo $${SSH_KEY}
+      - mkdir -p $HOME/.ssh
+      - echo "$SSH_KEY" > $HOME/.ssh/id_rsa
+      - chmod 600 $HOME/.ssh/id_rsa
+      ## TODO: Use docker context deploy
   - name: coverage
     image: plugins/codecov
     settings:
