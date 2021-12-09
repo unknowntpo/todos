@@ -49,6 +49,16 @@ Stop the project
 ```
 $ make run/compose/down
 ```
+
+**Warning:**
+
+Please Use this dummy user for testing at [production environment](https://todos.unknowntpo.net/swagger/index.html)  because the production server is not ready for sending email to your email account yet!
+
+```
+email: alice@example.com
+password: pa55word
+```
+
 ## Project Walkthrough
 [TODOs - Project Walkthrough](https://hackmd.io/@unknowntpo/todos-project-walkthrough)
 
