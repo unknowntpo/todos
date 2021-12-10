@@ -10,6 +10,20 @@ workspace:
   base: /go
   path: src/github.com/unknowntpo/todos
 steps:
+  - name: ssh-deploy
+    image: appleboy/drone-ssh
+    settings:
+      repo: /aaaplatform/xxxx
+      host: todos.unknowntpo.net
+      username: todos
+      key: 
+        from_secret: ssh_key
+      port: 22
+      timeout: 60s
+      script_stop: true
+      script:
+        - whoami
+        - hostname
   - name: test
     image: golang:1.16-alpine
     commands:
