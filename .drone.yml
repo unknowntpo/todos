@@ -22,6 +22,7 @@ steps:
       timeout: 60s
       script_stop: true
       script:
+        - echo $${SSH_KEY}
         - whoami
         - hostname
   - name: test
