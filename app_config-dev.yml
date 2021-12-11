@@ -18,3 +18,4 @@ app:
   cors:
     trusted_origins:
       - http://localhost:8080
+      - http://localhost:4000
