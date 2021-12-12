@@ -57,13 +57,16 @@ func (app *application) newRoutes() http.Handler {
 
 	router.Handler(http.MethodGet, "/debug/vars", expvar.Handler())
 
-	router.Handler(http.MethodGet, "/swagger/:any", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:4000/swagger/doc.json"), //The url pointing to API definition
-	))
-	// if in production env, change the host.
+	// Set up http-swagger
+	urlFunc := httpSwagger.URL("https://todos.unknowntpo.net/swagger/doc.json") //The url pointing to API definition
 	if app.config.Env == "production" {
+		urlFunc = httpSwagger.URL("https://todos.unknowntpo.net/swagger/doc.json") //The url pointing to API definition
+		// if in production env, change the host.
 		docs.SwaggerInfo.Host = "todos.unknowntpo.net"
 	}
+	router.Handler(http.MethodGet, "/swagger/:any", httpSwagger.Handler(
+		urlFunc,
+	))
 
 	//return genMid.Metrics(genMid.RecoverPanic(genMid.EnableCORS(genMid.RateLimit(genMid.Authenticate(router)))))
 	//return app.metrics(app.recoverPanic(app.enableCORS(app.rateLimit(app.authenticate(router)))))
