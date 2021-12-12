@@ -36,7 +36,6 @@ type application struct {
 // @title TODOS API
 // @version 1.0
 // @description This is the api documentation of TODOS server.
-// @host todos.unknowntpo.net
 // @host localhost:4000
 // @schemes http https
 // @BasePath /
