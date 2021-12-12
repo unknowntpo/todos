@@ -3,11 +3,20 @@ services:
   server:
     container_name: todos_prod-server
     image: unknowntpo/todos-production-server
+    # TODO: specify env var by drone secret to prevent safety issue.
+    env_file:
+      - ./.envrc
   db:
     container_name: todos_prod-db
+    # TODO: specify env var by drone secret to prevent safety issue.
+    env_file:
+      - ./.envrc
   config:
     container_name: todos_prod-config
     image: unknowntpo/todos-config
+    # TODO: specify env var by drone secret to prevent safety issue.
+    env_file:
+      - ./.envrc
 networks:
   backend:
     name: todos_prod-backend
