@@ -211,7 +211,8 @@ production/configure/caddyfile:
 production/deploy:
 	@docker-compose \
 	    --context production \
-	    -f docker-compose.yml docker-compose-prod.yml \
+	    -f docker-compose.yml -f docker-compose-prod.yml \
+	    --env-file .envrc \
 	    up \
 	    -d \
 	    --remove-orphans \
