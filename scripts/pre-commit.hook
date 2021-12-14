@@ -5,6 +5,13 @@ echo
 
 RETURN=0
 
+make mockery
+git diff --exit-code ./internal/domain/mocks
+if [ $? -ne 0 ]; then
+    echo "[!] there are some update in ./internal/domain/mocks, run make vendor before doing some commit." >&2
+    exit 1
+fi
+
 make vendor
 git diff --exit-code ./vendor 
 if [ $? -ne 0 ]; then

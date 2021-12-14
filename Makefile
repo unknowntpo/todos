@@ -87,6 +87,12 @@ build/server:
 # DEVELOPMENT
 # ==================================================================================== #
 
+## mockery: generate mocks of interfaces using mockery
+.PHONY: mockery
+mockery:
+	@echo "Generating mocks of interfaces..."
+	@mockery --all  --dir ./internal/domain --output ./internal/domain/mocks
+
 ## run/compose/up: run the services
 .PHONY: run/compose/up
 run/compose/up:
