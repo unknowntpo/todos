@@ -10,21 +10,6 @@ workspace:
   base: /go
   path: src/github.com/unknowntpo/todos
 steps:
-  - name: ssh-deploy
-    image: appleboy/drone-ssh
-    settings:
-      repo: /aaaplatform/xxxx
-      host: todos.unknowntpo.net
-      username: todos
-      key: 
-        from_secret: ssh_key
-      port: 22
-      timeout: 60s
-      script_stop: true
-      script:
-        - echo $${SSH_KEY}
-        - whoami
-        - hostname
   - name: test
     image: golang:1.16-alpine
     commands:
@@ -102,6 +87,28 @@ steps:
       required: true
       flags:
         - unit
+  #TODO: Add integration test here.
+  - name: ssh-deploy
+    image: appleboy/drone-ssh
+    settings:
+      host: todos.unknowntpo.net
+      username: todos
+      key: 
+        from_secret: ssh_key
+      port: 22
+      timeout: 60s
+      script_stop: true
+      script:
+        - echo $${SSH_KEY}
+        - whoami
+        - hostname
+        - ls -l
+        - cd deploy
+        - rm -rf todos
+        - git clone https://github.com/unknowntpo/todos.git
+        - cd todos
+        - cp .envrc.example .envrc
+        - make production/deploy
 # Specify docker:20-dind as a service
 # Ref: https://github.com/testcontainers/dind-drone-plugin
 services:
