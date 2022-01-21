@@ -1,0 +1,26 @@
+syntax="proto3";
+package grpc;
+
+// See https://developers.google.com/protocol-buffers/docs/gotutorial
+option go_package = "github.com/unknowntpo/todos/internal/task/delivery/grpc";
+
+message Tasks {
+    message Metadata {
+        // TODO: Change field in domain.Metadata to int32 explicitly.
+	int32 CurrentPage = 1;
+	int32 PageSize = 2;
+	int32 FirstPage = 3;
+	int32 LastPage = 4;
+	int32 TotalRecords = 5;
+    }
+    repeated Task tasks = 1;
+}
+
+message Task {
+        int64 id = 1;
+        int64 user_id = 2;
+        string title = 3;
+        string content = 4;
+        bool done = 5;
+        int32 version = 6;
+}
