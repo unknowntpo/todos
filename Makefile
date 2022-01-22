@@ -87,6 +87,16 @@ build/server:
 # DEVELOPMENT
 # ==================================================================================== #
 
+
+## protoc: generate protobuf, usage - make protoc protofile=name.proto
+.PHONY: protoc
+protoc:
+	@echo "Generating protobuf for ${protofile}"
+	@protoc --go_out=. --go_opt=paths=source_relative \
+	    --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+	    ${protofile}
+
+
 ## mockery: generate mocks of interfaces using mockery
 .PHONY: mockery
 mockery:
