@@ -3,3 +3,4 @@ gnuplot/*.png
 gnuplot/*.dat
 *.pprof
 .envrc
+coverage.txt
