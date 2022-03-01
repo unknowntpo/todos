@@ -8,10 +8,8 @@ services:
     networks:
       - backend
     depends_on:
-      config:
-        condition: service_healthy
-      db:
-        condition: service_healthy
+      - config
+      - db
   db:
     image: postgres:13-alpine
     ports:
@@ -32,7 +30,6 @@ services:
       timeout: 5s
       retries: 5
     depends_on:
-      db:
-        condition: service_healthy
+       - db
 networks:
   backend:
