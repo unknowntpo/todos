@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/unknowntpo/todos/config"
@@ -46,7 +47,7 @@ func main() {
 	logger := zerolog.New(os.Stdout)
 
 	// set up db.
-	db, err := openDB(cfg)
+	db, err := openDBWithRetry(cfg)
 	if err != nil {
 		logger.PrintFatal(err, nil)
 	}
@@ -90,6 +91,28 @@ func main() {
 	if err != nil {
 		logger.PrintFatal(fmt.Errorf("server error: %v", err), nil)
 	}
+}
+
+func openDBWithRetry(cfg *config.Config) (*sql.DB, error) {
+	var db *sql.DB
+	retries := 10
+	delay := 2 * time.Second
+
+	for i := 0; i < retries; i++ {
+		var err error
+		db, err = openDB(cfg)
+		if err != nil {
+			switch {
+			case strings.Contains(err.Error(), "connection refused"):
+				time.Sleep(delay)
+				continue
+			default:
+				return nil, err
+			}
+		}
+	}
+
+	return db, nil
 }
 
 func openDB(cfg *config.Config) (*sql.DB, error) {
