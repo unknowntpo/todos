@@ -1,7 +1,7 @@
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=todos
-TODOS_APP_DB_DSN='postgres://todos:pa55word@db/todos?sslmode=disable'
-TODOS_APP_DB_DSN_LOCAL='postgres://todos:pa55word@localhost/todos?sslmode=disable'
+TODOS_APP_DB_DSN='postgres://postgres:postgres@db/todos?sslmode=disable'
+TODOS_APP_DB_DSN_LOCAL='postgres://postgres:postgres@localhost/todos?sslmode=disable'
 SWAGGER_JSON='/docs/swagger.yaml'
 BASE_URL='/'

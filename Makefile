@@ -43,6 +43,7 @@ current_time = $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 git_description = $(shell git describe --always --dirty --tags --long)
 linker_flags = '-s -X main.buildTime=${current_time} -X main.version=${TODOS_BIN_VERSION}' 
 
+
 ## image/build/server: build the docker image for server
 .PHONY: image/build/server
 image/build/server:

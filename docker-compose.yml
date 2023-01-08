@@ -2,7 +2,7 @@ version: "3"
 services:
   server:
     volumes:
-        - /tmp/app:/var/log/app
+      - /tmp/app:/var/log/app
     ports:
       - "4000:4000"
     networks:
@@ -17,19 +17,9 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
-  config:
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD-SHELL", "psql $$TODOS_APP_DB_DSN -c SELECT * FROM tasks"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    depends_on:
-       - db
 networks:
   backend:

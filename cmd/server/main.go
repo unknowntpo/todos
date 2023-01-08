@@ -14,6 +14,7 @@ import (
 	"github.com/unknowntpo/todos/internal/logger"
 	"github.com/unknowntpo/todos/internal/logger/zerolog"
 	"github.com/unknowntpo/todos/internal/mailer"
+	"github.com/unknowntpo/todos/internal/testutil"
 	"github.com/unknowntpo/todos/pkg/naivepool"
 
 	_ "github.com/lib/pq"
@@ -52,6 +53,15 @@ func main() {
 		logger.PrintFatal(err, nil)
 	}
 	defer db.Close()
+
+	mig, err := testutil.NewPgMigrator(db)
+	if err != nil {
+		logger.PrintFatal(err, nil)
+	}
+
+	if err := mig.Up(); err != nil {
+		logger.PrintFatal(err, nil)
+	}
 
 	// Set up workerpool with max jobs and max workers.
 	// TODO: Do this in config.yml

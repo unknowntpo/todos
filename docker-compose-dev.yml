@@ -14,15 +14,6 @@ services:
     container_name: todos_dev-db
     env_file:
       - ./.envrc
-  config:
-    container_name: todos_dev-config
-    image: dev-config
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile
-      target: config
-    env_file:
-      - ./.envrc
 networks:
   backend:
     name: todos_dev-backend
