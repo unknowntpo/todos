@@ -8,7 +8,6 @@ services:
     networks:
       - backend
     depends_on:
-      - config
       - db
   db:
     image: postgres:13-alpine
